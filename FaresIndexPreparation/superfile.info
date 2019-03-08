@@ -1,0 +1,21 @@
+<class 'pandas.core.frame.DataFrame'>
+Int64Index: 33802796 entries, 0 to 33802795
+Data columns (total 16 columns):
+Carrier Profit Centre Code       category
+Origin Code                      category
+Destination Code                 category
+Route Code                       category
+Product Code                     category
+Product Level 1 Code             category
+Adjusted Earning Sterling (*)    float64
+Operating Journeys (*)           float64
+sector                           category
+ticket_type                      category
+class                            category
+orig                             category
+dest                             category
+route                            category
+Regulated_Status                 object
+Category                         category
+dtypes: category(13), float64(2), object(1)
+memory usage: 1.5+ GB

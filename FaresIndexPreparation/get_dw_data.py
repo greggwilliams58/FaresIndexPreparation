@@ -29,6 +29,8 @@ def main():
     #senddata(testdf)
     #senddata2()
 
+    getsql()
+
 def senddata2():
     engine = create_engine('mssql://AZORRDWSC01/ORR_DW?trusted_connection=yes')
 
@@ -64,15 +66,15 @@ def senddata(df):
                 ,[ordering of year & stats]
                 ,[value])
                 Values
-                (?,
+                (2,
                 'Published',
                 'London',
                 'Season',
                 1,
                 'January 2019',
                 20,
-                7.77) """,
-                str(['Load_ID']))
+                8.77) """
+                )
             
 
         cursor.commit()
@@ -152,7 +154,7 @@ def getsql():
 
     """
     #create MS SQL connection engine
-    engine = create_engine('SQL Connection string here')
+    engine = create_engine('mssql+pyodbc://Live_SQLadmin:OrrCube2014@AZORRDWSC01/ORR_DW?driver={SQL Server}')
     
     #create metadata object
     metadata = MetaData()
@@ -163,8 +165,8 @@ def getsql():
     #printlist of tables here
     print(engine.table_names())
 
-
-    FI = Table('[ORR_DW].[NETL].[factt_205_annual_Fares_Index_stat_release]',
+    FI = Table('dimt_date',
+  #  FI = Table('[ORR_DW].[NETL].[factt_205_annual_Fares_Index_stat_release]',
                metadata,#this variable holds the table metadata
                autoload=True,
                autoload_with=engine)
@@ -185,9 +187,10 @@ def getsql():
 
     results = connection.execute(query).fetchall()
     
+    print(metadata)
     #print out the resultset
-    for result in results:
-        print(result.Load_ID,result.Publication_status,result.Sector,result.'Ticket category',result.'ordering value of ticket category',result.'Year & state',result.'ordering of year & stats',result.value)
+    #for result in results:
+    #    print(result.Load_ID,result.Publication_status,result.Sector,result.'Ticket category',result.'ordering value of ticket category',result.'Year & state',result.'ordering of year & stats',result.value)
 
 
 if __name__ == '__main__':

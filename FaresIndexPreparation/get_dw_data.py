@@ -154,7 +154,7 @@ def getsql():
 
     """
     #create MS SQL connection engine
-    engine = create_engine('mssql+pyodbc://Live_SQLadmin:OrrCube2014@AZORRDWSC01/ORR_DW?driver={SQL Server}')
+    engine = create_engine('mssql+pyodbc://Live_SQLadmin:OrrCube2014@AZORRDWSC01/ORR_DW?Driver={SQL Server}')
     
     #create metadata object
     metadata = MetaData()

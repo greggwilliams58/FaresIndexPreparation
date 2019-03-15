@@ -94,14 +94,14 @@ def calc_weighted_average_price_change(df,superfile,grouping):
 
     avgpricechange = avgpricechange.to_frame()
     print("this is the avg price change")
-    #print(avgpricechange.info())
+    print(avgpricechange.info())
     summed_super_weights = summed_super_weights.to_frame()
     summed_avdnonadv_weights = summed_avdnonadv_weights.to_frame()
 
-    print(summed_super_weights.info())
-    print(summed_avdnonadv_weights.info())
+    #print(summed_super_weights.info())
+    #print(summed_avdnonadv_weights.info())
 
-    #print("this is the summed weights")
+    print("this is the summed weights")
     #print(summed_weights.info())
 
     #check that this produces the right output.... prefer to use pd.merge, if possible

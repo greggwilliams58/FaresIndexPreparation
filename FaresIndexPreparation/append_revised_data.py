@@ -45,11 +45,18 @@ def main():
     preparedsuperfile.sort_values(by=['sector','class','Category','Regulated_Status'],ascending=True,inplace=True)
 
 
-    answer = calc_weighted_average_price_change(advandnonadv,preparedsuperfile,['sector','class','Category','Regulated_Status'])
-    print(answer.info())
-    answer = answer.drop(answer[answer['Weightings_super'] == 0].index)
-    exportfile(answer,outputto,"answerfile")
+    answergrid = calc_weighted_average_price_change(advandnonadv,preparedsuperfile,['sector','class','Category','Regulated_Status'])
 
+    #change name of weighted_price_change
+    answergrid.rename(columns={answergrid.columns[0]:'weighted_price_change'},inplace=True)
+
+    #remove the group superweights where the sum is zero
+    answergrid = answergrid.drop(answergrid[answergrid['Weightings_super'] == 0].index)
+    exportfile(answergrid,outputto,"answerfile")
+
+    #calculate the answer of class and regulation
+    #avgpricechange = (df.groupby(['class','Regulated_Status'])['weighted_price_change','Weightings_super'].agg('sum'))/(df.groupby(grouping)['Weightings_advnonadv'].agg('sum'))
+    #need to create sum product function here.  weight_price_change * weightings_super, then sum the resulting products
 
 def appenddata(nonadvandadv):
     """

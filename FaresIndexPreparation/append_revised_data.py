@@ -52,7 +52,32 @@ def main():
 
     #remove the group superweights where the sum is zero
     answergrid = answergrid.drop(answergrid[answergrid['Weightings_super'] == 0].index)
+
+    #flatten the answergrid
+    answergrid.columns = [''.join(col).strip() for col in answergrid.columns.values]
+    answergrid = answergrid.reset_index()
+
+    
+    #print(answergrid.info())
+    #exportfile(answergrid,outputto,"answerfile")
+
+    #wpc * superweightings
+    answergrid['wpc_and_weights'] = answergrid['weighted_price_change'] * answergrid['Weightings_super']
+    print("this is the answergrid\n")
+    print(answergrid.info())
     exportfile(answergrid,outputto,"answerfile")
+
+    #final answer for T1.8: sector and ticket type
+    finalanswerT1_8 = answergrid.groupby(['sector','class','Category'])['wpc_and_weights'].agg('sum') / answergrid.groupby(['sector','class','Category'])['Weightings_super'].agg('sum')
+    
+    #finalanswerT1_8 = answergrid['wpc_and_weights'].groupby(answergrid['sector','Category']).agg('sum') / answergrid['Weightings_super'].groupby(answergrid['sector','Category']).agg('sum')
+
+    #final answer for T1.81: sector, class and regulated status
+    #finalanswerT1_81 = answergrid['weighted_price_change'] * answergrid['Weightings_super'].groupby(answergrid[['sector','class','Regulated_Status']]).agg('sum')/ answergrid['Weightings_super'].groupby(answergrid[['sector','class','Regulated_Status']]).agg('sum')
+
+    exportfile(finalanswerT1_8,outputto,'T1_8')
+    #exportfile(finalanswerT1_81,outputto,'T1_81')
+
 
     #calculate the answer of class and regulation
     #avgpricechange = (df.groupby(['class','Regulated_Status'])['weighted_price_change','Weightings_super'].agg('sum'))/(df.groupby(grouping)['Weightings_advnonadv'].agg('sum'))
@@ -87,25 +112,28 @@ def appenddata(nonadvandadv):
 
     print("calculate factor\n")
     advanced_and_non_advanced.loc[:,'factor'] = advanced_and_non_advanced['Weightings'] * advanced_and_non_advanced['percentage_change']
-    print(advanced_and_non_advanced.info())
+    #print(advanced_and_non_advanced.info())
     
     #drop unnecessary columns
     columnstodel = ['Unnamed: 0','Carrier Profit Centre Code','Origin Code','ticket_type','Destination Code','Route Code','Product Code','Product Level 1 Code','Operating Journeys (*)','FARES_2017','FARES_2018']
+    print("dropping columns")
     advanced_and_non_advanced.drop(columnstodel,axis=1,inplace=True)
 
-    advanced_and_non_advanced_filtered = advanced_and_non_advanced.copy()
+    print("filtering data")
+    advanced_and_non_advanced_to_be_filtered = advanced_and_non_advanced.copy()
      #apply filter for upper and lower percentage changes
-    advanced_and_non_advanced_filtered = advanced_and_non_advanced.query('percentage_change > -20 and percentage_change < 20')
+    advanced_and_non_advanced_filtered = advanced_and_non_advanced_to_be_filtered.query('percentage_change > -20 and percentage_change < 20')
 
     #rename weightings column
-    advanced_and_non_advanced_filtered.rename(columns={'Weightings':'Weightings_advnonadv'},inplace=True)
+    print("rename columns")
+    advanced_and_non_advanced_filtered_renamed = advanced_and_non_advanced_filtered.rename(columns={'Weightings':'Weightings_advnonadv'})
 
-
+    print("change order of columns")
     #change order of columns to match combined data
-    advanced_and_non_advanced_filtered = advanced_and_non_advanced_filtered[['sector',	'class',	'Category',	'Regulated_Status','Weightings_advnonadv','factor']]
+    advanced_and_non_advanced_reordered = advanced_and_non_advanced_filtered_renamed[['sector',	'class',	'Category',	'Regulated_Status','Weightings_advnonadv','factor']]
 
 
-    return advanced_and_non_advanced_filtered 
+    return advanced_and_non_advanced_reordered 
 
 
 def preparesuperfile(superfile):

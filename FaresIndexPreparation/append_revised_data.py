@@ -68,7 +68,7 @@ def main():
     exportfile(answergrid,outputto,"answerfile")
 
     #final answer for T1.8: sector and ticket type
-    finalanswerT1_8 = answergrid.groupby(['sector','class','Category'])['wpc_and_weights'].agg('sum') / answergrid.groupby(['sector','class','Category'])['Weightings_super'].agg('sum')
+    finalanswerT1_8 = answergrid.groupby(['sector','class'])['wpc_and_weights'].agg('sum') / answergrid.groupby(['sector','class'])['Weightings_super'].agg('sum')
     
     #finalanswerT1_8 = answergrid['wpc_and_weights'].groupby(answergrid['sector','Category']).agg('sum') / answergrid['Weightings_super'].groupby(answergrid['sector','Category']).agg('sum')
 

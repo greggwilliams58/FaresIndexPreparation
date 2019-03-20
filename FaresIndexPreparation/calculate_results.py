@@ -3,6 +3,12 @@ from commonfunctions import handlezeroandnulls,percentagechange, exportfile
 import pandas as pd
 import numpy as np
 
+
+def calc_final(df, grouping):
+    answer = df.groupby(grouping)['wpc_and_weights'].agg('sum') / df.groupby(grouping)['Weightings_super'].agg('sum')
+    return answer
+
+
 def calculate_endresults(advnonadv,sfile,uandlbands=[-20,20]):
     """
     This function takes the combined data of advanced and non-advanced and then calculates a factor of weights*percentage change

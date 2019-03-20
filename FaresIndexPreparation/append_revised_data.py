@@ -1,7 +1,7 @@
 import pandas as pd
 from commonfunctions import applydatatypes, exportfile
 #from export_data import exportfile
-from calculate_results import calc_weighted_average_price_change
+from calculate_results import calc_weighted_average_price_change, calc_final
 
 def main():
 
@@ -31,14 +31,14 @@ def main():
 
     print("preparing the superfile...\n")
     preparedsuperfile = preparesuperfile(rawsuperfile)
-    exportfile(preparedsuperfile,outputto,"preparedsuperfile")
+    #exportfile(preparedsuperfile,outputto,"preparedsuperfile")
     print("data joined.  showing metadata\n")
      
     #print(f"The datatype for the list of df is {type([advanceddata,nonadvanceddata])}\n")
     #print(f"The datatype for the preparedsuperfile is {type(preparedsuperfile)}\n")
 
     advandnonadv = appenddata([advanceddata,nonadvanceddata])
-    exportfile(advandnonadv,outputto,'preparedadvandnonadv')
+    #exportfile(advandnonadv,outputto,'preparedadvandnonadv')
 
     
     advandnonadv.sort_values(by=['sector','class','Category','Regulated_Status'],ascending=True,inplace=True)
@@ -69,14 +69,29 @@ def main():
 
     #final answer for T1.8: sector and ticket type
     #this is a good candidate for turning into a function with 'grouping' to replace 'sector','class' for the various numbers needed
-    finalanswerT1_8 = answergrid.groupby(['sector','class'])['wpc_and_weights'].agg('sum') / answergrid.groupby(['sector','class'])['Weightings_super'].agg('sum')
+    #finalanswerT1_8 = answergrid.groupby(['sector','class'])['wpc_and_weights'].agg('sum') / answergrid.groupby(['sector','class'])['Weightings_super'].agg('sum')
     
-    #finalanswerT1_8 = answergrid['wpc_and_weights'].groupby(answergrid['sector','Category']).agg('sum') / answergrid['Weightings_super'].groupby(answergrid['sector','Category']).agg('sum')
+    sectorsplit = calc_final(answergrid,['sector'])
+    classsplit = calc_final(answergrid,['class'])
+    sectorclasssplit = calc_final(answergrid,['sector','class'])
+    regulatedstatussplit = calc_final(answergrid,['Regulated_Status'])
+    categorysplit = calc_final(answergrid,['Category'])
+    sectorcategorysplit = calc_final(answergrid,['sector','Category'])
+    sectorclassregulatedstatus = calc_final(answergrid,['sector','class','Regulated_Status'])
+    classregulatedstatus = calc_final(answergrid, ['class','Regulated_Status'])
 
-    #final answer for T1.81: sector, class and regulated status
-    #finalanswerT1_81 = answergrid['weighted_price_change'] * answergrid['Weightings_super'].groupby(answergrid[['sector','class','Regulated_Status']]).agg('sum')/ answergrid['Weightings_super'].groupby(answergrid[['sector','class','Regulated_Status']]).agg('sum')
+   
+    exportfile(sectorsplit,outputto,'sector')
+    exportfile(classsplit,outputto,'class')
+    exportfile(sectorclasssplit,outputto,'sectorclass')
+    exportfile(regulatedstatussplit,outputto,'regulated_status')
+    exportfile(categorysplit,outputto,'category')
+    exportfile(sectorcategorysplit,outputto,'sectorcategory')
+    exportfile(sectorclassregulatedstatus,outputto,'sectorclassregulatedstatus')
+    exportfile(classregulatedstatus,outputto,'classregulatedstatus')
 
-    exportfile(finalanswerT1_8,outputto,'T1_8')
+
+
     #exportfile(finalanswerT1_81,outputto,'T1_81')
 
 

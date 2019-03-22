@@ -64,31 +64,38 @@ def main():
     #wpc * superweightings
     answergrid['wpc_and_weights'] = answergrid['weighted_price_change'] * answergrid['Weightings_super']
     print("this is the answergrid\n")
-    print(answergrid.info())
+    #print(answergrid.info())
     exportfile(answergrid,outputto,"answerfile")
 
     #final answer for T1.8: sector and ticket type
     #this is a good candidate for turning into a function with 'grouping' to replace 'sector','class' for the various numbers needed
     #finalanswerT1_8 = answergrid.groupby(['sector','class'])['wpc_and_weights'].agg('sum') / answergrid.groupby(['sector','class'])['Weightings_super'].agg('sum')
     
-    sectorsplit = calc_final(answergrid,['sector'])
-    classsplit = calc_final(answergrid,['class'])
-    sectorclasssplit = calc_final(answergrid,['sector','class'])
-    regulatedstatussplit = calc_final(answergrid,['Regulated_Status'])
-    categorysplit = calc_final(answergrid,['Category'])
-    sectorcategorysplit = calc_final(answergrid,['sector','Category'])
-    sectorclassregulatedstatus = calc_final(answergrid,['sector','class','Regulated_Status'])
-    classregulatedstatus = calc_final(answergrid, ['class','Regulated_Status'])
+    sectorsplit = calc_final(answergrid,['sector'],'sector')
+    classsplit = calc_final(answergrid,['class'],'class')
+    sectorclasssplit = calc_final(answergrid,['sector','class'],'sector and class')
+    regulatedstatussplit = calc_final(answergrid,['Regulated_Status'],'regulation')
+    categorysplit = calc_final(answergrid,['Category'],'category')
+    sectorcategorysplit = calc_final(answergrid,['sector','Category'],'sector and category')
+    sectorclassregulatedstatus = calc_final(answergrid,['sector','class','Regulated_Status'],'sector, class and regulation')
+    classregulatedstatus = calc_final(answergrid, ['class','Regulated_Status'],'class and regulation')
 
+
+    combined = pd.concat([sectorsplit,classsplit,sectorclasssplit,regulatedstatussplit,categorysplit,sectorcategorysplit,sectorclassregulatedstatus,classregulatedstatus])
+    #combined_df = combined.to_frame()
+    #print(type(combined_df))
+
+
+    exportfile(combined,outputto,"combined")
    
-    exportfile(sectorsplit,outputto,'sector')
-    exportfile(classsplit,outputto,'class')
-    exportfile(sectorclasssplit,outputto,'sectorclass')
-    exportfile(regulatedstatussplit,outputto,'regulated_status')
-    exportfile(categorysplit,outputto,'category')
-    exportfile(sectorcategorysplit,outputto,'sectorcategory')
-    exportfile(sectorclassregulatedstatus,outputto,'sectorclassregulatedstatus')
-    exportfile(classregulatedstatus,outputto,'classregulatedstatus')
+    #exportfile(sectorsplit,outputto,'sector')
+    #exportfile(classsplit,outputto,'class')
+    #exportfile(sectorclasssplit,outputto,'sectorclass')
+    #exportfile(regulatedstatussplit,outputto,'regulated_status')
+    #exportfile(categorysplit,outputto,'category')
+    #exportfile(sectorcategorysplit,outputto,'sectorcategory')
+    #exportfile(sectorclassregulatedstatus,outputto,'sectorclassregulatedstatus')
+    #exportfile(classregulatedstatus,outputto,'classregulatedstatus')
 
 
 

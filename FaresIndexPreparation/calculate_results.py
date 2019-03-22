@@ -4,9 +4,14 @@ import pandas as pd
 import numpy as np
 
 
-def calc_final(df, grouping):
+def calc_final(df, grouping,nameofsplit):
     answer = df.groupby(grouping)['wpc_and_weights'].agg('sum') / df.groupby(grouping)['Weightings_super'].agg('sum')
-    return answer
+    answer_df = answer.to_frame()
+    answer_df.insert(0,'split_name',value = nameofsplit)
+    
+    #print(type(answer))
+    #print(answer.info())
+    return answer_df
 
 
 def calculate_endresults(advnonadv,sfile,uandlbands=[-20,20]):

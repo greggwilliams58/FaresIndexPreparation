@@ -2,7 +2,8 @@ from lennon_data import get_lennon_price_info,add_lennon_fares_info
 #from export_data import exportfile
 import pandas as pd
 from commonfunctions import handlezeroandnulls, percentagechange, exportfile
-from calculate_non_advanced_stats import calc_weighted_average_price_change
+#from calculate_non_advanced_stats import calc_weighted_average_price_change
+from calculate_results import calc_weighted_average_price_change
 
 
 def advanced_data(df,destinationpath,LENNONfarespath): 

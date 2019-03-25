@@ -25,7 +25,7 @@ def main():
 
     # the calculation of the root 'superfile'
     superfile = generatedata(originpath,destinationpath,regulatedfarespath,categorypath)
-    #print(superfile.info())
+    
 
     ##copies of superfile, so superfile remains unamended for the various other functions
     superfileforadvanced = superfile.copy()
@@ -45,12 +45,12 @@ def main():
     exportfile(nonadvanced,destinationpath,'nonadvancedfile_noavantix')
     
     ##place holder for appending 
-    ##all_data = append_revised_data(advanced,nonadvanced)
+    ##finaldataset = append_revised_data(advanced,nonadvanced,superfileforweights)
 
     ##upperandlowerbands[[-20,20],[-15,15],[-10,10],[-5,10]]
 
     ##place holder for end calculation
-    ##calculate_endresults(all_data,superfileforweights,upperandlowerbands)
+    ##calculate_endresults(finaldataset,superfileforweights)
 
 
 if __name__ == '__main__':

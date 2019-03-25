@@ -3,8 +3,10 @@ from commonfunctions import applydatatypes, exportfile
 #from export_data import exportfile
 from calculate_results import calc_weighted_average_price_change, calc_final
 
-def main():
 
+
+def main():
+    #substitute for proper parameters in a function
     filelocation = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\advanced_and_non_advanced_output\\'
     outputto = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\advanced_and_non_advanced_output\\adv_non_advanced_and_superfile\\'
 
@@ -22,29 +24,29 @@ def main():
                                       'Product Code':'category','Product Level 1 Code':'category','class':'category','sector':'category'})
 
     #exportfile(nonadvanceddata.info(),filelocation,"non_advanced_metadata")
-    
     print("getting superfile for weights")
     rawsuperfile = pd.read_csv(filelocation + 'rawsuperfile_20190306_11-01.csv',
                                dtype={'Carrier Profit Centre Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
                                       'Product Code':'category','Product Level 1 Code':'category','class':'category','sector':'category','ticket_type':'category'}
                                )
+    ### preparatory work for function signature
+    ### appenddata(advanceddata,nonadvanceddata,rawsuperfile)
 
     print("preparing the superfile...\n")
     preparedsuperfile = preparesuperfile(rawsuperfile)
     #exportfile(preparedsuperfile,outputto,"preparedsuperfile")
     print("data joined.  showing metadata\n")
      
-    #print(f"The datatype for the list of df is {type([advanceddata,nonadvanceddata])}\n")
-    #print(f"The datatype for the preparedsuperfile is {type(preparedsuperfile)}\n")
-
     advandnonadv = appenddata([advanceddata,nonadvanceddata])
     #exportfile(advandnonadv,outputto,'preparedadvandnonadv')
 
-    
     advandnonadv.sort_values(by=['sector','class','Category','Regulated_Status'],ascending=True,inplace=True)
     preparedsuperfile.sort_values(by=['sector','class','Category','Regulated_Status'],ascending=True,inplace=True)
 
+    ####return(advandnonadv,preparedsuperfile)
 
+
+    ### move to calculate result from here to end
     answergrid = calc_weighted_average_price_change(advandnonadv,preparedsuperfile,['sector','class','Category','Regulated_Status'])
 
     #change name of weighted_price_change
@@ -57,19 +59,12 @@ def main():
     answergrid.columns = [''.join(col).strip() for col in answergrid.columns.values]
     answergrid = answergrid.reset_index()
 
-    
-    #print(answergrid.info())
-    #exportfile(answergrid,outputto,"answerfile")
-
     #wpc * superweightings
     answergrid['wpc_and_weights'] = answergrid['weighted_price_change'] * answergrid['Weightings_super']
     print("this is the answergrid\n")
     #print(answergrid.info())
     exportfile(answergrid,outputto,"answerfile")
 
-    #final answer for T1.8: sector and ticket type
-    #this is a good candidate for turning into a function with 'grouping' to replace 'sector','class' for the various numbers needed
-    #finalanswerT1_8 = answergrid.groupby(['sector','class'])['wpc_and_weights'].agg('sum') / answergrid.groupby(['sector','class'])['Weightings_super'].agg('sum')
     
     sectorsplit = calc_final(answergrid,['sector'],'sector')
     classsplit = calc_final(answergrid,['class'],'class')
@@ -88,23 +83,7 @@ def main():
 
     exportfile(combined,outputto,"combined")
    
-    #exportfile(sectorsplit,outputto,'sector')
-    #exportfile(classsplit,outputto,'class')
-    #exportfile(sectorclasssplit,outputto,'sectorclass')
-    #exportfile(regulatedstatussplit,outputto,'regulated_status')
-    #exportfile(categorysplit,outputto,'category')
-    #exportfile(sectorcategorysplit,outputto,'sectorcategory')
-    #exportfile(sectorclassregulatedstatus,outputto,'sectorclassregulatedstatus')
-    #exportfile(classregulatedstatus,outputto,'classregulatedstatus')
 
-
-
-    #exportfile(finalanswerT1_81,outputto,'T1_81')
-
-
-    #calculate the answer of class and regulation
-    #avgpricechange = (df.groupby(['class','Regulated_Status'])['weighted_price_change','Weightings_super'].agg('sum'))/(df.groupby(grouping)['Weightings_advnonadv'].agg('sum'))
-    #need to create sum product function here.  weight_price_change * weightings_super, then sum the resulting products
 
 def appenddata(nonadvandadv):
     """
@@ -118,11 +97,6 @@ def appenddata(nonadvandadv):
     sourcedata      - a dataframe with appended data
     """
     fileoutputpath ='C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\advanced_and_non_advanced_output\\adv_non_advanced_and_superfile\\'
-    #add flag for datasource
-    #print("adding flag for advanced and nonadvanced datasets\n")
-    #df[0].loc[:,'source'] = 'advanced data'
-    #df[1].loc[:,'source'] = 'nonadvanced data'
-
     
     print("About to combine advanced and non-advanced data\n")
     advanced_and_non_advanced = pd.concat(nonadvandadv,ignore_index=True, sort=False)

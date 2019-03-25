@@ -25,7 +25,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FaresIndexPreparation\append_revised_data.py" />
-    <Compile Include="FaresIndexPreparation\calculate advanced stats.py" />
     <Compile Include="FaresIndexPreparation\calculate_non_advanced_stats.py" />
     <Compile Include="FaresIndexPreparation\calculate_results.py" />
     <Compile Include="FaresIndexPreparation\commonfunctions.py" />

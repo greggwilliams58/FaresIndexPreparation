@@ -98,23 +98,23 @@ def getsourcefile(path,filename):
     return populateddata
 
 
-def calc_weighted_average_price_change(df,grouping,weighting,status):
-    """
-    This function sums the factor column and then divides the result by all weights.  It also prints a status message to console.
+#def calc_weighted_average_price_change(df,grouping,weighting,status):
+#    """
+#    This function sums the factor column and then divides the result by all weights.  It also prints a status message to console.
 
-    Parameters:
-    df              - A dataframe containing the global dataset
-    grouping        - A string representing the column to group the data by
-    weighting       - A int64 representing the sum of all weights
-    status          - A string representing the status of the global data
+#    Parameters:
+#    df              - A dataframe containing the global dataset
+#    grouping        - A string representing the column to group the data by
+#    weighting       - A int64 representing the sum of all weights
+#    status          - A string representing the status of the global data
 
-    Returns:
-    avgpricechange  - A dataframe containing results of calculation
-    """
+#    Returns:
+#    avgpricechange  - A dataframe containing results of calculation
+#    """
     
-    print(f"\nThese are {grouping} splits by {status}")
-    avgpricechange = (df.groupby(grouping)['factor'].agg('sum'))/(df.groupby(grouping)['Weightings'].agg('sum'))
-    return avgpricechange
+#    print(f"\nThese are {grouping} splits by {status}")
+#    avgpricechange = (df.groupby(grouping)['factor'].agg('sum'))/(df.groupby(grouping)['Weightings'].agg('sum'))
+#    return avgpricechange
 
 
 if __name__  == '__main__':

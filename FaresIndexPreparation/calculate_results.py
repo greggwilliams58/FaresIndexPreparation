@@ -14,7 +14,7 @@ def calc_final(df, grouping,nameofsplit):
     return answer_df
 
 
-def calculate_endresults(advnonadv,sfile,uandlbands=[-20,20]):
+def calculate_endresults(advandnonadv,preparedsuperfile):
     """
     This function takes the combined data of advanced and non-advanced and then calculates a factor of weights*percentage change
     zero and nulls are handeled and percentage change is calculated
@@ -27,54 +27,41 @@ def calculate_endresults(advnonadv,sfile,uandlbands=[-20,20]):
     sfile       - a dataframe containing the superfile dataset
     """
     
-    #df = handlezeroandnulls(df)
+    answergrid = calc_weighted_average_price_change(advandnonadv,preparedsuperfile,['sector','class','Category','Regulated_Status'])
 
-    #df = percentagechange(df,'FARES_2018','FARES_2017')
-        
-    #multiplication of weights by percentage_change
-    #df.loc[:,'factor'] = df['Weightings']*df['percentage_change']
+    #change name of weighted_price_change
+    answergrid.rename(columns={answergrid.columns[0]:'weighted_price_change'},inplace=True)
 
+    #remove the group superweights where the sum is zero
+    answergrid = answergrid.drop(answergrid[answergrid['Weightings_super'] == 0].index)
 
-    #advanced = df[df['source']=='advanced data']
-    #nonadvanced = df[df['source']== 'nonadvanced data']
-    #all = df.copy()
+    #flatten the answergrid
+    answergrid.columns = [''.join(col).strip() for col in answergrid.columns.values]
+    answergrid = answergrid.reset_index()
 
-    #data = {'advanced_data':advanced, 'nonadvanced_data':nonadvanced,'all_data':all}
-    #exportfile(all,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\','all_raw_data')
+    #wpc * superweightings
+    answergrid['wpc_and_weights'] = answergrid['weighted_price_change'] * answergrid['Weightings_super']
+    print("this is the answergrid\n")
+    #print(answergrid.info())
+    exportfile(answergrid,outputto,"answerfile")
 
-
-    #for key,value in data.items():
-        #sum of all weights
-        #filterupper and lower bands
-            #for each lower and upper bound This needs to be added here
-    #df.query('percentage_change > -20 and percentage_change < 20')
-    #change weighting source from superfile....
-    #
-            
-    #print(f"All weights in {key} are {allweights}\n")
-
-        
-    print(calc_weighted_average_price_change(advnonadv,sfile,['sector'],'all'))
-    print("\n")
-    print(calc_weighted_average_price_change(advnonadv,sfile,['class'],'all'))
-    print("\n")
-    print(calc_weighted_average_price_change(advnonadv,sfile,['Regulated_Status'],'all'))
-    missingstatusrevenue = df.loc[datum['Regulated_Status']=='not assigned','Weightings'].sum()
-    print(f"The value of missing status revenue in {key} is £{'{:,}'.format(int(missingstatusrevenue))}")
-
-    #supersplit = calc_weighted_average_price_change(advnonadv,['sector','class','Regulated_Status'],allweights,'supersplit',key)
-    #print(f"The supersplit in {key} is {supersplit}")
-
-    print("\n")
-    print(calc_weighted_average_price_change(advnonadv,sfile,['Category'],allweights,'all',key))
-    missingcategoryrevenue = validdata.loc[advnonadv['Category']=='Missing','Weightings'].sum()
-    print(f"The value of missing revenue in {key} is £{'{:,}'.format(int(missingcategoryrevenue))}") 
-    print("\n")
     
-    avgpricechange = advnonadv['factor'].agg('sum')/advnonadv['Weightings'].agg('sum')
-    print(f"The average overall {key} price change is {avgpricechange}") 
+    sectorsplit = calc_final(answergrid,['sector'],'sector')
+    classsplit = calc_final(answergrid,['class'],'class')
+    sectorclasssplit = calc_final(answergrid,['sector','class'],'sector and class')
+    regulatedstatussplit = calc_final(answergrid,['Regulated_Status'],'regulation')
+    categorysplit = calc_final(answergrid,['Category'],'category')
+    sectorcategorysplit = calc_final(answergrid,['sector','Category'],'sector and category')
+    sectorclassregulatedstatus = calc_final(answergrid,['sector','class','Regulated_Status'],'sector, class and regulation')
+    classregulatedstatus = calc_final(answergrid, ['class','Regulated_Status'],'class and regulation')
 
-    exportfile(advnonadv,filepath,f'{key}')
+
+    combined = pd.concat([sectorsplit,classsplit,sectorclasssplit,regulatedstatussplit,categorysplit,sectorcategorysplit,sectorclassregulatedstatus,classregulatedstatus])
+    #combined_df = combined.to_frame()
+    #print(type(combined_df))
+
+
+    exportfile(combined,outputto,"combined")
 
 
 
@@ -120,24 +107,3 @@ def calc_weighted_average_price_change(df,superfile,grouping):
 
     
     return avgpricechange
-
-# moved to common functions
-#def handlezeroandnulls(df):
-#    #replace the 'inf' and '-inf' value with NAN
-#    df.replace([np.inf, -np.inf],np.nan,inplace=True)   
-
-#    #replace the zeros in fares2017 and fares2018 with NAN
-#    df.replace({'FARES_2017':0,'FARES_2018':0},np.nan,inplace=True)
-    
-#    #drop the rows where FARES are NAN
-#    df.dropna(axis='index',subset=['FARES_2017','FARES_2018'],how='any',inplace=True)
-
-#    return df
-
-
-#def percentagechange(df,col1,col2):
-#    #calculate percentage change for each row
-#    print("Adding percentage change info\n")
-#    df.loc[:,'percentage_change'] = (((df.loc[:,col1]-df.loc[:,col2])/df.loc[:,col2])*100).copy()
-
-#    return df

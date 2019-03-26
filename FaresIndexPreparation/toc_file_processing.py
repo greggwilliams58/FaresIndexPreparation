@@ -77,7 +77,8 @@ def generatedata(originpath,destinationpath,regulatedfarespath,categorypath):
 
 def getdata(originfilepath):
     """
-    This procedure reads in a series of csv files into a dataframe, using the glob method
+    This procedure reads in a series of csv files into a dataframe, using the glob method.
+    It also removes currency and spacing commas and adds trailing zeros to key lookupfields
 
     Parameter:
     originfilepath     - a string containing the filepath where the files are stored
@@ -94,7 +95,7 @@ def getdata(originfilepath):
     print(f"reading in CSV files from {originfilepath}\n\n")
 
     dataframes = []
-    dtypedictionary = {'Carrier TOC / Third Party Code':str, 'Carrier Sub Division Code':str, 'Destination Code':str, 'Route Code':str, 'Product Code':str,'Product Primary Code':str,'Adjusted Earnings Amount':str,'Operating Journeys':str}
+    dtypedictionary = {'Carrier TOC / Third Party Code':str,'Origin Code':str, 'Carrier Sub Division Code':str, 'Destination Code':str, 'Route Code':str, 'Product Code':str,'Product Primary Code':str,'Adjusted Earnings Amount':str,'Operating Journeys':str}
     for count, file in enumerate(filepathsandnames,1):
         print(f"Loading {os.path.basename(file)} into memory.")
         print(f"That's {count} out of {numberoffiles}, or {str(int((count/numberoffiles)*100))} percent loaded.\n")
@@ -109,12 +110,11 @@ def getdata(originfilepath):
         temp['Adjusted Earnings Amount'] = temp['Adjusted Earnings Amount'].astype(float)
         temp['Operating Journeys'] = temp['Operating Journeys'].astype(float)
 
-        #add trailing zeros for later LENNON lookups
+        #add trailing zeros for later LENNON lookups: Nisha Nair to correct missing "origin code" data
         temp['Destination Code'] = temp['Destination Code'].str.zfill(4)
         temp['Route Code'] = temp['Route Code'].str.zfill(5)
+        temp['Origin Code'] = temp['Origin Code'].str.zfill(4)
 
-
-        print(temp.info())
         dataframes.append(temp)
 
     #elegant but sadly redundant

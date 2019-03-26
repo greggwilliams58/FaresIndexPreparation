@@ -112,7 +112,7 @@ def non_advanced_data(df,destinationpath,RDGfarespath,LENNONfarespath):
 
     #export of file where both fares are populated with non-zero figures
     #this below duplicates what's in main as export non-adv avantix data
-    exportfile(coredata,destinationpath,'non-advanced_populated_file')
+    #exportfile(coredata,destinationpath,'non-advanced_populated_file')
     exportfile(bigchange.sort_values('Weightings', ascending=False),destinationpath,'big_change_file')
     exportfile(littlechange.sort_values('Weightings', ascending=False), destinationpath,'little_change_file')
     exportfile(bigearners.sort_values('Weightings', ascending=False),destinationpath,'big_earners_file')
@@ -128,8 +128,6 @@ def datatypinganddropping(df):
     del df['route']
     del df['LENNON_PRICE_2017']
     del df['LENNON_PRICE_2018']
-    #del df['RDG_Fares ticket type description_2017']
-    #del df['RDG_Fares ticket type description_2018']
     
     #apply datatyping to the four key fields
     df = applydatatypes(df,['Origin Code','Destination Code','Route Code','Product Code'])

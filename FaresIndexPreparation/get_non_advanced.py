@@ -58,7 +58,13 @@ def non_advanced_data(df,destinationpath,RDGfarespath,LENNONfarespath):
     #exportfile(df,destinationpath,'non_advanced_data_after_RDG')
 
     #datatyping
+    df['Origin Code'] = df['Origin Code'].str.zfill(4)
+    df['Destination Code'] = df['Destination Code'].str.zfill(4)
+    df['Route Code'] = df['Route Code'].str.zfill(5)
+
     df = applydatatypes(df,['Regulated_Status'])
+    
+    
     #print("converting RDG fares to numeric - line 56")
     df[['RDG_FARES_2017','RDG_FARES_2018']] = df[['RDG_FARES_2017','RDG_FARES_2018']].apply(pd.to_numeric)
     
@@ -81,7 +87,7 @@ def non_advanced_data(df,destinationpath,RDGfarespath,LENNONfarespath):
     df = datatypinganddropping(df)
     
     # rename the RDG Fares Columns, Earnings and axis
-    df.rename(columns={'RDG_FARES_2017':'FARES_2017','RDG_FARES_2018':'FARES_2018','Adjusted Earning Sterling (*)':'Weightings'},inplace=True)
+    df.rename(columns={'RDG_FARES_2017':'FARES_2017','RDG_FARES_2018':'FARES_2018','Adjusted Earnings Amount':'Weightings'},inplace=True)
     df.rename_axis('index')
 
     #export of full file

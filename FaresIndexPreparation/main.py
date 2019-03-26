@@ -4,7 +4,7 @@ from get_advanced import advanced_data
 from commonfunctions import exportfile
 from calculate_non_advanced_stats import main
 from lennon_data import get_lennon_price_info,add_lennon_fares_info
-from calculate_results import calculate_endresults
+from calculate_results import calculate_endresults 
 
 def main():
     #token change
@@ -32,8 +32,8 @@ def main():
     superfilefornonadvanced = superfile.copy()
     superfileforweights = superfile.copy()
     superfileforrailfinance = superfile.copy()
-    #print("the superfile is coming....\n")
-    #exportfile(superfile,destinationpath,'superfile')
+    print("the superfile is coming....\n")
+    exportfile(superfile,destinationpath,'superfile')
 
     #print("the advanced data is coming.... main\n")
     advanced = advanced_data(superfileforadvanced,destinationpath,LENNONadvancedfarepath)

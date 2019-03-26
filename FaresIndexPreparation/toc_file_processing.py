@@ -30,21 +30,24 @@ def generatedata(originpath,destinationpath,regulatedfarespath,categorypath):
         print("If this happens, restart the computer, then close down IE, Outlook and any other memory/resource hungry applications and try again.\n")
 
     #populate Null values for Carrier Profit Centres
-    superfile = populatenullprofitcentres(joinedfile)
-    
+    #superfile = populatenullprofitcentres(joinedfile)
+    #drop the carrier subdivision code here
+
+    superfile = joinedfile.copy()
+
     #fields to convert to categorical data type
-    superfile = applydatatypes(superfile,['Carrier Profit Centre Code','Product Code','Product Level 1 Code'])
+    superfile = applydatatypes(superfile,['Carrier TOC / Third Party Code','Product Code','Product Primary Code'])
 
     #mapping of lookups starts here
     #mapping of sectors
     sector_mapping = {'EK':'Lon SE','HO':'Lon SE','HQ':'Lon SE','HS':'Lon SE','HT':'Lon SE','HU':'Lon SE','HW':'Lon SE','HY':'Lon SE','HZ':'Lon SE','EX':'Lon SE',
                         'EA':'Regional','EI':'Regional','EJ':'Regional','HA':'Regional','HC':'Regional','HD':'Regional','HE':'Regional','HL':'Regional','ES':'Regional',
                         'EC':'Long D','EH':'Long D','HB':'Long D','HF':'Long D','HI':'Long D','HK':'Long D','HM':'Long D'}
-    superfile = assignlookupvalues(superfile,'sectors', sector_mapping, "Carrier Profit Centre Code",  'sector' ,destinationpath)
+    superfile = assignlookupvalues(superfile,'sectors', sector_mapping, "Carrier TOC / Third Party Code",  'sector' ,destinationpath)
 
     #mapping of tickettypes
     tickettypemapping = {'PG01':'Full','PG05':'Full','PG02':'Reduced','PG03':'Reduced','PG06':'Reduced','PG07':'Reduced','PG04':'Season','PG08':'Season'}
-    superfile = assignlookupvalues(superfile,'ticket_type',tickettypemapping,"Product Level 1 Code",'ticket_type',destinationpath,'Other')
+    superfile = assignlookupvalues(superfile,'ticket_type',tickettypemapping,"Product Primary Code",'ticket_type',destinationpath,'Other')
     
     #mapping of ticketclasses
     classmapping = {'1':'1', '2':'2','9':'2'}
@@ -91,12 +94,27 @@ def getdata(originfilepath):
     print(f"reading in CSV files from {originfilepath}\n\n")
 
     dataframes = []
-    dtypedictionary = {'Route Code':str}
+    dtypedictionary = {'Carrier TOC / Third Party Code':str, 'Carrier Sub Division Code':str, 'Destination Code':str, 'Route Code':str, 'Product Code':str,'Product Primary Code':str,'Adjusted Earnings Amount':str,'Operating Journeys':str}
     for count, file in enumerate(filepathsandnames,1):
         print(f"Loading {os.path.basename(file)} into memory.")
         print(f"That's {count} out of {numberoffiles}, or {str(int((count/numberoffiles)*100))} percent loaded.\n")
-        temp = pd.read_csv(file,dtype=dtypedictionary)
+        temp = pd.read_csv(file,dtype=dtypedictionary,encoding='Windows-1252')
+        
+        #remove currency markers and 1000 markers from each toc file
+        temp['Adjusted Earnings Amount'] = temp['Adjusted Earnings Amount'].str.replace(',','')
+        temp['Adjusted Earnings Amount'] = temp['Adjusted Earnings Amount'].str.replace('£','')
+        temp['Operating Journeys'] = temp['Operating Journeys'].str.replace(',','')
+        temp['Operating Journeys'] = temp['Operating Journeys'].str.replace('£','')
 
+        temp['Adjusted Earnings Amount'] = temp['Adjusted Earnings Amount'].astype(float)
+        temp['Operating Journeys'] = temp['Operating Journeys'].astype(float)
+
+        #add trailing zeros for later LENNON lookups
+        temp['Destination Code'] = temp['Destination Code'].str.zfill(4)
+        temp['Route Code'] = temp['Route Code'].str.zfill(5)
+
+
+        print(temp.info())
         dataframes.append(temp)
 
     #elegant but sadly redundant
@@ -107,7 +125,7 @@ def getdata(originfilepath):
 def combinefiles(toc_list,file_count):
     """
     This procedure take a list of dataframe and combines them into a single dataframe, with a new index
-    It also populates 'Carrier Profit Centre Code' where NULL with first two characters of the 'Carrier Subdivision Code' fields, then deletes the latter field
+    It also populates 'Carrier TOC / Third Party Code' where NULL with first two characters of the 'Carrier Subdivision Code' fields, then deletes the latter field
     The non-numerical fields are converted into Categorical data types
 
     Parameters:
@@ -129,17 +147,17 @@ def combinefiles(toc_list,file_count):
 
 def populatenullprofitcentres(df):
     """
-    This procedure populates blank Carrier Profit Centre Codes with 2 char from Carrier Subdivision Code
+    This procedure populates blank Carrier TOC / Third Party Codes with 2 char from Carrier Subdivision Code
 
     Parameters:
     df          - A data frame of combined TOC data
 
-    Return      - A data frame with fully populated Carrier Profit Centre Code and no Carrier Subdivision Code
+    Return      - A data frame with fully populated Carrier TOC / Third Party Code and no Carrier Subdivision Code
     """
     print("manipulating the carrier subdivision code")
     #converting three letter codes into two letter codes and moving them into Profit centre code
     df['Carrier Subdivision Code'] = df['Carrier Subdivision Code'].str[:2]
-    df['Carrier Profit Centre Code'].fillna(df['Carrier Subdivision Code'],inplace=True)
+    df['Carrier TOC / Third Party Code'].fillna(df['Carrier Subdivision Code'],inplace=True)
     del df['Carrier Subdivision Code']
     return df
 
@@ -310,7 +328,7 @@ def setregulatedfares(df,destinationpath):
 
     ####resolution of regulated status based on Profit Centre Code
     regulatedprofitcentrecode = {'EC':'Unregulated_by_PCC','HM':'Unregulated_by_PCC'}
-    df = assigncategorylookupvalues(df,'Regulation by Profit Centre',regulatedprofitcentrecode,'Carrier Profit Centre Code','Regulated_Status_PCC','Regulated_Status_class')
+    df = assigncategorylookupvalues(df,'Regulation by Profit Centre',regulatedprofitcentrecode,'Carrier TOC / Third Party Code','Regulated_Status_PCC','Regulated_Status_class')
 
     #create final copy of regulated column
     df['Regulated_Status'] = df['Regulated_Status_PCC']
@@ -370,7 +388,7 @@ def getcategorylookup_spss(df,filepath, filename,destinationpath):
     savtodf = pd.DataFrame(records)
 
     #define column names
-    savtodf.columns = ['Product Code','Product Level 1 Code','Category']
+    savtodf.columns = ['Product Code','Product Primary Code','Category']
     
     #force all categories to lower case
     savtodf['Category'] = savtodf['Category'].str.lower()
@@ -380,7 +398,7 @@ def getcategorylookup_spss(df,filepath, filename,destinationpath):
         
 
     print("Category Information being added")
-    df = pd.merge(df,savtodf,how='left', left_on=['Product Code','Product Level 1 Code'],right_on=['Product Code','Product Level 1 Code'])
+    df = pd.merge(df,savtodf,how='left', left_on=['Product Code','Product Primary Code'],right_on=['Product Code','Product Primary Code'])
 
     df['Category'].fillna('Missing',inplace=True)
     nonmatches = df[df['Category']=='Missing']
@@ -391,7 +409,7 @@ def getcategorylookup_spss(df,filepath, filename,destinationpath):
 
     exportfile(nonmatches,destinationpath, 'missing_categories')
 
-    df = applydatatypes(df,['Product Code','Product Level 1 Code','Category'])
+    df = applydatatypes(df,['Product Code','Product Primary Code','Category'])
     del savtodf
 
     return df
@@ -411,12 +429,12 @@ def getcategorylookup(df,filepath, filename,destinationpath):
     df                  - a dataframe containing the 'superfile' with categpory information
     """
     print("Category Lookup Data being loaded \n")
-    records = pd.read_excel(filepath + filename,sheet_name='Sheet1',heading=['Product Code','Product Level 1 Code','Category'])
+    records = pd.read_excel(filepath + filename,sheet_name='Sheet1',heading=['Product Code','Product Primary Code','Category'])
 
     savtodf = records
 
     #define column names
-    savtodf.columns = ['Product Code','Product Level 1 Code','Category']
+    savtodf.columns = ['Product Code','Product Primary Code','Category']
     
     #force all categories to lower case
     savtodf['Category'] = savtodf['Category'].str.lower()
@@ -426,7 +444,7 @@ def getcategorylookup(df,filepath, filename,destinationpath):
         
 
     print("Category Information being added")
-    df = pd.merge(df,savtodf,how='left', left_on=['Product Code','Product Level 1 Code'],right_on=['Product Code','Product Level 1 Code'])
+    df = pd.merge(df,savtodf,how='left', left_on=['Product Code','Product Primary Code'],right_on=['Product Code','Product Primary Code'])
 
     df['Category'].fillna('Missing',inplace=True)
     nonmatches = df[df['Category']=='Missing']
@@ -437,7 +455,7 @@ def getcategorylookup(df,filepath, filename,destinationpath):
 
     exportfile(nonmatches,destinationpath, 'missing_categories')
 
-    df = applydatatypes(df,['Product Code','Product Level 1 Code','Category'])
+    df = applydatatypes(df,['Product Code','Product Primary Code','Category'])
     del savtodf
 
     return df

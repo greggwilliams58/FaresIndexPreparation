@@ -13,21 +13,21 @@ def main():
 
     print("getting advanced data\n")
     advanceddata = pd.read_csv(filelocation + 'advancedfile_20190306_11-07.csv',
-                               dtype={'Carrier Profit Centre Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
-                                      'Product Code':'category','Product Level 1 Code':'category','class':'category','sector':'category'})
+                               dtype={'Carrier TOC / Third Party Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
+                                      'Product Code':'category','Product Primary Code':'category','class':'category','sector':'category'})
 
     #exportfile(advanceddata.info(),filelocation,"advanced_metadata")
     
 
     nonadvanceddata = pd.read_csv(filelocation + 'nonadvancedfile_noavantix_20190306_11-23.csv',
-                                  dtype={'Carrier Profit Centre Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
-                                      'Product Code':'category','Product Level 1 Code':'category','class':'category','sector':'category'})
+                                  dtype={'Carrier TOC / Third Party Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
+                                      'Product Code':'category','Product Primary Code':'category','class':'category','sector':'category'})
 
     #exportfile(nonadvanceddata.info(),filelocation,"non_advanced_metadata")
     print("getting superfile for weights")
     rawsuperfile = pd.read_csv(filelocation + 'rawsuperfile_20190306_11-01.csv',
-                               dtype={'Carrier Profit Centre Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
-                                      'Product Code':'category','Product Level 1 Code':'category','class':'category','sector':'category','ticket_type':'category'}
+                               dtype={'Carrier TOC / Third Party Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
+                                      'Product Code':'category','Product Primary Code':'category','class':'category','sector':'category','ticket_type':'category'}
                                )
     ### preparatory work for function signature
     ### appenddata(advanceddata,nonadvanceddata,rawsuperfile)
@@ -112,7 +112,7 @@ def appenddata(nonadvandadv):
     #print(advanced_and_non_advanced.info())
     
     #drop unnecessary columns
-    columnstodel = ['Unnamed: 0','Carrier Profit Centre Code','Origin Code','ticket_type','Destination Code','Route Code','Product Code','Product Level 1 Code','Operating Journeys (*)','FARES_2017','FARES_2018']
+    columnstodel = ['Unnamed: 0','Carrier TOC / Third Party Code','Origin Code','ticket_type','Destination Code','Route Code','Product Code','Product Primary Code','Operating Journeys','FARES_2017','FARES_2018']
     print("dropping columns")
     advanced_and_non_advanced.drop(columnstodel,axis=1,inplace=True)
 
@@ -135,25 +135,25 @@ def appenddata(nonadvandadv):
 
 def preparesuperfile(superfile):
     # drop irrelevant columns
-    #columnstodel = ['Unnamed: 0','Carrier Profit Centre Code','Origin Code','Destination Code','Route Code','Product Code','Product Level 1 Code','Operating Journeys (*)','ticket_type','orig','dest','route']
+    #columnstodel = ['Unnamed: 0','Carrier TOC / Third Party Code','Origin Code','Destination Code','Route Code','Product Code','Product Primary Code','Operating Journeys','ticket_type','orig','dest','route']
     #superfile.drop(columnstodel,axis=1,inplace=True)
     
     #temp for peter columns to drop
-    columnstodel = ['Unnamed: 0','Carrier Profit Centre Code','Origin Code','Destination Code','Route Code','Operating Journeys (*)','ticket_type','orig','dest','route']
+    columnstodel = ['Unnamed: 0','Carrier TOC / Third Party Code','Origin Code','Destination Code','Route Code','Operating Journeys','ticket_type','orig','dest','route']
     superfile.drop(columnstodel,axis=1,inplace=True)
 
 
     #Rename column of "Earnings as Weightings"
-    superfile.rename(columns={'Adjusted Earning Sterling (*)':'Weightings_super'},inplace=True)
+    superfile.rename(columns={'Adjusted Earnings Amount':'Weightings_super'},inplace=True)
 
     #change order of columns to match combined data
     #superfile = superfile[['sector',	'class',	'Category',	'Regulated_Status','Weightings_super']]
     
     #temp for peter change order of columns to match combined data
-    superfile = superfile[['Product Code','Product Level 1 Code','sector',	'class',	'Category',	'Regulated_Status','Weightings_super']]
+    superfile = superfile[['Product Code','Product Primary Code','sector',	'class',	'Category',	'Regulated_Status','Weightings_super']]
 
     #temp grouping for peter
-    superfile = superfile.groupby(['Product Code','Product Level 1 Code','sector',	'class',	'Category',	'Regulated_Status']).agg('sum')
+    superfile = superfile.groupby(['Product Code','Product Primary Code','sector',	'class',	'Category',	'Regulated_Status']).agg('sum')
     #print(superfile_grouped)
     return superfile
 

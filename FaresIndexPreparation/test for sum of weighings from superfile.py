@@ -12,9 +12,9 @@ df2bafreg = df2baf[df2baf['Regulated_Status']=='Regulated']
 df2bfp = df[df['Product Code']=='2BFP' ]
 df2bfpreg = df2bfp[df2bfp['Regulated_Status']=='Regulated'] 
 
-df2aaasum = df2aaareg.groupby(['Product Code','Origin Code', 'Destination Code'])['Adjusted Earning Sterling (*)'].agg('sum')
-df2bafsum = df2bafreg.groupby(['Product Code','Origin Code', 'Destination Code'])['Adjusted Earning Sterling (*)'].agg('sum')
-df2bfpsum = df2bfpreg.groupby(['Product Code','Origin Code', 'Destination Code'])['Adjusted Earning Sterling (*)'].agg('sum')
+df2aaasum = df2aaareg.groupby(['Product Code','Origin Code', 'Destination Code'])['Adjusted Earnings Amount'].agg('sum')
+df2bafsum = df2bafreg.groupby(['Product Code','Origin Code', 'Destination Code'])['Adjusted Earnings Amount'].agg('sum')
+df2bfpsum = df2bfpreg.groupby(['Product Code','Origin Code', 'Destination Code'])['Adjusted Earnings Amount'].agg('sum')
 
 exportfile(df2aaasum,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\','2aaa - pm.csv')
 exportfile(df2bafsum,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\','2baf - pm.csv')

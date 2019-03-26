@@ -28,7 +28,7 @@ def percentagechange(df,col1,col2):
 def applydatatypes(combinedfile,col_headers):
     """
     This procedure manipulates the data frame of combined toc data
-    - populates blank Carrier Profit Centre Codes with 2 char from Carrier Subdivision Code
+    - populates blank Carrier TOC / Third Party Codes with 2 char from Carrier Subdivision Code
     - applies categorical datatyping to non-numeric columns, taken from a list of column names
 
     Parameters:

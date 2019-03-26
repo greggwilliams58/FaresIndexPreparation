@@ -89,8 +89,8 @@ def getsourcefile(path,filename):
     #placeholder for value returned by generatedata()
     #populateddata = generatedata()
 
-    datatyping ={'Carrier Profit Centre Code':'category', 'Origin Code':'category','Destination Code':'category','Route Code':'category','Product Code':'category'
-                 ,'Product Level 1 Code':'category','sector':'category','ticket_type':'category','class':'category','Regulated_Status':'category','Category':'category'}
+    datatyping ={'Carrier TOC / Third Party Code':'category', 'Origin Code':'category','Destination Code':'category','Route Code':'category','Product Code':'category'
+                 ,'Product Primary Code':'category','sector':'category','ticket_type':'category','class':'category','Regulated_Status':'category','Category':'category'}
     
     populateddata = pd.read_csv(path + filename,dtype=datatyping)
 

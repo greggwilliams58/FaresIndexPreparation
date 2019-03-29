@@ -5,10 +5,17 @@ import numpy as np
 
 
 def calc_final(df, grouping,nameofsplit):
-    answer = df.groupby(grouping)['wpc_and_weights'].agg('sum') / df.groupby(grouping)['Weightings_super'].agg('sum')
+    answer = df.groupby(grouping)['wpc_and_weights'].agg('sum') / df.groupby(grouping)['Weightings_super'].agg('sum') 
     answer_df = answer.to_frame()
+
+    weightings = df.groupby(grouping)['Weightings_super'].agg('sum') 
+    weightings_df = weightings.to_frame()
+    
+    #insert the names of splits as a new column into dataframe
     answer_df.insert(0,'split_name',value = nameofsplit)
     
+    answer_df.join(weightings_df,how='inner')
+
     #print(type(answer))
     #print(answer.info())
     return answer_df

@@ -454,7 +454,7 @@ def getcategorylookup(df,filepath, filename,destinationpath):
     #formatted_date = datetime.datetime.now().strftime('%Y%m%d_%H-%M')
     #filename = f'missing_categories_{formatted_date}.csv'
     
-    unique_filtered_nonmatches = nonmatches[['Carrier TOC / Third Party Code','Product Code','Product Primary Code']].copy().drop_duplicates()
+    unique_filtered_nonmatches = nonmatches[['Product Code','Product Primary Code']].copy().drop_duplicates()
 
     exportfile(unique_filtered_nonmatches,destinationpath, 'missing_categories')
 

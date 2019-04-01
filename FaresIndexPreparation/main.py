@@ -42,7 +42,7 @@ def main():
     ##calculation of non-advanced data prior to manual validation and advantix data
     #print ("The non-advanced pre-advantix data is coming....")
     #nonadvanced = non_advanced_data(superfilefornonadvanced,destinationpath,RDGfarespath,LENNONnonadvancedfarespath)
-    #exportfile(nonadvanced,destinationpath,'nonadvancedfile_noavantix')
+    #exportfile(nonadvanced,destinationpath,'nonadvancedfile')
     
     ##place holder for appending 
     ##finaldataset = append_revised_data(advanced,nonadvanced,superfileforweights)

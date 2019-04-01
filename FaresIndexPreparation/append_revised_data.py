@@ -12,14 +12,14 @@ def main():
 
 
     print("getting advanced data\n")
-    advanceddata = pd.read_csv(filelocation + 'advancedfile_20190306_11-07.csv',
+    advanceddata = pd.read_csv(filelocation + 'advancedfile_20190401_13-12.csv',
                                dtype={'Carrier TOC / Third Party Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
                                       'Product Code':'category','Product Primary Code':'category','class':'category','sector':'category'})
 
     #exportfile(advanceddata.info(),filelocation,"advanced_metadata")
     
 
-    nonadvanceddata = pd.read_csv(filelocation + 'nonadvancedfile_noavantix_20190306_11-23.csv',
+    nonadvanceddata = pd.read_csv(filelocation + 'nonadvancedfile_20190401_13-22.csv',
                                   dtype={'Carrier TOC / Third Party Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
                                       'Product Code':'category','Product Primary Code':'category','class':'category','sector':'category'})
 

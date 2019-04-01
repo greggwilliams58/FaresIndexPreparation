@@ -82,12 +82,18 @@ def main():
 
 
     exportfile(combined,outputto,"combined")
+
+    #this is to be added to integrate this with the main function
+    #return combined
    
 
 
 def appenddata(nonadvandadv):
     """
-    This file joins two dataframes
+    This file joins two dataframes which are presented as a list.  
+    A Factor of weightings * percentage change  is calculated
+    Unnecessary columns are dropped, others renamed and the remaining columns are reordered
+    The advanced and non-advanced datasets are filtered by hard-coded values in line 128
 
     Parameters
     nonadvandadv    - A list of dataframes representing the advanced and non-advanced datasets to be appended 
@@ -134,11 +140,16 @@ def appenddata(nonadvandadv):
 
 
 def preparesuperfile(superfile):
-    # drop irrelevant columns
-    #columnstodel = ['Unnamed: 0','Carrier TOC / Third Party Code','Origin Code','Destination Code','Route Code','Product Code','Product Primary Code','Operating Journeys','ticket_type','orig','dest','route']
-    #superfile.drop(columnstodel,axis=1,inplace=True)
-    
-    #temp for peter columns to drop
+    """
+    This takes the superfile and drops unnecessary columns, renames earnings as 'weightings', re-orders columns and performs a sum-aggregation
+
+    Parameters
+    superfile   A dataframe containing the raw superfile
+
+    Returns
+    superfile   A dataframe modified as indicated above
+    """
+
     columnstodel = ['Unnamed: 0','Carrier TOC / Third Party Code','Origin Code','Destination Code','Route Code','Operating Journeys','ticket_type','orig','dest','route']
     superfile.drop(columnstodel,axis=1,inplace=True)
 

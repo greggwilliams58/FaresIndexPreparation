@@ -5,6 +5,11 @@ import numpy as np
 
 
 def calc_final(df, grouping,nameofsplit):
+    """
+    This function takes a dataframe of 
+    """
+    
+    
     answer = df.groupby(grouping)['wpc_and_weights'].agg('sum') / df.groupby(grouping)['Weightings_super'].agg('sum') 
     answer_df = answer.to_frame()
 
@@ -15,14 +20,9 @@ def calc_final(df, grouping,nameofsplit):
     answer_df.insert(0,'split_name',value = nameofsplit)
 
     
-    joined = pd.concat([answer_df,weightings_df],axis=1)
+    answerwithweights = pd.concat([answer_df,weightings_df],axis=1)
 
-    #print(weightings_df.info())
-    #print(answer_df.info())
-
-    print(weightings_df)
-    print(answer_df)
-    return joined
+    return answerwithweights
 
 
 def calculate_endresults(advandnonadv,preparedsuperfile):

@@ -31,28 +31,28 @@ def advanced_data(df,destinationpath,LENNONfarespath):
     advanced.rename(columns={'Adjusted Earnings Amount_sum':'Adjusted Earnings Amount','Operating Journeys_sum':'Operating Journeys'},inplace=True)
 
     #getting LENNON fare information
-    LENNONadvancedprices2017 = get_lennon_price_info('2017','C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\LENNON_Fares_information\\advanced_data\\','2017_advance_price.csv','advanced')
-    exportfile(LENNONadvancedprices2017,destinationpath,"LENNON2017lookup")
-    LENNONadvancedprices2018 = get_lennon_price_info('2018','C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\LENNON_Fares_information\\advanced_data\\','2018_advance_price.csv','advanced')
+    LENNONadvancedprices2017 = get_lennon_price_info('2018','C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\LENNON_Fares_information\\advanced_data\\','2018_advance_price.csv','advanced')
     exportfile(LENNONadvancedprices2018,destinationpath,"LENNON2018lookup")
+    LENNONadvancedprices2018 = get_lennon_price_info('2019','C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\LENNON_Fares_information\\advanced_data\\','2019_advance_price.csv','advanced')
+    exportfile(LENNONadvancedprices2019,destinationpath,"LENNON2019lookup")
 
     print("This is the advanced file before adding lennon data")
     print(advanced.info())
     print(advanced.head(10))
     #merging LENNON fares information
-    advanced = add_lennon_fares_info(advanced,LENNONadvancedprices2017,'_2017','advanced')
-    #exportfile(advanced,destinationpath,"LENNON_2017_added")
     advanced = add_lennon_fares_info(advanced,LENNONadvancedprices2018,'_2018','advanced')
+    #exportfile(advanced,destinationpath,"LENNON_2017_added")
+    advanced = add_lennon_fares_info(advanced,LENNONadvancedprices2019,'_2019','advanced')
     #exportfile(advanced,destinationpath,"LENNON_2018_added")
 
-    del advanced['price_2017']
     del advanced['price_2018']
+    del advanced['price_2019']
 
-    advanced.rename(columns={'LENNON_PRICE_2017':'FARES_2017','LENNON_PRICE_2018':'FARES_2018','Adjusted Earnings Amount':'Weightings'},inplace=True)
+    advanced.rename(columns={'LENNON_PRICE_2018':'FARES_2018','LENNON_PRICE_2019':'FARES_2019','Adjusted Earnings Amount':'Weightings'},inplace=True)
    
     advanced = handlezeroandnulls(advanced)
 
-    advanced = percentagechange(advanced,'FARES_2018','FARES_2017')
+    advanced = percentagechange(advanced,'FARES_2019','FARES_2018')
 
     exportfile(advanced,destinationpath,'advancedfile')
 

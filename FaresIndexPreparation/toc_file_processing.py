@@ -406,8 +406,10 @@ def getcategorylookup_spss(df,filepath, filename,destinationpath):
     #formatted_date = datetime.datetime.now().strftime('%Y%m%d_%H-%M')
     #filename = f'missing_categories_{formatted_date}.csv'
 
-
-    exportfile(nonmatches,destinationpath, 'missing_categories')
+    filtered_nonmatches = nonmatches[['Carrier TOC / Third Party Code','Product Code','Product Primary Code']].copy()
+    print(filtered_nonmatches.info())
+    unique_filtered_nonmatches = filtered_nonmatches.unique()
+    exportfile(unique_filtered_nonmatches,destinationpath, 'missing_categories')
 
     df = applydatatypes(df,['Product Code','Product Primary Code','Category'])
     del savtodf
@@ -451,9 +453,11 @@ def getcategorylookup(df,filepath, filename,destinationpath):
     
     #formatted_date = datetime.datetime.now().strftime('%Y%m%d_%H-%M')
     #filename = f'missing_categories_{formatted_date}.csv'
+    
+    unique_filtered_nonmatches = nonmatches[['Carrier TOC / Third Party Code','Product Code','Product Primary Code']].copy().drop_duplicates()
 
+    exportfile(unique_filtered_nonmatches,destinationpath, 'missing_categories')
 
-    exportfile(nonmatches,destinationpath, 'missing_categories')
 
     df = applydatatypes(df,['Product Code','Product Primary Code','Category'])
     del savtodf

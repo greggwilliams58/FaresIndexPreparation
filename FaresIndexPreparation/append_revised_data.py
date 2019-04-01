@@ -18,14 +18,14 @@ def main():
 
     #exportfile(advanceddata.info(),filelocation,"advanced_metadata")
     
-
+    print("Getting non-advanced data\n")
     nonadvanceddata = pd.read_csv(filelocation + 'nonadvancedfile_20190401_13-22.csv',
                                   dtype={'Carrier TOC / Third Party Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
                                       'Product Code':'category','Product Primary Code':'category','class':'category','sector':'category'})
 
     #exportfile(nonadvanceddata.info(),filelocation,"non_advanced_metadata")
     print("getting superfile for weights")
-    rawsuperfile = pd.read_csv(filelocation + 'rawsuperfile_20190306_11-01.csv',
+    rawsuperfile = pd.read_csv(filelocation + 'rawsuperfile_20190401_13-10.csv',
                                dtype={'Carrier TOC / Third Party Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
                                       'Product Code':'category','Product Primary Code':'category','class':'category','sector':'category','ticket_type':'category'}
                                )

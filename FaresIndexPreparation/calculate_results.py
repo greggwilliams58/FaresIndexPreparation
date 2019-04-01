@@ -13,12 +13,16 @@ def calc_final(df, grouping,nameofsplit):
     
     #insert the names of splits as a new column into dataframe
     answer_df.insert(0,'split_name',value = nameofsplit)
-    
-    answer_df.join(weightings_df,how='inner')
 
-    #print(type(answer))
-    #print(answer.info())
-    return answer_df
+    
+    joined = pd.concat([answer_df,weightings_df],axis=1)
+
+    #print(weightings_df.info())
+    #print(answer_df.info())
+
+    print(weightings_df)
+    print(answer_df)
+    return joined
 
 
 def calculate_endresults(advandnonadv,preparedsuperfile):

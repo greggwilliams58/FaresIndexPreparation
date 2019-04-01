@@ -69,14 +69,16 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year):
     combined_data_with_lennon = pd.merge(combined_data,lookupinfo,'left',left_on=['TICKET_CODE'],right_on=['Fares ticket type code'])
 
     # identify potential duplicates from fares and flow joined file
-    flowandfaresduplicateflag = combined_data_with_lennon.duplicated(subset=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','Lennon product code (CTOT)'],keep=False)
+    flowandfaresduplicateflag = combined_data_with_lennon.duplicated(subset=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','Lennon product code (CTOT)','Fares ticket type code'],keep=False)
     
     flowandfaresduplicates = combined_data_with_lennon[flowandfaresduplicateflag]
+
+
     print("Exporting potential duplicates...")
     exportfile(flowandfaresduplicates,outfilepath,"potential RDG flow and fares duplicates_for_" + year)
 
     #crude deduplication
-    combined_data_with_lennon.drop_duplicates(subset=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','Lennon product code (CTOT)'],keep='first',inplace=True)
+    combined_data_with_lennon.drop_duplicates(subset=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','Lennon product code (CTOT)','Fares ticket type code'],keep='first',inplace=True)
 
     combined_data_with_lennon.to_csv(outfilepath + outfilename)
 

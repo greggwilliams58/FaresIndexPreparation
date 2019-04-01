@@ -37,23 +37,23 @@ def non_advanced_data(df,destinationpath,RDGfarespath,LENNONfarespath):
     df = df[df['Category']!='advance']
 
 
-    RDGprices2017 = get_rdg_prices_info(RDGfarespath
-                        ,'2017 fares extract.txt'
-                        , destinationpath
-                        ,'prices2017.csv', '2017')
-
     RDGprices2018 = get_rdg_prices_info(RDGfarespath
                         ,'2018 fares extract.txt'
                         , destinationpath
                         ,'prices2018.csv', '2018')
+
+    RDGprices2019 = get_rdg_prices_info(RDGfarespath
+                        ,'2019 fares extract.txt'
+                        , destinationpath
+                        ,'prices2019.csv', '2019')
     print("about to merge RDG info into main dataset.")
 
     #exportfile(df,destinationpath,"non-advanced_data_before RDG")
     #exportfile(RDGprices2017,destinationpath,'2017_RDG')
     #exportfile(RDGprices2018,destinationpath,'2018_RDG')
     #merging RDG fares information
-    df = addRDGfaresinfo(df, RDGprices2017,'_2017')
     df = addRDGfaresinfo(df, RDGprices2018,'_2018')
+    df = addRDGfaresinfo(df, RDGprices2019,'_2019')
 
     #exportfile(df,destinationpath,'non_advanced_data_after_RDG')
 
@@ -66,28 +66,28 @@ def non_advanced_data(df,destinationpath,RDGfarespath,LENNONfarespath):
     
     
     #print("converting RDG fares to numeric - line 56")
-    df[['RDG_FARES_2017','RDG_FARES_2018']] = df[['RDG_FARES_2017','RDG_FARES_2018']].apply(pd.to_numeric)
+    df[['RDG_FARES_2018','RDG_FARES_2019']] = df[['RDG_FARES_2018','RDG_FARES_2019']].apply(pd.to_numeric)
     
-    #exportfile(df,destinationpath,"non-advanced_data_before_LENNON")
+    exportfile(df,destinationpath,"non-advanced_data_before_LENNON")
     #getting LENNON fare information
-    LENNONprices2017 = get_lennon_price_info('2017',LENNONfarespath,'pricefile2017P1112.csv','non-advanced')
     LENNONprices2018 = get_lennon_price_info('2018',LENNONfarespath,'pricefile2018P1112.csv','non-advanced')
+    LENNONprices2019 = get_lennon_price_info('2019',LENNONfarespath,'pricefile2019P1112.csv','non-advanced')
     #exportfile(LENNONprices2017,destinationpath,"LENNON_2017")
     #exportfile(LENNONprices2018,destinationpath,"LENNON_2018")
     #merging LENNON fares information
-    df = add_lennon_fares_info(df,LENNONprices2017,'_2017','non-advanced')
     df = add_lennon_fares_info(df,LENNONprices2018,'_2018','non-advanced')
+    df = add_lennon_fares_info(df,LENNONprices2019,'_2019','non-advanced')
     #exportfile(df,destinationpath, "non-advanced data after LENNON")
     #replace empty RDG data with LENNON data
-    df['RDG_FARES_2017'].fillna(df['LENNON_PRICE_2017'],inplace=True)
     df['RDG_FARES_2018'].fillna(df['LENNON_PRICE_2018'],inplace=True)
+    df['RDG_FARES_2019'].fillna(df['LENNON_PRICE_2019'],inplace=True)
 
     #drop unnecessary columns and apply categorical datatyping
     #print("Dropping columns - line 71")
     df = datatypinganddropping(df)
     
     # rename the RDG Fares Columns, Earnings and axis
-    df.rename(columns={'RDG_FARES_2017':'FARES_2017','RDG_FARES_2018':'FARES_2018','Adjusted Earnings Amount':'Weightings'},inplace=True)
+    df.rename(columns={'RDG_FARES_2018':'FARES_2018','RDG_FARES_2019':'FARES_2019','Adjusted Earnings Amount':'Weightings'},inplace=True)
     df.rename_axis('index')
 
     #export of full file
@@ -95,19 +95,19 @@ def non_advanced_data(df,destinationpath,RDGfarespath,LENNONfarespath):
     bigearners = df.query('Weightings > 500000') 
         
     #drop rows where FARES are NaN or 0
-    populated2017and2018 = handlezeroandnulls(df)
+    populated2018and2019 = handlezeroandnulls(df)
 
     #add percentagechange to populated file
-    populated2017and2018 = percentagechange(populated2017and2018,'FARES_2018','FARES_2017')
+    populated2018and2019 = percentagechange(populated2018and2019,'FARES_2018','FARES_2019')
 
     #this is for validation of large percentage changes' amended data to be added to coredata later
-    bigchange = populated2017and2018.query('percentage_change > 20.0 and Weightings < 500000')
-    littlechange = populated2017and2018.query('percentage_change < -20.0 and Weightings < 500000')
+    bigchange = populated2018and2019.query('percentage_change > 20.0 and Weightings < 500000')
+    littlechange = populated2018and2019.query('percentage_change < -20.0 and Weightings < 500000')
     
     #this is for the provision of Avantix data, to be added to core data later
 
     #not filtering at this stage anymore
-    coredata = populated2017and2018.copy()
+    coredata = populated2018and2019.copy()
     #coredata = populated2017and2018.query('Weightings < 500000 and percentage_change < 20.0 and percentage_change > -20.0')
 
     #export of file where both fares are populated with non-zero figures
@@ -126,8 +126,8 @@ def datatypinganddropping(df):
     del df['orig']
     del df['dest']
     del df['route']
-    del df['LENNON_PRICE_2017']
     del df['LENNON_PRICE_2018']
+    del df['LENNON_PRICE_2019']
     
     #apply datatyping to the four key fields
     df = applydatatypes(df,['Origin Code','Destination Code','Route Code','Product Code'])

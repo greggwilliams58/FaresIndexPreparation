@@ -68,18 +68,20 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year):
     ##join lookupinfo with Lennon keys
     combined_data_with_lennon = pd.merge(combined_data,lookupinfo,'left',left_on=['TICKET_CODE'],right_on=['Fares ticket type code'])
 
-    # identify potential duplicates from fares and flow joined file where fares are the same
+   
+
+    # remove duplicates where fares are the same
+    nonduplicateswithsamefares = combined_data_with_lennon.drop_duplicates(subset=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','TICKET_CODE','FARE'],keep='first')
+    print("Export potential duplicates with different fares...")
+    exportfile(nonduplicateswithsamefares,outfilepath,"Non duplicates with same fares in flow and fares file for_" + year)
+    
+    # identify potential duplicates from fares and flow joined file where fares are tdifferent
     #flowandfaresduplicateflag = combined_data_with_lennon.duplicated(subset=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','Fares ticket type code'],keep=False)
     #flowandfaresduplicates = combined_data_with_lennon[flowandfaresduplicateflag]
-    #print("Exporting potential duplicates with same fares...")
-    #exportfile(flowandfaresduplicates,outfilepath,"potential RDG flow and fares duplicates_for_" + year)
+    #print("Exporting potential duplicates with different fares...")
+    #exportfile(flowandfaresduplicates,outfilepath,"Potential duplicates with different fares in flow and fares file for_" + year)
 
-    # identify duplicates where fares are different
-    flowandfareduplicateswithfares = combined_data_with_lennon.drop_duplicates(subset=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','Fares ticket type code','FARE'],keep='first')
-    print("Export potential duplicates with different fares...")
-    exportfile(flowandfareduplicateswithfares,outfilepath,"RDG flow and fare duplicates with different fares for_" + year)
-    
-    #crude deduplication for same fares
+    #crude deduplication for same fares - replaced by line 76 above
     #combined_data_with_lennon.drop_duplicates(subset=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','Fares ticket type code'],keep='first',inplace=True)
 
 

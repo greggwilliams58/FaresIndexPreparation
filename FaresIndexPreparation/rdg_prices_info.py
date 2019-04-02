@@ -69,25 +69,25 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year):
     combined_data_with_lennon = pd.merge(combined_data,lookupinfo,'left',left_on=['TICKET_CODE'],right_on=['Fares ticket type code'])
 
     # identify potential duplicates from fares and flow joined file where fares are the same
-    flowandfaresduplicateflag = combined_data_with_lennon.duplicated(subset=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','Fares ticket type code'],keep=False)
-    flowandfaresduplicates = combined_data_with_lennon[flowandfaresduplicateflag]
-    print("Exporting potential duplicates with same fares...")
-    exportfile(flowandfaresduplicates,outfilepath,"potential RDG flow and fares duplicates_for_" + year)
+    #flowandfaresduplicateflag = combined_data_with_lennon.duplicated(subset=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','Fares ticket type code'],keep=False)
+    #flowandfaresduplicates = combined_data_with_lennon[flowandfaresduplicateflag]
+    #print("Exporting potential duplicates with same fares...")
+    #exportfile(flowandfaresduplicates,outfilepath,"potential RDG flow and fares duplicates_for_" + year)
 
     # identify duplicates where fares are different
-    flowandfareduplicateswithfares = flowandfaresduplicates.drop_duplicates(subset=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','Fares ticket type code','FARE'],keep=False)
+    flowandfareduplicateswithfares = combined_data_with_lennon.drop_duplicates(subset=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','Fares ticket type code','FARE'],keep='first')
     print("Export potential duplicates with different fares...")
     exportfile(flowandfareduplicateswithfares,outfilepath,"RDG flow and fare duplicates with different fares for_" + year)
     
     #crude deduplication for same fares
-    combined_data_with_lennon.drop_duplicates(subset=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','Lennon product code (CTOT)','Fares ticket type code'],keep='first',inplace=True)
+    #combined_data_with_lennon.drop_duplicates(subset=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','Fares ticket type code'],keep='first',inplace=True)
 
 
 
-    combined_data_with_lennon.to_csv(outfilepath + outfilename)
+    flowandfareduplicateswithfares.to_csv(outfilepath + outfilename)
 
     ##return the completed file
-    return combined_data_with_lennon
+    return flowandfareduplicateswithfares
 
 
 def getdata(filepath, filename):

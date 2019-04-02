@@ -35,8 +35,8 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year):
 
 
     print("exporting the flow and fares with separate info\n")
-    exportfile(flow_df,outfilepath,'flow_info_'+ year)
-    exportfile(fares_df,outfilepath,'fares_info'+ year)
+    #exportfile(flow_df,outfilepath,'flow_info_'+ year)
+    #exportfile(fares_df,outfilepath,'fares_info'+ year)
 
     # identify potential duplicates in the flow file
     flowduplicateflag = flow_df.duplicated(subset=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','USAGE_CODE','DIRECTION','TOC'],keep=False)
@@ -60,15 +60,18 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year):
     combined_data.index.name="FLOW_AND_FARES_INDEX"
 
 
+    #add the filter for given year for flow_id to remove duplicate flow id information
+    combined_data_no_duplicates = removeRDGduplicates(combined_data, year)
 
+    print(combined_data_no_duplicates.info())
 
     #reading in the lookup value for the LENNON codes lookup
     lookupinfo = pd.read_excel(infilepath +'Lennon_product_codes_and_Fares_ticket_types_2017.xlsx','Fares to Lennon coding')
     
     ##join lookupinfo with Lennon keys
-    combined_data_with_lennon = pd.merge(combined_data,lookupinfo,'left',left_on=['TICKET_CODE'],right_on=['Fares ticket type code'])
+    combined_data_with_lennon = pd.merge(combined_data_no_duplicates,lookupinfo,'left',left_on=['TICKET_CODE'],right_on=['Fares ticket type code'])
 
-   
+    
 
     # remove duplicates where fares are the same
     nonduplicateswithsamefares = combined_data_with_lennon.drop_duplicates(subset=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','TICKET_CODE','FARE'],keep='first')
@@ -196,7 +199,22 @@ def addRDGfaresinfo(df,lookupdf,postfix):
 
     return df_dt
 
+def removeRDGduplicates(df, yr):
+    """
+    This removes specified 
+    """
+    if yr == '2018':
 
+        flowtoremove = ['1142117','1141932','1141838']
+    elif yr == '2019':
+        flowtoremove = ['140673','666616','140777']
+    else:
+        flowtoremove = ['999999999']
+
+
+
+    filtered_df = df[~df.FLOW_ID.isin(flowtoremove)]
+    return filtered_df
 
 
 

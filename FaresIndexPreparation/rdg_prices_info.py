@@ -203,6 +203,8 @@ def removeRDGduplicates(df, yr):
     """
     This removes specified 
     """
+    flowtoremove =[]
+
     if yr == '2018':
 
         flowtoremove = ['1142117','1141932','1141838']

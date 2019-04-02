@@ -76,20 +76,20 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year):
     exportfile(nonduplicateswithsamefares,outfilepath,"Non duplicates with same fares in flow and fares file for_" + year)
     
     # identify potential duplicates from fares and flow joined file where fares are tdifferent
-    #flowandfaresduplicateflag = combined_data_with_lennon.duplicated(subset=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','Fares ticket type code'],keep=False)
-    #flowandfaresduplicates = combined_data_with_lennon[flowandfaresduplicateflag]
-    #print("Exporting potential duplicates with different fares...")
-    #exportfile(flowandfaresduplicates,outfilepath,"Potential duplicates with different fares in flow and fares file for_" + year)
+    flowandfaresduplicateflag = nonduplicateswithsamefares.duplicated(subset=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','TICKET_CODE'],keep=False)
+    duplicateswithdifferentfares = nonduplicateswithsamefares[flowandfaresduplicateflag]
+    print("Exporting potential duplicates with different fares...")
+    exportfile(duplicateswithdifferentfares,outfilepath,"Duplicates with different fares in flow and fares file for_" + year)
 
     #crude deduplication for same fares - replaced by line 76 above
     #combined_data_with_lennon.drop_duplicates(subset=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','Fares ticket type code'],keep='first',inplace=True)
 
 
 
-    flowandfareduplicateswithfares.to_csv(outfilepath + outfilename)
+    #flowandfareduplicateswithfares.to_csv(outfilepath + outfilename)
 
     ##return the completed file
-    return flowandfareduplicateswithfares
+    return nonduplicateswithsamefares
 
 
 def getdata(filepath, filename):

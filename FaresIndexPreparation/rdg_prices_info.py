@@ -6,13 +6,7 @@ import xlsxwriter
 import re
 
 
-#def main():
-#    get_prices_info('C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\RDG_Fares_information\\'
-#                        ,'RJFAF719.txt'
-#                        ,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\'
-#                        ,'flow_and_fare_data_combined_with prices.csv')
-
-def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year):
+def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year,excludeflowid = False):
     """
     This procedure gets the RDG .txt file, splits it into flow and fare_price information dataframes, combines them into 
     a joined csv file, which has a lookup to add LENNON ticket codes for later use in the LENNON-based superfile.
@@ -23,6 +17,7 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year):
     outfilepath     - a string containing the destination of the combined file
     outfilename     - a string containing the file name of the combined file
     year            - a string representing the year the prices info relates to
+    excludeflowid   - a boolean representing whether duplicated flow ids should be excluded or not
 
     Returns:
     combined_data   - a dataframe containing the confirmed prices data.
@@ -62,7 +57,7 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year):
 
 
     #add the filter for given year for flow_id to remove duplicate flow id information
-    combined_data_no_duplicates = removeRDGduplicates(combined_data, year)
+    combined_data_no_duplicates = removeRDGduplicates(combined_data, year,excludeflowid)
 
     #reading in the lookup value for the LENNON codes lookup
     lookupinfo = pd.read_excel(infilepath +'Lennon_product_codes_and_Fares_ticket_types_2017.xlsx','Fares to Lennon coding')
@@ -201,12 +196,15 @@ def addRDGfaresinfo(df,lookupdf,postfix):
 def removeRDGduplicates(df, yr, excludeflowid = False):
     """
     This removes rows from RDG data where the origin_code or destination_code fields include an alphabetical character.  It also removes rows where the flow_id is a given flow_id for that specific year.
-    An initial run is required without this code being run to determine what the potential duplicates are
+    An initial run is required without this code being run to determine what the potential duplicates are.  Peter Moran then uses avantix data to determine which flow_ids should be removed
 
     Parameters:
-    df:             A dataframe containing the flow and fares information from the extracted and joined RDG text file.
-    yr:             A string indicating which year this RDG data relates to.
-    excludeflowid:  A boolean flag for whether flowids should be excluded from this run.
+    df:                                 A dataframe containing the flow and fares information from the extracted and joined RDG text file.
+    yr:                                 A string indicating which year this RDG data relates to.
+    excludeflowid:                      A boolean flag for whether flowids should be excluded from this run.
+
+    Returns:
+    filtered_fully_and_flow_removed:    A dataframe of RDG data with alpha orgin/dest codes and specified flow_ids
 
     """
 
@@ -215,20 +213,27 @@ def removeRDGduplicates(df, yr, excludeflowid = False):
     filtered_fully = filtered_by_origin[~(filtered_by_origin['DESTINATION_CODE'].str.match(r'[A-Za-z]')) ]
 
     if excludeflowid is True:
-
+        #These codes will need to be reviewed each year to see what flow ids need to be removed to avoid 
         if yr == '2018':
-            flowtoremove = ['1141876','1141932','1142117']
+            flowtoremove = ['1141932','1141838','1141876']
+            #'1142117' should be the last one standing
+            #but after run '1141947','1141975' and '1141844' are added to the list
+
+            filtered_fully_and_flow_removed =   filtered_fully[~(filtered_fully['FLOW_ID'].isin(flowtoremove))]
         elif yr == '2019':
-            flowtoremove = ['138319','140673','140777','666379','666480','666568','666616']
+            flowtoremove = ['0666616','0140777','0666379','0138003','0666568','0138319','0666480']
+            #'0140673' should be the last one standing
+            #but after run '0140657','0666552','0140803','0666579','0138170','0138060','0666449','0138310'
+            filtered_fully_and_flow_removed =   filtered_fully[~(filtered_fully['FLOW_ID'].isin(flowtoremove))]
         else:
-            flowtoremove = ['999999999']
+            print("Check the assignment of the year value for RDG data.  This isn't a valid value.")
 
-
-
-        filtered_fully_and_flow_removed =   filtered_fully[~(filtered_fully['FLOW_ID'].isin(flowtoremove))]
     else:
-        pass
+        #set the partially modified dataframe to the returned dataframe
+        filtered_fully_and_flow_removed = filtered_fully
+ 
 
+    
     
     return filtered_fully_and_flow_removed
 

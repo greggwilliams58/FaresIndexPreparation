@@ -40,17 +40,19 @@ def non_advanced_data(df,destinationpath,RDGfarespath,LENNONfarespath):
     RDGprices2018 = get_rdg_prices_info(RDGfarespath
                         ,'2018 fares extract.txt'
                         , destinationpath
-                        ,'prices2018.csv', '2018')
+                        ,'prices2018.csv'
+                        ,'2018'
+                        ,True)
 
     RDGprices2019 = get_rdg_prices_info(RDGfarespath
                         ,'2019 fares extract.txt'
                         , destinationpath
-                        ,'prices2019.csv', '2019')
+                        ,'prices2019.csv'
+                        ,'2019'
+                        ,True)
+
     print("about to merge RDG info into main dataset.")
 
-    #exportfile(df,destinationpath,"non-advanced_data_before RDG")
-    #exportfile(RDGprices2017,destinationpath,'2017_RDG')
-    #exportfile(RDGprices2018,destinationpath,'2018_RDG')
     #merging RDG fares information
     df = addRDGfaresinfo(df, RDGprices2018,'_2018')
     df = addRDGfaresinfo(df, RDGprices2019,'_2019')
@@ -65,19 +67,19 @@ def non_advanced_data(df,destinationpath,RDGfarespath,LENNONfarespath):
     df = applydatatypes(df,['Regulated_Status'])
     
     
-    #print("converting RDG fares to numeric - line 56")
+    #converting RDG fares to numeric 
     df[['RDG_FARES_2018','RDG_FARES_2019']] = df[['RDG_FARES_2018','RDG_FARES_2019']].apply(pd.to_numeric)
     
     exportfile(df,destinationpath,"non-advanced_data_before_LENNON")
     #getting LENNON fare information
     LENNONprices2018 = get_lennon_price_info('2018',LENNONfarespath,'pricefile2018P1112.csv','non-advanced')
     LENNONprices2019 = get_lennon_price_info('2019',LENNONfarespath,'pricefile2019P1112.csv','non-advanced')
-    #exportfile(LENNONprices2017,destinationpath,"LENNON_2017")
-    #exportfile(LENNONprices2018,destinationpath,"LENNON_2018")
+
     #merging LENNON fares information
     df = add_lennon_fares_info(df,LENNONprices2018,'_2018','non-advanced')
     df = add_lennon_fares_info(df,LENNONprices2019,'_2019','non-advanced')
-    #exportfile(df,destinationpath, "non-advanced data after LENNON")
+
+
     #replace empty RDG data with LENNON data
     df['RDG_FARES_2018'].fillna(df['LENNON_PRICE_2018'],inplace=True)
     df['RDG_FARES_2019'].fillna(df['LENNON_PRICE_2019'],inplace=True)

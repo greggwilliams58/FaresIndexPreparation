@@ -3,6 +3,7 @@ from pandas import ExcelWriter
 from pandas import ExcelFile
 from commonfunctions import exportfile
 import xlsxwriter
+import re
 
 
 #def main():
@@ -62,8 +63,6 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year):
 
     #add the filter for given year for flow_id to remove duplicate flow id information
     combined_data_no_duplicates = removeRDGduplicates(combined_data, year)
-
-    print(combined_data_no_duplicates.info())
 
     #reading in the lookup value for the LENNON codes lookup
     lookupinfo = pd.read_excel(infilepath +'Lennon_product_codes_and_Fares_ticket_types_2017.xlsx','Fares to Lennon coding')
@@ -199,24 +198,39 @@ def addRDGfaresinfo(df,lookupdf,postfix):
 
     return df_dt
 
-def removeRDGduplicates(df, yr):
+def removeRDGduplicates(df, yr, excludeflowid = False):
     """
-    This removes specified 
+    This removes rows from RDG data where the origin_code or destination_code fields include an alphabetical character.  It also removes rows where the flow_id is a given flow_id for that specific year.
+    An initial run is required without this code being run to determine what the potential duplicates are
+
+    Parameters:
+    df:             A dataframe containing the flow and fares information from the extracted and joined RDG text file.
+    yr:             A string indicating which year this RDG data relates to.
+    excludeflowid:  A boolean flag for whether flowids should be excluded from this run.
+
     """
-    flowtoremove =[]
 
-    if yr == '2018':
+    filtered_by_origin = df[~(df['ORIGIN_CODE'].str.match(r'[a-zA-Z]')) ]
 
-        flowtoremove = ['1142117','1141932','1141838']
-    elif yr == '2019':
-        flowtoremove = ['140673','666616','140777']
+    filtered_fully = filtered_by_origin[~(filtered_by_origin['DESTINATION_CODE'].str.match(r'[A-Za-z]')) ]
+
+    if excludeflowid is True:
+
+        if yr == '2018':
+            flowtoremove = ['1141876','1141932','1142117']
+        elif yr == '2019':
+            flowtoremove = ['138319','140673','140777','666379','666480','666568','666616']
+        else:
+            flowtoremove = ['999999999']
+
+
+
+        filtered_fully_and_flow_removed =   filtered_fully[~(filtered_fully['FLOW_ID'].isin(flowtoremove))]
     else:
-        flowtoremove = ['999999999']
+        pass
 
-
-
-    filtered_df = df[~df.FLOW_ID.isin(flowtoremove)]
-    return filtered_df
+    
+    return filtered_fully_and_flow_removed
 
 
 

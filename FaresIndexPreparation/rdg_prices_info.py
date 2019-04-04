@@ -30,21 +30,21 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year,exclu
     flow_df, fares_df = splitter(flow_list, fare_list)
 
 
-    print("exporting the flow and fares with separate info\n")
+    #print("exporting the flow and fares with separate info\n")
     #exportfile(flow_df,outfilepath,'flow_info_'+ year)
     #exportfile(fares_df,outfilepath,'fares_info'+ year)
 
     # identify potential duplicates in the flow file
-    flowduplicateflag = flow_df.duplicated(subset=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','USAGE_CODE','DIRECTION','TOC'],keep=False)
-
+    #flowduplicateflag = flow_df.duplicated(subset=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','USAGE_CODE','DIRECTION','TOC'],keep=False)
+    #
     # check this method of checking for an empty dataframe - seems to return false positive.
-    if flow_df[flowduplicateflag].empty == True:
-        print (f"There are no duplicates indicated in flow for {year}")
-
-    else:
-        flowduplicates = flow_df[flowduplicateflag]
-        print(f"Exporting potential duplicates for {year}")
-        exportfile(flowduplicates,outfilepath,"potential RDG flow duplicates_for_" + year)
+    #if flow_df[flowduplicateflag].empty == True:
+    #    print (f"There are no duplicates indicated in flow for {year}")
+    #
+    #else:
+    #    flowduplicates = flow_df[flowduplicateflag]
+    #    print(f"Exporting potential duplicates for {year}")
+    #    exportfile(flowduplicates,outfilepath,"potential RDG flow duplicates_for_" + year)
     
     #exportfile(flow_df,outfilepath,"RDG_flow" + year)
     #exportfile(fares_df,outfilepath,"RDG_fares" + year)
@@ -193,7 +193,7 @@ def addRDGfaresinfo(df,lookupdf,postfix):
 
     return df_dt
 
-def removeRDGduplicates(df, yr, excludeflowid = False):
+def removeRDGduplicates(df, yr, excludeflowid):
     """
     This removes rows from RDG data where the origin_code or destination_code fields include an alphabetical character.  It also removes rows where the flow_id is a given flow_id for that specific year.
     An initial run is required without this code being run to determine what the potential duplicates are.  Peter Moran then uses avantix data to determine which flow_ids should be removed
@@ -211,26 +211,32 @@ def removeRDGduplicates(df, yr, excludeflowid = False):
     filtered_by_origin = df[~(df['ORIGIN_CODE'].str.match(r'[a-zA-Z]')) ]
 
     filtered_fully = filtered_by_origin[~(filtered_by_origin['DESTINATION_CODE'].str.match(r'[A-Za-z]')) ]
+    
 
     if excludeflowid is True:
         #These codes will need to be reviewed each year to see what flow ids need to be removed to avoid 
         if yr == '2018':
-            flowtoremove = ['1141932','1141838','1141876']
-            #'1142117' should be the last one standing
-            #but after run '1141947','1141975' and '1141844' are added to the list
+            flowtoremove = ['1141932','1141838','1141876','1141947','1141975', '1141844','1141787','1141783','1141784','1141803','1142076','1141992']
+            #'1142117' should be the last one standing after 2nd run
+            #but on 2nd run '1141947','1141975', '1141844' are added to the output
+            #but on 3rd run '1141787','1141783','1141784' are added to the output
+            #but on 4th run '1141803','1142076','1141992' are added to the output
+            #but on 5th row nothing is returned!
 
             filtered_fully_and_flow_removed =   filtered_fully[~(filtered_fully['FLOW_ID'].isin(flowtoremove))]
         elif yr == '2019':
-            flowtoremove = ['0666616','0140777','0666379','0138003','0666568','0138319','0666480']
-            #'0140673' should be the last one standing
-            #but after run '0140657','0666552','0140803','0666579','0138170','0138060','0666449','0138310'
+            flowtoremove = ['0666616','0140777','0666379','0138003','0666568','0138319','0666480','0140657','0666552','0140803','0666579','0138170','0138060','0666449','0138310','0140440']
+            #'0140673' should be the last one standing after 2nd run
+            #but on 2nd run '0140657','0666552','0140803','0666579','0138170','0138060','0666449','0138310' are added to output 
+            #but on 3rd run '140440' are added to output
+            #but on 4th run nothing is returned!
             filtered_fully_and_flow_removed =   filtered_fully[~(filtered_fully['FLOW_ID'].isin(flowtoremove))]
         else:
-            print("Check the assignment of the year value for RDG data.  This isn't a valid value.")
+            print(f"Check the assignment of the year value for RDG data.  {yr} isn't a valid value.")
 
     else:
         #set the partially modified dataframe to the returned dataframe
-        filtered_fully_and_flow_removed = filtered_fully
+        filtered_fully_and_flow_removed = filtered_fully.copy()
  
 
     

@@ -43,6 +43,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="FaresIndexPreparation\toc_file_processing.py" />
+    <Compile Include="independent_rdg_prices_info.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="FaresIndexPreparation" />

@@ -6,6 +6,41 @@ import xlsxwriter
 import re
 
 
+def main():
+    # This is intended as an independent module from the rest of the Fares Index Process.
+    # The intent is to enable the identification of duplicates flow id's which are assigned deleted or retained in the wider RDG file to be used as part of the wider process
+    # The identification of which flow id's to remove or retain is done through the use of the Avantix database.
+
+
+    #parameters to be edited depending on users' file set up
+    root = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\'
+    originpath = root + 'TOC_files\\'
+    regulatedfarespath = root + 'regulated_fares_data\\'
+    RDGfarespath = root + 'RDG_Fares_information\\'  
+    LENNONnonadvancedfarespath = root + 'LENNON_Fares_information\\non_advanced_data\\' 
+    LENNONadvancedfarepath = root + 'LENNON_Fares_information\\advanced_data\\'
+    categorypath = root + 'SPSS\SPSS_Source_Data\\'
+    manualdatapath = root + '\\Manually_checked_data\\ '
+    destinationpath = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\'
+
+    RDGprices2018 = get_rdg_prices_info(RDGfarespath
+                        ,'2018 fares extract.txt'
+                        , destinationpath
+                        ,'prices2018.csv'
+                        ,'2018'
+                        ,True)
+
+    RDGprices2019 = get_rdg_prices_info(RDGfarespath
+                        ,'2019 fares extract.txt'
+                        , destinationpath
+                        ,'prices2019.csv'
+                        ,'2019'
+                        ,True)
+
+    exportfile(RDGprices2018,destinationpath, "final RDG for 2018" )
+    exportfile(RDGprices2019,destinationpath, "final RDG for 2019")
+
+
 def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year,excludeflowid = False):
     """
     This procedure gets the RDG .txt file, splits it into flow and fare_price information dataframes, combines them into 
@@ -26,9 +61,28 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year,exclu
     print(f"getting RDG prices data for {year} \n ")
     flow_list, fare_list = getdata(infilepath,infilename)
     
-    print("splitting the data into flow and fares \n")
+    print("splitting the data into flow and fares\n")
     flow_df, fares_df = splitter(flow_list, fare_list)
 
+
+    #print("exporting the flow and fares with separate info\n")
+    #exportfile(flow_df,outfilepath,'flow_info_'+ year)
+    #exportfile(fares_df,outfilepath,'fares_info'+ year)
+
+    # identify potential duplicates in the flow file
+    #flowduplicateflag = flow_df.duplicated(subset=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','USAGE_CODE','DIRECTION','TOC'],keep=False)
+    #
+    # check this method of checking for an empty dataframe - seems to return false positive.
+    #if flow_df[flowduplicateflag].empty == True:
+    #    print (f"There are no duplicates indicated in flow for {year}")
+    #
+    #else:
+    #    flowduplicates = flow_df[flowduplicateflag]
+    #    print(f"Exporting potential duplicates for {year}")
+    #    exportfile(flowduplicates,outfilepath,"potential RDG flow duplicates_for_" + year)
+    
+    #exportfile(flow_df,outfilepath,"RDG_flow" + year)
+    #exportfile(fares_df,outfilepath,"RDG_fares" + year)
 
     #joining the flow and fares information
     print("joining flow and fares information\n")
@@ -204,11 +258,7 @@ def removeRDGduplicates(df, yr, excludeflowid):
         filtered_fully_and_flow_removed = filtered_fully.copy()
  
 
-    
-    
-    return filtered_fully_and_flow_removed
 
 
-
-
-
+if __name__ == '__main__':
+    main()

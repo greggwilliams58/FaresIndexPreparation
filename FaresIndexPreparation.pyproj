@@ -37,6 +37,9 @@
     <Compile Include="FaresIndexPreparation\get_non_advanced.py" />
     <Compile Include="FaresIndexPreparation\lennon_data.py" />
     <Compile Include="FaresIndexPreparation\main.py" />
+    <Compile Include="FaresIndexPreparation\rail_financial_output.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="FaresIndexPreparation\rdg_prices_info.py" />
     <Compile Include="FaresIndexPreparation\test.py" />
     <Compile Include="FaresIndexPreparation\test for sum of weighings from superfile.py">

@@ -4,6 +4,7 @@ from get_advanced import advanced_data
 from commonfunctions import exportfile
 from calculate_non_advanced_stats import main
 from lennon_data import get_lennon_price_info,add_lennon_fares_info
+from rail_financial_output import getrailfinancial
 from calculate_results import calculate_endresults 
 
 def main():
@@ -44,6 +45,9 @@ def main():
     nonadvanced = non_advanced_data(superfilefornonadvanced,destinationpath,RDGfarespath,LENNONnonadvancedfarespath)
     exportfile(nonadvanced,destinationpath,'nonadvancedfile')
     
+    print("The data for rail financials is being prepared")
+    getrailfinancial(superfileforrailfinance,destinationpath)
+
     ##place holder for appending 
     ##finaldataset = append_revised_data(advanced,nonadvanced,superfileforweights)
 

@@ -8,6 +8,8 @@ import re
 
 def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year,excludeflowid = False):
     """
+    A zip file is downloaded from a RDG website, which produces a zip file.  Once extracted, the file with the file named  "RJFAF174.FFL" should be opened in notepad++ and saved as a .txt file.  
+    The only relevant file is the one with the extension .FFL
     This procedure gets the RDG .txt file, splits it into flow and fare_price information dataframes, combines them into 
     a joined csv file, which has a lookup to add LENNON ticket codes for later use in the LENNON-based superfile.
 
@@ -194,7 +196,7 @@ def removeRDGduplicates(df, yr, excludeflowid):
             filtered_fully_and_flow_removed =   filtered_fully[~(filtered_fully['FLOW_ID'].isin(flowtoremove))]
 
         elif yr == '2019':
-            flowtoremove= ['0140673','0666616','0140777','0666379','0138003','0666568','0138319','0666480','1141844','0666625','0140657','0666552','0140803','0666579','0138170','0138060','0666449','0138310','0138365']
+            flowtoremove= ['9999999']
             filtered_fully_and_flow_removed =   filtered_fully[~(filtered_fully['FLOW_ID'].isin(flowtoremove))]
         else:
             print(f"Check the assignment of the year value for RDG data.  {yr} isn't a valid value.")

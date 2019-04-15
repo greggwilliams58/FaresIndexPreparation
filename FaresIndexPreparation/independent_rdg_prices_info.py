@@ -23,12 +23,12 @@ def main():
     manualdatapath = root + '\\Manually_checked_data\\ '
     destinationpath = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\'
 
-    RDGprices2018 = get_rdg_prices_info(RDGfarespath
-                        ,'2018 fares extract.txt'
-                        , destinationpath
-                        ,'prices2018.csv'
-                        ,'2018'
-                        ,True)
+    #RDGprices2018 = get_rdg_prices_info(RDGfarespath
+    #                    ,'2018 fares extract.txt'
+    #                    , destinationpath
+    #                    ,'prices2018.csv'
+    #                    ,'2018'
+    #                    ,False)
 
     RDGprices2019 = get_rdg_prices_info(RDGfarespath
                         ,'2019 fares extract.txt'
@@ -37,7 +37,7 @@ def main():
                         ,'2019'
                         ,True)
 
-    exportfile(RDGprices2018,destinationpath, "final RDG for 2018" )
+   # exportfile(RDGprices2018,destinationpath, "final RDG for 2018" )
     exportfile(RDGprices2019,destinationpath, "final RDG for 2019")
 
 
@@ -64,9 +64,15 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year,exclu
     print("splitting the data into flow and fares\n")
     flow_df, fares_df = splitter(flow_list, fare_list)
 
+    #remove rows where the Valid_Until date != 31122999 or the max value
+    #flow_group = flow_df.groupby(['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE'])
+    idx = flow_df.groupby(['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE'])['VALID_UNTIL'].transform(max) == flow_df['VALID_UNTIL']
+    flow_df = flow_df[idx]
 
-    #print("exporting the flow and fares with separate info\n")
-    #exportfile(flow_df,outfilepath,'flow_info_'+ year)
+
+
+    print("exporting the flow and fares with separate info\n")
+    exportfile(flow_df,outfilepath,'flow_info_'+ year)
     #exportfile(fares_df,outfilepath,'fares_info'+ year)
 
     # identify potential duplicates in the flow file
@@ -96,7 +102,8 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year,exclu
 
     #reading in the lookup value for the LENNON codes lookup
     lookupinfo = pd.read_excel(infilepath +'Lennon_product_codes_and_Fares_ticket_types_2017.xlsx','Fares to Lennon coding')
-    
+
+
     ##join lookupinfo with Lennon keys
     combined_data_with_lennon = pd.merge(combined_data_no_duplicates,lookupinfo,'left',left_on=['TICKET_CODE'],right_on=['Fares ticket type code'])
 
@@ -142,7 +149,9 @@ def getdata(filepath, filename):
                     datasetlist1.append(line)
                 else:
                     datasetlist2.append(line)
-  
+
+
+
         return datasetlist1, datasetlist2
 
 
@@ -164,10 +173,10 @@ def splitter (data1, data2):
     fare_record_data = list()
 
     for line in data1:
-        line = [line[2:6],line[6:10],line[10:15],line[15:18],line[18],line[19],line[36:39],line[42:49]]
+        line = [line[2:6],line[6:10],line[10:15],line[15:18],line[18],line[19],line[36:39],line[20:28],line[28:36],line[42:49]]
         flow_data.append(line)
 
-    flow = pd.DataFrame(flow_data, columns=["ORIGIN_CODE","DESTINATION_CODE","ROUTE_CODE","STATUS_CODE","USAGE_CODE","DIRECTION","TOC","FLOW_ID"])
+    flow = pd.DataFrame(flow_data, columns=["ORIGIN_CODE","DESTINATION_CODE","ROUTE_CODE","STATUS_CODE","USAGE_CODE","DIRECTION","TOC","VALID_UNTIL","VALID_FROM","FLOW_ID"])
     flow['ROUTE_CODE'] = flow['ROUTE_CODE'].astype(object)
     flow.index.name="flow_idx"
 
@@ -248,7 +257,7 @@ def removeRDGduplicates(df, yr, excludeflowid):
             filtered_fully_and_flow_removed =   filtered_fully[~(filtered_fully['FLOW_ID'].isin(flowtoremove))]
 
         elif yr == '2019':
-            flowtoremove= ['0140673','0666616','0140777','0666379','0138003','0666568','0138319','0666480','1141844','0666625','0140657','0666552','0140803','0666579','0138170','0138060','0666449','0138310','0138365']
+            flowtoremove= ['9999999']
             filtered_fully_and_flow_removed =   filtered_fully[~(filtered_fully['FLOW_ID'].isin(flowtoremove))]
         else:
             print(f"Check the assignment of the year value for RDG data.  {yr} isn't a valid value.")
@@ -257,7 +266,7 @@ def removeRDGduplicates(df, yr, excludeflowid):
         #set the partially modified dataframe to the returned dataframe
         filtered_fully_and_flow_removed = filtered_fully.copy()
  
-
+    return filtered_fully_and_flow_removed
 
 
 if __name__ == '__main__':

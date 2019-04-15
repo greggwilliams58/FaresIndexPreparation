@@ -43,8 +43,8 @@ def main():
 
 def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year,excludeflowid = False):
     """
-    This procedure gets the RDG .txt file, splits it into flow and fare_price information dataframes, combines them into 
-    a joined csv file, which has a lookup to add LENNON ticket codes for later use in the LENNON-based superfile.
+    This procedure gets the RDG .txt file, splits it into flow and fare_price information dataframes, removes flow information where the VALID_UNTIL field is not the highest possible value.
+    It then combines the fares and flow into a joined csv file, which has a lookup to add LENNON ticket codes for later use in the LENNON-based superfile.
 
     Parameters:
     infilepath      - a string containing the filepath location of the RDG file

@@ -64,7 +64,7 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year,exclu
     print("splitting the data into flow and fares\n")
     flow_df, fares_df = splitter(flow_list, fare_list)
 
-    #remove rows where the Valid_Until date != 31122999 or the max value
+    #remove rows where the Valid_Until date !=  the max value of Valid_Until
     #flow_group = flow_df.groupby(['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE'])
     idx = flow_df.groupby(['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE'])['VALID_UNTIL'].transform(max) == flow_df['VALID_UNTIL']
     flow_df = flow_df[idx]

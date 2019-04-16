@@ -44,7 +44,9 @@ def main():
 
 def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year,excludeflowid = False):
     """
-    This procedure gets the RDG .txt file, splits it into flow and fare_price information dataframes, removes flow information where the VALID_UNTIL field is not the highest possible value.
+    This procedure gets the RDG .txt file, splits it into flow and fare_price information dataframes, 
+    The flow dataset has a valid_until field which is converted into a date within range (31122999 to 31122100)
+    This VALID_UNTIL is used to remove duplicates from flow information by removing rows where VALID_UNTIL field is not the highest possible value.
     It then combines the fares and flow into a joined csv file, which has a lookup to add LENNON ticket codes for later use in the LENNON-based superfile.
 
     Parameters:
@@ -65,15 +67,15 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year,exclu
     print("splitting the data into flow and fares\n")
     flow_df, fares_df = splitter(flow_list, fare_list)
 
-
+    print("replacing the outofbounds date values \n ")
     #replacing the outofbounds date value 31122999 with 31122100
     flow_df['VALID_UNTIL'].replace(['31122999'],['31122100'],inplace=True)
-
+    
+    print("converting the valid_until into date format \n")
     #formatting the date valid until
     flow_df['DATE_VALID_UNTIL'] = flow_df['VALID_UNTIL'].apply(lambda x: pd.to_datetime(str(x),format='%d%m%Y'))
 
     #remove rows where the Valid_Until date !=  the max value of Valid_Until
- 
     idx = flow_df.groupby(['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE'])['DATE_VALID_UNTIL'].transform(max) == flow_df['DATE_VALID_UNTIL']
     flow_df = flow_df[idx]
 

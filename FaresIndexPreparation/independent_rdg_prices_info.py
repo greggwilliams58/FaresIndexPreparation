@@ -4,6 +4,7 @@ from pandas import ExcelFile
 from commonfunctions import exportfile
 import xlsxwriter
 import re
+import datetime
 
 
 def main():
@@ -64,9 +65,16 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year,exclu
     print("splitting the data into flow and fares\n")
     flow_df, fares_df = splitter(flow_list, fare_list)
 
+
+    #replacing the outofbounds date value 31122999 with 31122100
+    flow_df['VALID_UNTIL'].replace(['31122999'],['31122100'],inplace=True)
+
+    #formatting the date valid until
+    flow_df['DATE_VALID_UNTIL'] = flow_df['VALID_UNTIL'].apply(lambda x: pd.to_datetime(str(x),format='%d%m%Y'))
+
     #remove rows where the Valid_Until date !=  the max value of Valid_Until
-    #flow_group = flow_df.groupby(['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE'])
-    idx = flow_df.groupby(['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE'])['VALID_UNTIL'].transform(max) == flow_df['VALID_UNTIL']
+ 
+    idx = flow_df.groupby(['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE'])['DATE_VALID_UNTIL'].transform(max) == flow_df['DATE_VALID_UNTIL']
     flow_df = flow_df[idx]
 
 

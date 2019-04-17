@@ -37,8 +37,8 @@ def advanced_data(df,destinationpath,LENNONfarespath):
     exportfile(LENNONadvancedprices2019,destinationpath,"LENNON2019lookup")
 
     print("This is the advanced file before adding lennon data")
-    print(advanced.info())
-    print(advanced.head(10))
+    #print(advanced.info())
+    #print(advanced.head(10))
     #merging LENNON fares information
     advanced = add_lennon_fares_info(advanced,LENNONadvancedprices2018,'_2018','advanced')
     #exportfile(advanced,destinationpath,"LENNON_2017_added")

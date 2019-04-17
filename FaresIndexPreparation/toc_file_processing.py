@@ -204,9 +204,10 @@ def assignlookupvalues(df,lookuptype, mapping_dictionary,reference_column, colum
      
     return df
 
-def assigncategorylookupvalues(df,lookuptype, mapping_dictionary,reference_column, column_name, orig_column_name):
+def assignedregulatedlookupvalues(df,lookuptype, mapping_dictionary,reference_column, column_name, orig_column_name):
     """
     This procedure performs a lookup against a given column using .map() method.  Existing entries are left alone. 
+    This is used solely for the mapping of data to a given regulated/regulated status in a series of steps.
     
     Parameters:
     df                  - a dataframe containing all data
@@ -306,7 +307,7 @@ def setregulatedfares(df,destinationpath):
                ,'NFD':'Regulated_by_TOC','LRC':'Regulated_by_TOC','LBR':'Regulated_by_TOC','SMR':'Regulated_by_TOC'
                ,'ANG':'Regulated_by_TOC', 'GER':'Regulated_by_TOC','NTT':'Regulated_by_TOC','RCV':'Regulated_by_TOC','RWW':'Regulated_by_TOC','TLK':'Regulated_by_TOC','WGN':'Regulated_by_TOC'}
     
-    df = assigncategorylookupvalues(df,'Regulation by TOCs',toc,'flag2','Regulated_Status_toc','Regulated_Status_Start')
+    df = assignedregulatedlookupvalues(df,'Regulation by TOCs',toc,'flag2','Regulated_Status_toc','Regulated_Status_Start')
 
     ##assign values based on Product Codes
     products = {'2MTA':'Regulated_by_Product','2MQA':'Regulated_by_Product', '2MSA':'Regulated_by_Product', '2MSH':'Regulated_by_Product', '2MSL':'Regulated_by_Product', '2MSW':'Regulated_by_Product', '2MTH':'Regulated_by_Product'
@@ -315,20 +316,20 @@ def setregulatedfares(df,destinationpath):
                           '2OBF':'Regulated_by_Product', '2OCH':'Regulated_by_Product', '2OCI':'Regulated_by_Product', '2OCJ':'Regulated_by_Product', '2OCL':'Regulated_by_Product', '2OCN':'Regulated_by_Product',
                          '2OEH':'Regulated_by_Product', '2CIC':'Regulated_by_Product', '2CID':'Regulated_by_Product', '2CIE':'Regulated_by_Product', '2CIF':'Regulated_by_Product'}
     
-    df = assigncategorylookupvalues(df,'Regulation by Product',products,'Product Code','Regulated_Status_Products','Regulated_Status_toc')
+    df = assignedregulatedlookupvalues(df,'Regulation by Product',products,'Product Code','Regulated_Status_Products','Regulated_Status_toc')
 
     ##exceptional regulated products mapping
     regulatedexception = {'2ADA':'Unregulated_by_Product','2BDY':'Unregulated_by_Product'}
-    df = assigncategorylookupvalues(df,'Regulation by Exception',regulatedexception,'Product Code','Regulated_Status_exceptions','Regulated_Status_Products')
+    df = assignedregulatedlookupvalues(df,'Regulation by Exception',regulatedexception,'Product Code','Regulated_Status_exceptions','Regulated_Status_Products')
 
     ####resolution of regulated status based on class
     unregulatedclass = {'1':'Unregulated_by_Class'}
-    df = assigncategorylookupvalues(df,'Regulation by Class',unregulatedclass,'class','Regulated_Status_class','Regulated_Status_exceptions')
+    df = assignedregulatedlookupvalues(df,'Regulation by Class',unregulatedclass,'class','Regulated_Status_class','Regulated_Status_exceptions')
     
 
     ####resolution of regulated status based on Profit Centre Code
     regulatedprofitcentrecode = {'EC':'Unregulated_by_PCC','HM':'Unregulated_by_PCC'}
-    df = assigncategorylookupvalues(df,'Regulation by Profit Centre',regulatedprofitcentrecode,'Carrier TOC / Third Party Code','Regulated_Status_PCC','Regulated_Status_class')
+    df = assignedregulatedlookupvalues(df,'Regulation by Profit Centre',regulatedprofitcentrecode,'Carrier TOC / Third Party Code','Regulated_Status_PCC','Regulated_Status_class')
 
     #create final copy of regulated column
     df['Regulated_Status'] = df['Regulated_Status_PCC']
@@ -366,55 +367,55 @@ def setregulatedfares(df,destinationpath):
                             'Regulated_Status'])
     return df
 
+# this is legacy code relating to SPSS which has been replaced by Excel as a lookup source
+#def getcategorylookup_spss(df,filepath, filename,destinationpath):
+#    """
+#    This procedure loads category lookup data from SPSS/SAV file, conforms the format of fields to be return and joins it to the main file.  Non-matches are categorised as 'Missing' and 
+#    these rows are exported to a logging file.  Categorical datatyping is applied to new fields.
 
-def getcategorylookup_spss(df,filepath, filename,destinationpath):
-    """
-    This procedure loads category lookup data from SPSS/SAV file, conforms the format of fields to be return and joins it to the main file.  Non-matches are categorised as 'Missing' and 
-    these rows are exported to a logging file.  Categorical datatyping is applied to new fields.
+#    Parameters:
+#    df                  - a dataframe containing the 'superfile'
+#    filepath            - a string containing the file path for the lookup sav/spss file
+#    filename            - a string containing the name of the sav/spss file
+#    destinationpath     - a string containing the file path for the output to be sent
 
-    Parameters:
-    df                  - a dataframe containing the 'superfile'
-    filepath            - a string containing the file path for the lookup sav/spss file
-    filename            - a string containing the name of the sav/spss file
-    destinationpath     - a string containing the file path for the output to be sent
+#    Returns:
+#    df                  - a dataframe containing the 'superfile' with categpory information
+#    """
+#    print("Category Lookup Data being loaded \n")
+#    with SavReader(filepath + filename,ioUtf8=True) as reader:
+#        records = reader.all()
 
-    Returns:
-    df                  - a dataframe containing the 'superfile' with categpory information
-    """
-    print("Category Lookup Data being loaded \n")
-    with SavReader(filepath + filename,ioUtf8=True) as reader:
-        records = reader.all()
+#    savtodf = pd.DataFrame(records)
 
-    savtodf = pd.DataFrame(records)
-
-    #define column names
-    savtodf.columns = ['Product Code','Product Primary Code','Category']
+#    #define column names
+#    savtodf.columns = ['Product Code','Product Primary Code','Category']
     
-    #force all categories to lower case
-    savtodf['Category'] = savtodf['Category'].str.lower()
+#    #force all categories to lower case
+#    savtodf['Category'] = savtodf['Category'].str.lower()
     
-    #replace 'off-peak' with 'offpeak'
-    savtodf['Category'] = savtodf['Category'].str.replace('off-peak','offpeak')
+#    #replace 'off-peak' with 'offpeak'
+#    savtodf['Category'] = savtodf['Category'].str.replace('off-peak','offpeak')
         
 
-    print("Category Information being added")
-    df = pd.merge(df,savtodf,how='left', left_on=['Product Code','Product Primary Code'],right_on=['Product Code','Product Primary Code'])
+#    print("Category Information being added")
+#    df = pd.merge(df,savtodf,how='left', left_on=['Product Code','Product Primary Code'],right_on=['Product Code','Product Primary Code'])
 
-    df['Category'].fillna('Missing',inplace=True)
-    nonmatches = df[df['Category']=='Missing']
+#    df['Category'].fillna('Missing',inplace=True)
+#    nonmatches = df[df['Category']=='Missing']
     
-    #formatted_date = datetime.datetime.now().strftime('%Y%m%d_%H-%M')
-    #filename = f'missing_categories_{formatted_date}.csv'
+#    #formatted_date = datetime.datetime.now().strftime('%Y%m%d_%H-%M')
+#    #filename = f'missing_categories_{formatted_date}.csv'
 
-    filtered_nonmatches = nonmatches[['Carrier TOC / Third Party Code','Product Code','Product Primary Code']].copy()
-    print(filtered_nonmatches.info())
-    unique_filtered_nonmatches = filtered_nonmatches.unique()
-    exportfile(unique_filtered_nonmatches,destinationpath, 'missing_categories')
+#    filtered_nonmatches = nonmatches[['Carrier TOC / Third Party Code','Product Code','Product Primary Code']].copy()
+#    print(filtered_nonmatches.info())
+#    unique_filtered_nonmatches = filtered_nonmatches.unique()
+#    exportfile(unique_filtered_nonmatches,destinationpath, 'missing_categories')
 
-    df = applydatatypes(df,['Product Code','Product Primary Code','Category'])
-    del savtodf
+#    df = applydatatypes(df,['Product Code','Product Primary Code','Category'])
+#    del savtodf
 
-    return df
+#    return df
 
 def getcategorylookup(df,filepath, filename,destinationpath):
     """

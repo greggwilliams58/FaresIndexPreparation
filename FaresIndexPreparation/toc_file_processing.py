@@ -69,7 +69,7 @@ def generatedata(originpath,destinationpath,regulatedfarespath,categorypath):
     #mapping of categories
     superfile = getcategorylookup(superfile,categorypath,'Product_category_lookup.xlsx',destinationpath)
 
-    exportfile(superfile,destinationpath,'rawsuperfile')
+    #exportfile(superfile,destinationpath,'rawsuperfile')
     ### export the superfile to a new function to calculate Chris' data for UK Rail financials
     #calculateukrailfinancials(superfile)
     return superfile

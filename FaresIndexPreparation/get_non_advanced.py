@@ -72,8 +72,8 @@ def non_advanced_data(df,destinationpath,RDGfarespath,LENNONfarespath):
     
     exportfile(df,destinationpath,"non-advanced_data_before_LENNON")
     #getting LENNON fare information
-    LENNONprices2018 = get_lennon_price_info('2018',LENNONfarespath,'pricefile2018P1112.csv','non-advanced')
-    LENNONprices2019 = get_lennon_price_info('2019',LENNONfarespath,'pricefile2019P1112.csv','non-advanced')
+    LENNONprices2018 = get_lennon_price_info('2018',LENNONfarespath,'pricefile_nonadvanced_2018.csv','non-advanced')
+    LENNONprices2019 = get_lennon_price_info('2019',LENNONfarespath,'pricefile_nonadvanced_2019.csv','non-advanced')
 
     #merging LENNON fares information
     df = add_lennon_fares_info(df,LENNONprices2018,'_2018','non-advanced')

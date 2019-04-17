@@ -31,9 +31,9 @@ def advanced_data(df,destinationpath,LENNONfarespath):
     advanced.rename(columns={'Adjusted Earnings Amount_sum':'Adjusted Earnings Amount','Operating Journeys_sum':'Operating Journeys'},inplace=True)
 
     #getting LENNON fare information
-    LENNONadvancedprices2018 = get_lennon_price_info('2018','C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\LENNON_Fares_information\\advanced_data\\','2018_advance_price.csv','advanced')
+    LENNONadvancedprices2018 = get_lennon_price_info('2018','C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\LENNON_Fares_information\\advanced_data\\','pricefile_advanced_2018.csv','advanced')
     exportfile(LENNONadvancedprices2018,destinationpath,"LENNON2018lookup")
-    LENNONadvancedprices2019 = get_lennon_price_info('2019','C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\LENNON_Fares_information\\advanced_data\\','2019_advance_price.csv','advanced')
+    LENNONadvancedprices2019 = get_lennon_price_info('2019','C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\LENNON_Fares_information\\advanced_data\\','pricefile_advanced_2019.csv','advanced')
     exportfile(LENNONadvancedprices2019,destinationpath,"LENNON2019lookup")
 
     print("This is the advanced file before adding lennon data")

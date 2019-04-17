@@ -200,10 +200,10 @@ def assignlookupvalues(df,lookuptype, mapping_dictionary,reference_column, colum
         
         missing_values.to_csv(exportpath + filename)
     else:
-        print(f"There are no missing {lookuptype} values\n")
+        print(f"There are no missing {lookuptype} values\n") 
      
     return df
-
+ 
 def assignedregulatedlookupvalues(df,lookuptype, mapping_dictionary,reference_column, column_name, orig_column_name):
     """
     This procedure performs a lookup against a given column using .map() method.  Existing entries are left alone. 

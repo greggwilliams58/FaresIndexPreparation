@@ -4,6 +4,7 @@ from savReaderWriter import SavReader
 from commonfunctions import applydatatypes, exportfile
 import os 
 import numpy as np
+import re
 
 
 def generatedata(originpath,destinationpath,regulatedfarespath,categorypath):
@@ -35,6 +36,9 @@ def generatedata(originpath,destinationpath,regulatedfarespath,categorypath):
 
     superfile = joinedfile.copy()
 
+    #drop where category_code not starting with 1 or 2
+    superfile = superfile['Product Code'].str.startwith(['1','2'])
+
     #fields to convert to categorical data type
     superfile = applydatatypes(superfile,['Carrier TOC / Third Party Code','Product Code','Product Primary Code'])
 
@@ -56,6 +60,7 @@ def generatedata(originpath,destinationpath,regulatedfarespath,categorypath):
     del superfile['classreference']
 
 
+
     
     #getting the regulated fares lookup to add flag_2 information for faretypes
     superfile = regulatedfarelookup(regulatedfarespath,superfile )
@@ -67,7 +72,7 @@ def generatedata(originpath,destinationpath,regulatedfarespath,categorypath):
     superfile = setregulatedfares(superfile,destinationpath)
 
     #mapping of categories
-    superfile = getcategorylookup(superfile,categorypath,'Product_category_lookup.xlsx',destinationpath)
+    superfile = getcategorylookup(superfile,categorypath,'Product_category_lookup_2019.xlsx',destinationpath)
 
     #exportfile(superfile,destinationpath,'rawsuperfile')
     ### export the superfile to a new function to calculate Chris' data for UK Rail financials

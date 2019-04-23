@@ -40,19 +40,17 @@ def main():
     totalscheck = superfile.groupby(['Carrier TOC / Third Party Code'])['Adjusted Earnings Amount','Operating Journeys'].agg('sum')
     exportfile(totalscheck,destinationpath,'sum_of_earnings_and_journies_by_toc')
 
-    getrailfinancial(superfileforrailfinance,destinationpath )
-
     print("the advanced data is coming.... main\n")
-    #advanced = advanced_data(superfileforadvanced,destinationpath,LENNONadvancedfarepath)
-    #exportfile(advanced,destinationpath,'advancedfile')
+    advanced = advanced_data(superfileforadvanced,destinationpath,LENNONadvancedfarepath)
+    exportfile(advanced,destinationpath,'advancedfile')
      
     ##calculation of non-advanced data prior to manual validation and advantix data
     print ("The non-advanced data is coming....")
-    #nonadvanced = non_advanced_data(superfilefornonadvanced,destinationpath,RDGfarespath,LENNONnonadvancedfarespath)
-    #exportfile(nonadvanced,destinationpath,'nonadvancedfile')
+    nonadvanced = non_advanced_data(superfilefornonadvanced,destinationpath,RDGfarespath,LENNONnonadvancedfarespath)
+    exportfile(nonadvanced,destinationpath,'nonadvancedfile')
     
     print("The data for rail financials is being prepared")
-    #getrailfinancial(superfileforrailfinance,destinationpath)
+    getrailfinancial(superfileforrailfinance,destinationpath)
 
     ##place holder for appending 
     ##finaldataset = append_revised_data(advanced,nonadvanced,superfileforweights)

@@ -37,7 +37,7 @@ def generatedata(originpath,destinationpath,regulatedfarespath,categorypath):
     superfile = joinedfile.copy()
 
     #drop where category_code not starting with 1 or 2
-    superfile = superfile[superfile['Product Code'].str.contains('1[A-Z][A-Z][A-Z]'|'2[A-Z][A-Z][A-Z]',regex=True)]
+    superfile = superfile[superfile['Product Code'].str.contains('1[A-Z][A-Z][A-Z]|2[A-Z][A-Z][A-Z]',regex=True)]
     #exportfile(superfile,destinationpath,"superfile after purge")
 
     #fields to convert to categorical data type

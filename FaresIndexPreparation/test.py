@@ -3,10 +3,10 @@ from commonfunctions import exportfile
 
 def get_lennon_price_info(year,filepath, filename):
    df = pd.read_csv(filepath + filename) 
-   df['Issues (*)'] = df[['Issues (*)']].apply(pd.to_numeric,errors='coerce')
-   df['Net Receipt Sterling (*)'] = df['Net Receipt Sterling (*)']*100
+   df['Issues (*)'] = df[['Issues']].apply(pd.to_numeric,errors='coerce')
+   df['Net Receipt Sterling'] = df['Net Receipt Sterling']*100
 
-   df['LENNON_PRICE_'+year] = df['Net Receipt Sterling (*)']/df['Issues (*)']
+   df['LENNON_PRICE_'+year] = df['Net Receipt Sterling']/df['Issues']
    df['Route Code'] = df['Route Code'].astype(object)
 
    print(df.info())

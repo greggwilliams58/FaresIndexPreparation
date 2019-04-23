@@ -30,15 +30,15 @@ def get_lennon_price_info(year,filepath, filename,typeofjoin):
        print("incorrect join type specified for LENNON")
 
    df = pd.read_csv(filepath + filename,dtype = dtypedictionary) 
-   df['Issues (*)'] = df[['Issues (*)']].apply(pd.to_numeric,errors='coerce')
-   df['Net Receipt Sterling (*)'] = df['Net Receipt Sterling (*)']*100
+   df['Issues'] = df[['Issues']].apply(pd.to_numeric,errors='coerce')
+   df['NetReceiptSterling'] = df['NetReceiptSterling']*100
 
-   df['LENNON_PRICE_'+year] = df['Net Receipt Sterling (*)']/df['Issues (*)']
+   df['LENNON_PRICE_'+year] = df['NetReceiptSterling']/df['Issues']
    
 
 
-   del df['Net Receipt Sterling (*)']
-   del df['Issues (*)']
+   del df['NetReceiptSterling']
+   del df['Issues']
 
    return df
 

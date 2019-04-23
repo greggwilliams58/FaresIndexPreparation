@@ -31,6 +31,30 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year,exclu
     print("splitting the data into flow and fares \n")
     flow_df, fares_df = splitter(flow_list, fare_list)
 
+    print("replacing the outofbounds date values \n ")
+    #replacing the outofbounds date value 31122999 with 31122100
+    flow_df['VALID_UNTIL'].replace(['31122999'],['31122100'],inplace=True)
+    
+    print("converting the valid_until into date format \n")
+    #formatting the date valid until
+    flow_df['DATE_VALID_UNTIL'] = flow_df['VALID_UNTIL'].apply(lambda x: pd.to_datetime(str(x),format='%d%m%Y'))
+
+    #remove rows where the Valid_Until date !=  the max value of Valid_Until
+    idx = flow_df.groupby(['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE'])['DATE_VALID_UNTIL'].transform(max) == flow_df['DATE_VALID_UNTIL']
+    flow_df = flow_df[idx]
+
+
+
+    print("exporting the flow and fares with separate info\n")
+    exportfile(flow_df,outfilepath,'flow_info_'+ year)
+
+
+
+
+
+
+
+
 
     #joining the flow and fares information
     print("joining flow and fares information\n")
@@ -112,10 +136,10 @@ def splitter (data1, data2):
     fare_record_data = list()
 
     for line in data1:
-        line = [line[2:6],line[6:10],line[10:15],line[15:18],line[18],line[19],line[36:39],line[42:49]]
+        line = [line[2:6],line[6:10],line[10:15],line[15:18],line[18],line[19],line[36:39],line[20:28],line[28:36],line[42:49]]
         flow_data.append(line)
 
-    flow = pd.DataFrame(flow_data, columns=["ORIGIN_CODE","DESTINATION_CODE","ROUTE_CODE","STATUS_CODE","USAGE_CODE","DIRECTION","TOC","FLOW_ID"])
+    flow = pd.DataFrame(flow_data, columns=["ORIGIN_CODE","DESTINATION_CODE","ROUTE_CODE","STATUS_CODE","USAGE_CODE","DIRECTION","TOC","VALID_UNTIL","VALID_FROM","FLOW_ID"])
     flow['ROUTE_CODE'] = flow['ROUTE_CODE'].astype(object)
     flow.index.name="flow_idx"
 

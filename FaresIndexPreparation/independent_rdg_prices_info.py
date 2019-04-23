@@ -24,12 +24,12 @@ def main():
     manualdatapath = root + '\\Manually_checked_data\\ '
     destinationpath = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\'
 
-    #RDGprices2018 = get_rdg_prices_info(RDGfarespath
-    #                    ,'2018 fares extract.txt'
-    #                    , destinationpath
-    #                    ,'prices2018.csv'
-    #                    ,'2018'
-    #                    ,False)
+    RDGprices2018 = get_rdg_prices_info(RDGfarespath
+                        ,'2018 fares extract.txt'
+                        , destinationpath
+                        ,'prices2018.csv'
+                        ,'2018'
+                        ,True)
 
     RDGprices2019 = get_rdg_prices_info(RDGfarespath
                         ,'2019 fares extract.txt'
@@ -38,7 +38,7 @@ def main():
                         ,'2019'
                         ,True)
 
-   # exportfile(RDGprices2018,destinationpath, "final RDG for 2018" )
+    exportfile(RDGprices2018,destinationpath, "final RDG for 2018" )
     exportfile(RDGprices2019,destinationpath, "final RDG for 2019")
 
 

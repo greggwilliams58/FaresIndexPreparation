@@ -57,25 +57,30 @@ def non_advanced_data(df,destinationpath,RDGfarespath,LENNONfarespath):
     df = addRDGfaresinfo(df, RDGprices2018,'_2018')
     df = addRDGfaresinfo(df, RDGprices2019,'_2019')
 
-    #exportfile(df,destinationpath,'non_advanced_data_after_RDG')
+    exportfile(df,destinationpath,'non_advanced_data_after_RDG')
 
+    print("datatyping of key columns")
     #datatyping
     df['Origin Code'] = df['Origin Code'].str.zfill(4)
     df['Destination Code'] = df['Destination Code'].str.zfill(4)
     df['Route Code'] = df['Route Code'].str.zfill(5)
 
+    print("datatyping of other columns")
     df = applydatatypes(df,['Regulated_Status'])
     
     
     #converting RDG fares to numeric 
+    print("convert rdg fares to numeric")
     df[['RDG_FARES_2018','RDG_FARES_2019']] = df[['RDG_FARES_2018','RDG_FARES_2019']].apply(pd.to_numeric)
     
     exportfile(df,destinationpath,"non-advanced_data_before_LENNON")
     #getting LENNON fare information
+    print("getting fares information from lennon")
     LENNONprices2018 = get_lennon_price_info('2018',LENNONfarespath,'pricefile_nonadvanced_2018.csv','non-advanced')
     LENNONprices2019 = get_lennon_price_info('2019',LENNONfarespath,'pricefile_nonadvanced_2019.csv','non-advanced')
 
     #merging LENNON fares information
+    print("merging LENNON fares information with superfile")
     df = add_lennon_fares_info(df,LENNONprices2018,'_2018','non-advanced')
     df = add_lennon_fares_info(df,LENNONprices2019,'_2019','non-advanced')
 

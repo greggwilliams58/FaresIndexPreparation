@@ -38,7 +38,7 @@ def advanced_data(df,destinationpath,LENNONfarespath):
 
     print("This is the advanced file before adding lennon data")
     #print(advanced.info())
-    #print(advanced.head(10))
+    print(advanced.head(10))
     #merging LENNON fares information
     advanced = add_lennon_fares_info(advanced,LENNONadvancedprices2018,'_2018','advanced')
     #exportfile(advanced,destinationpath,"LENNON_2017_added")
@@ -46,7 +46,7 @@ def advanced_data(df,destinationpath,LENNONfarespath):
     #exportfile(advanced,destinationpath,"LENNON_2018_added")
 
     del advanced['price_2018']
-    #del advanced['price_2019']
+    del advanced['price_2019']
 
     advanced.rename(columns={'LENNON_PRICE_2018':'FARES_2018','LENNON_PRICE_2019':'FARES_2019','Adjusted Earnings Amount':'Weightings'},inplace=True)
    
@@ -54,7 +54,7 @@ def advanced_data(df,destinationpath,LENNONfarespath):
 
     advanced = percentagechange(advanced,'FARES_2019','FARES_2018')
 
-    exportfile(advanced,destinationpath,'advancedfile')
+    #exportfile(advanced,destinationpath,'advancedfile')
 
     return advanced
 

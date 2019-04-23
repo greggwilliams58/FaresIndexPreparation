@@ -78,6 +78,9 @@ def generatedata(originpath,destinationpath,regulatedfarespath,categorypath):
     #exportfile(superfile,destinationpath,'rawsuperfile')
     ### export the superfile to a new function to calculate Chris' data for UK Rail financials
     #calculateukrailfinancials(superfile)
+
+    ###place holder for dropping columns no longer needed
+
     return superfile
 
 

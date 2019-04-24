@@ -9,10 +9,6 @@ def advanced_data(df,destinationpath,LENNONfarespath):
 
     #identify which data is advanced data
     advanced = df[df['Category']=='advance']
-    
-    del df['orig']
-    del df['dest']
-    del df['route']
 
     #add trailing zeros - superceded by line 114 toc_file_processing
     #advanced['Origin Code'] = advanced['Origin Code'].str.zfill(4)
@@ -38,19 +34,22 @@ def advanced_data(df,destinationpath,LENNONfarespath):
 
     print("This is the advanced file before adding lennon data")
     #print(advanced.info())
-    print(advanced.head(10))
+    
     #merging LENNON fares information
     advanced = add_lennon_fares_info(advanced,LENNONadvancedprices2018,'_2018','advanced')
+    
     #exportfile(advanced,destinationpath,"LENNON_2017_added")
     advanced = add_lennon_fares_info(advanced,LENNONadvancedprices2019,'_2019','advanced')
+    
     #exportfile(advanced,destinationpath,"LENNON_2018_added")
 
     del advanced['price_2018']
     del advanced['price_2019']
-
+    exportfile(advanced,destinationpath,"advanced before name change")
     advanced.rename(columns={'LENNON_PRICE_2018':'FARES_2018','LENNON_PRICE_2019':'FARES_2019','Adjusted Earnings Amount':'Weightings'},inplace=True)
-   
+    exportfile(advanced,destinationpath,"advanced after name change")
     advanced = handlezeroandnulls(advanced)
+    exportfile(advanced,destinationpath,"advanced after zeros handled")
 
     advanced = percentagechange(advanced,'FARES_2019','FARES_2018')
 

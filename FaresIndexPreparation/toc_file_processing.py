@@ -38,7 +38,7 @@ def generatedata(originpath,destinationpath,regulatedfarespath,categorypath):
 
     #drop where category_code not starting with 1 or 2
     superfile = superfile[superfile['Product Code'].str.contains('1[A-Z][A-Z][A-Z]|2[A-Z][A-Z][A-Z]',regex=True)]
-    exportfile(superfile,destinationpath,"superfile after purge")
+    #exportfile(superfile,destinationpath,"superfile after purge")
 
     #fields to convert to categorical data type
     superfile = applydatatypes(superfile,['Carrier TOC / Third Party Code','Product Code','Product Primary Code'])
@@ -75,13 +75,15 @@ def generatedata(originpath,destinationpath,regulatedfarespath,categorypath):
     #mapping of categories
     superfile = getcategorylookup(superfile,categorypath,'Product_category_lookup_2019.xlsx',destinationpath)
 
-    exportfile(superfile,destinationpath,'rawsuperfile after various lookups')
+    #exportfile(superfile,destinationpath,'rawsuperfile after various lookups')
     ### export the superfile to a new function to calculate Chris' data for UK Rail financials
     #calculateukrailfinancials(superfile)
 
     ###place holder for dropping columns no longer needed
-    superfile = superfile.drop(columns=['Carrier Sub Division Code','orig','dest','route'], inplace=True)
+    superfile = superfile.drop(['Carrier Sub Division Code','orig','dest','route'], axis=1)
 
+    #exportfile(superfile,destinationpath,"superfile after dropping 4 columns")
+    #apply final superfile datatyping
     superfile = applydatatypes(superfile,['Carrier TOC / Third Party Code','Origin Code','Destination Code','Route Code','Product Code','sector','ticket_type','class','Regulated_Status_Start','Regulated_Status_toc','Regulated_Status_Products','Regulated_Status_exceptions','Regulated_Status_class','Regulated_Status_PCC','Regulated_Status','Category'])
     return superfile
 

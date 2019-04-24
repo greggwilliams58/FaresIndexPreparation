@@ -18,7 +18,7 @@ def get_lennon_price_info(year,filepath, filename,typeofjoin):
    """
    
    #write new dictionary to handle non-advanced lennon datatyping here
-   #'Origin Code','Destination Code','Route Code','Product Code'
+
    advanceddtypedict = {'Origin Code':str,'Destination Code':str,'Route Code':str,'class':str}
    nonadvanceddtypedict = {'Route Code':str}
 
@@ -30,6 +30,12 @@ def get_lennon_price_info(year,filepath, filename,typeofjoin):
        print("incorrect join type specified for LENNON")
 
    df = pd.read_csv(filepath + filename,dtype = dtypedictionary) 
+   #'Origin Code','Destination Code','Route Code','Product Code'
+   df['Origin Code'] = df['Origin Code'].str.zfill(4)
+   df['Destination Code'] = df['Destination Code'].str.zfill(4)
+   df['Route Code'] = df['Route Code'].str.zfill(5)
+
+
    df['Issues'] = df[['Issues']].apply(pd.to_numeric,errors='coerce')
    df['NetReceiptSterling'] = df['NetReceiptSterling']*100
 

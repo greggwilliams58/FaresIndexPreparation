@@ -65,8 +65,8 @@ def non_advanced_data(df,destinationpath,RDGfarespath,LENNONfarespath):
     df['Destination Code'] = df['Destination Code'].str.zfill(4)
     df['Route Code'] = df['Route Code'].str.zfill(5)
 
-    print("datatyping of other columns")
-    df = applydatatypes(df,['Regulated_Status'])
+    #print("datatyping of other columns")
+    #df = applydatatypes(df,['Regulated_Status'])
     
     
     #converting RDG fares to numeric 
@@ -130,14 +130,14 @@ def non_advanced_data(df,destinationpath,RDGfarespath,LENNONfarespath):
 
 def datatypinganddropping(df):
     #drop fields no longer needed
-    del df['orig']
-    del df['dest']
-    del df['route']
+    #del df['orig']
+    #del df['dest']
+    #del df['route']
     del df['LENNON_PRICE_2018']
     del df['LENNON_PRICE_2019']
     
     #apply datatyping to the four key fields
-    df = applydatatypes(df,['Origin Code','Destination Code','Route Code','Product Code'])
+    #df = applydatatypes(df,['Origin Code','Destination Code','Route Code','Product Code'])
     return df
 
 

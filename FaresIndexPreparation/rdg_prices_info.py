@@ -177,6 +177,7 @@ def addRDGfaresinfo(df,lookupdf,postfix):
 
     #print("lookup info from addRDG\n")
     #print(lookupdf.info())
+    print(f"about to attempt merging superfile with RDG data from{postfix}")
     df_dt = pd.merge(left=df_dt,right=lookupdf[['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','Lennon product code (CTOT)','FARE']],
                          how='left',
                          left_on=['Origin Code','Destination Code','Route Code','Product Code'],

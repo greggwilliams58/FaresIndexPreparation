@@ -105,7 +105,7 @@ def non_advanced_data(df,destinationpath,RDGfarespath,LENNONfarespath):
     populated2018and2019 = handlezeroandnulls(df)
 
     #add percentagechange to populated file
-    populated2018and2019 = percentagechange(populated2018and2019,'FARES_2018','FARES_2019')
+    populated2018and2019 = percentagechange(populated2018and2019,'FARES_2019','FARES_2018')
 
     #this is for validation of large percentage changes' amended data to be added to coredata later
     bigchange = populated2018and2019.query('percentage_change > 20.0 and Weightings < 500000')

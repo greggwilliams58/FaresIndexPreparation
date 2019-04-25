@@ -12,20 +12,20 @@ def main():
 
 
     print("getting advanced data\n")
-    advanceddata = pd.read_csv(filelocation + 'advancedfile_20190401_13-12.csv',
+    advanceddata = pd.read_csv(filelocation + 'advancedfile_20190425_09-49.csv',
                                dtype={'Carrier TOC / Third Party Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
                                       'Product Code':'category','Product Primary Code':'category','class':'category','sector':'category'})
 
     #exportfile(advanceddata.info(),filelocation,"advanced_metadata")
     
     print("Getting non-advanced data\n")
-    nonadvanceddata = pd.read_csv(filelocation + 'nonadvancedfile_20190401_13-22.csv',
+    nonadvanceddata = pd.read_csv(filelocation + 'nonadvancedfile_20190425_10-07.csv',
                                   dtype={'Carrier TOC / Third Party Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
                                       'Product Code':'category','Product Primary Code':'category','class':'category','sector':'category'})
 
     #exportfile(nonadvanceddata.info(),filelocation,"non_advanced_metadata")
     print("getting superfile for weights")
-    rawsuperfile = pd.read_csv(filelocation + 'rawsuperfile_20190401_13-10.csv',
+    rawsuperfile = pd.read_csv(filelocation + 'superfile without regulated steps_20190425_09-42.csv',
                                dtype={'Carrier TOC / Third Party Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
                                       'Product Code':'category','Product Primary Code':'category','class':'category','sector':'category','ticket_type':'category'}
                                )
@@ -118,7 +118,7 @@ def appenddata(nonadvandadv):
     #print(advanced_and_non_advanced.info())
     
     #drop unnecessary columns
-    columnstodel = ['Unnamed: 0','Carrier TOC / Third Party Code','Origin Code','ticket_type','Destination Code','Route Code','Product Code','Product Primary Code','Operating Journeys','FARES_2017','FARES_2018']
+    columnstodel = ['Unnamed: 0','Carrier TOC / Third Party Code','Origin Code','ticket_type','Destination Code','Route Code','Product Code','Product Primary Code','Operating Journeys','FARES_2018','FARES_2019']
     print("dropping columns")
     advanced_and_non_advanced.drop(columnstodel,axis=1,inplace=True)
 
@@ -150,7 +150,7 @@ def preparesuperfile(superfile):
     superfile   A dataframe modified as indicated above
     """
 
-    columnstodel = ['Unnamed: 0','Carrier TOC / Third Party Code','Origin Code','Destination Code','Route Code','Operating Journeys','ticket_type','orig','dest','route']
+    columnstodel = ['Unnamed: 0','Carrier TOC / Third Party Code','Origin Code','Destination Code','Route Code','Operating Journeys','ticket_type']
     superfile.drop(columnstodel,axis=1,inplace=True)
 
 

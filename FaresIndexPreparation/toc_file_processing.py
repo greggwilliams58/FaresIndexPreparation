@@ -112,8 +112,7 @@ def getdata(originfilepath):
     filepathsandnames = glob(f'{originfilepath}*.*')
     numberoffiles = len(filepathsandnames)
     
-    print(f"{numberoffiles} files need to be processed. \n")
-    # printout names of the files to be loaded
+    print(f"{numberoffiles} files need to be processed. \n")   # printout names of the files to be loaded
     print(f"reading in CSV files from {originfilepath}\n\n")
 
     dataframes = []

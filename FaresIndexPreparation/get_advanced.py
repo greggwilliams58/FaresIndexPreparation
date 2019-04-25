@@ -28,9 +28,9 @@ def advanced_data(df,destinationpath,LENNONfarespath):
 
     #getting LENNON fare information
     LENNONadvancedprices2018 = get_lennon_price_info('2018','C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\LENNON_Fares_information\\advanced_data\\','pricefile_advanced_2018.csv','advanced')
-    exportfile(LENNONadvancedprices2018,destinationpath,"LENNON2018lookup")
+    #exportfile(LENNONadvancedprices2018,destinationpath,"LENNON2018lookup")
     LENNONadvancedprices2019 = get_lennon_price_info('2019','C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\LENNON_Fares_information\\advanced_data\\','pricefile_advanced_2019.csv','advanced')
-    exportfile(LENNONadvancedprices2019,destinationpath,"LENNON2019lookup")
+    #exportfile(LENNONadvancedprices2019,destinationpath,"LENNON2019lookup")
 
     print("This is the advanced file before adding lennon data")
     #print(advanced.info())
@@ -45,11 +45,11 @@ def advanced_data(df,destinationpath,LENNONfarespath):
 
     del advanced['price_2018']
     del advanced['price_2019']
-    exportfile(advanced,destinationpath,"advanced before name change")
+    #exportfile(advanced,destinationpath,"advanced before name change")
     advanced.rename(columns={'LENNON_PRICE_2018':'FARES_2018','LENNON_PRICE_2019':'FARES_2019','Adjusted Earnings Amount':'Weightings'},inplace=True)
-    exportfile(advanced,destinationpath,"advanced after name change")
+    #exportfile(advanced,destinationpath,"advanced after name change")
     advanced = handlezeroandnulls(advanced)
-    exportfile(advanced,destinationpath,"advanced after zeros handled")
+    #exportfile(advanced,destinationpath,"advanced after zeros handled")
 
     advanced = percentagechange(advanced,'FARES_2019','FARES_2018')
 

@@ -42,14 +42,14 @@ def non_advanced_data(df,destinationpath,RDGfarespath,LENNONfarespath):
                         , destinationpath
                         ,'prices2018.csv'
                         ,'2018'
-                        ,True)
+                        ,False)
 
     RDGprices2019 = get_rdg_prices_info(RDGfarespath
                         ,'2019 fares extract.txt'
                         , destinationpath
                         ,'prices2019.csv'
                         ,'2019'
-                        ,True)
+                        ,False)
 
     print("about to merge RDG info into main dataset.")
 
@@ -57,7 +57,7 @@ def non_advanced_data(df,destinationpath,RDGfarespath,LENNONfarespath):
     df = addRDGfaresinfo(df, RDGprices2018,'_2018')
     df = addRDGfaresinfo(df, RDGprices2019,'_2019')
 
-    exportfile(df,destinationpath,'non_advanced_data_after_RDG')
+    #exportfile(df,destinationpath,'non_advanced_data_after_RDG')
 
     print("datatyping of key columns")
     #datatyping
@@ -73,7 +73,7 @@ def non_advanced_data(df,destinationpath,RDGfarespath,LENNONfarespath):
     print("convert rdg fares to numeric")
     df[['RDG_FARES_2018','RDG_FARES_2019']] = df[['RDG_FARES_2018','RDG_FARES_2019']].apply(pd.to_numeric)
     
-    exportfile(df,destinationpath,"non-advanced_data_before_LENNON")
+    #exportfile(df,destinationpath,"non-advanced_data_before_LENNON")
     #getting LENNON fare information
     print("getting fares information from lennon")
     LENNONprices2018 = get_lennon_price_info('2018',LENNONfarespath,'pricefile_nonadvanced_2018.csv','non-advanced')
@@ -98,7 +98,7 @@ def non_advanced_data(df,destinationpath,RDGfarespath,LENNONfarespath):
     df.rename_axis('index')
 
     #export of full file
-    exportfile(df,destinationpath,'superfile')
+    #exportfile(df,destinationpath,'superfile')
     bigearners = df.query('Weightings > 500000') 
         
     #drop rows where FARES are NaN or 0

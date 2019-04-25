@@ -34,7 +34,9 @@ def main():
     superfileforweights = superfile.copy()
     superfileforrailfinance = superfile.copy()
     print("the superfile is coming....\n")
-    exportfile(superfile,destinationpath,'superfile')
+    exportfile(superfile,destinationpath,'superfile without regulated steps')
+
+    
 
     #extraction of summed earnings and journeys for check of initial TOC extraction
     totalscheck = superfile.groupby(['Carrier TOC / Third Party Code'])['Adjusted Earnings Amount','Operating Journeys'].agg('sum')

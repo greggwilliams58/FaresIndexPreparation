@@ -46,14 +46,7 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year,exclu
 
 
     print("exporting the flow and fares with separate info\n")
-    exportfile(flow_df,outfilepath,'flow_info_'+ year)
-
-
-
-
-
-
-
+    #exportfile(flow_df,outfilepath,'flow_info_'+ year)
 
 
     #joining the flow and fares information

@@ -75,16 +75,25 @@ def generatedata(originpath,destinationpath,regulatedfarespath,categorypath):
     #mapping of categories
     superfile = getcategorylookup(superfile,categorypath,'Product_category_lookup_2019.xlsx',destinationpath)
 
-    #exportfile(superfile,destinationpath,'rawsuperfile after various lookups')
-    ### export the superfile to a new function to calculate Chris' data for UK Rail financials
-    #calculateukrailfinancials(superfile)
-
     ###place holder for dropping columns no longer needed
     superfile = superfile.drop(['Carrier Sub Division Code','orig','dest','route'], axis=1)
 
-    #exportfile(superfile,destinationpath,"superfile after dropping 4 columns")
+    exportfile(superfile,destinationpath,"superfile with full regulated data")
     #apply final superfile datatyping
     superfile = applydatatypes(superfile,['Carrier TOC / Third Party Code','Origin Code','Destination Code','Route Code','Product Code','sector','ticket_type','class','Regulated_Status_Start','Regulated_Status_toc','Regulated_Status_Products','Regulated_Status_exceptions','Regulated_Status_class','Regulated_Status_PCC','Regulated_Status','Category'])
+    
+    ##delete the surplus Regulated status columns
+    del superfile['Regulated_Status_Start']
+    del superfile['Regulated_Status_toc']
+    del superfile['Regulated_Status_Products']
+    del superfile['Regulated_Status_exceptions']
+    del superfile['Regulated_Status_class']
+    del superfile['Regulated_Status_PCC']
+    
+    regulatedcheck = superfile[['Product Code','Product Primary Code','Regulated_Status']].drop_duplicates()
+    exportfile(regulatedcheck,destinatiopath,"regulated products check")
+
+
     return superfile
 
 
@@ -362,13 +371,7 @@ def setregulatedfares(df,destinationpath):
     del df['ticket']
     del df['flag2']
 
-    ##delete the surplus Regulated status columns
-    #del df['Regulated_Status_Start']
-    #del df['Regulated_Status_toc']
-    #del df['Regulated_Status_Products']
-    #del df['Regulated_Status_exceptions']
-    #del df['Regulated_Status_class']
-    #del df['Regulated_Status_PCC']
+    
 
     # Amend the relevant data types
     df = applydatatypes(df,['Regulated_Status_Start',

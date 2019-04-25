@@ -91,7 +91,7 @@ def generatedata(originpath,destinationpath,regulatedfarespath,categorypath):
     del superfile['Regulated_Status_PCC']
     
     regulatedcheck = superfile[['Product Code','Product Primary Code','Regulated_Status']].drop_duplicates()
-    exportfile(regulatedcheck,destinatiopath,"regulated products check")
+    exportfile(regulatedcheck,destinationpath,"regulated products check")
 
 
     return superfile

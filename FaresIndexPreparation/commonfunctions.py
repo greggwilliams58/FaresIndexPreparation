@@ -72,23 +72,24 @@ def exportfile(df,destinationpath,filename,numberoffiles=1):
     destinationfilename = f'{filename}_{formatted_date}.csv'
     print(f"Exporting {filename} to {destinationpath}{destinationfilename}\n")
     checkmessage = "If you want to check on progress, refresh the folder "+ destinationpath + " and check the size of the " + filename + ".csv file. \n"  
+    print(checkmessage)
 
-    if filename == 'superfile':
-        if numberoffiles < 9:
-            print("This is just testing so will be quick")
-            print(checkmessage)
-    
-        elif numberoffiles > 10 and numberoffiles < 29:
-            print("This may take a few minutes.  Why not go and have a nice cup of tea?\n")
-            print(checkmessage)
-
-        elif numberoffiles > 30:
-            print("This may possibly hang the PC due to memory issues.  If it hangs, turn off IE, Outlook and any other memory/resource hungry applications and try again.\n")
-            print(checkmessage)
-
-        else:
-            pass
-    else:
-        print(f"the {filename} file should be quick.")
+#    if filename == 'superfile':
+#        if numberoffiles < 9:
+#            print("This is just testing so will be quick")
+#            print(checkmessage)
+#    
+#        elif numberoffiles > 10 and numberoffiles < 29:
+#            print("This may take a few minutes.  Why not go and have a nice cup of tea?\n")
+#            print(checkmessage)
+#
+#        elif numberoffiles > 30:
+#            print("This may possibly hang the PC due to memory issues.  If it hangs, turn off IE, Outlook and any other memory/resource hungry applications and try again.\n")
+#            print(checkmessage)
+#
+#        else:
+#            pass
+#    else:
+#        print(f"the {filename} file should be quick.")
    
     df.to_csv(destinationpath + destinationfilename)

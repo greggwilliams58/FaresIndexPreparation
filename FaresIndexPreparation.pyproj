@@ -41,7 +41,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="FaresIndexPreparation\rdg_prices_info.py" />
-    <Compile Include="FaresIndexPreparation\test.py" />
+    <Compile Include="FaresIndexPreparation\ad hoc superfile sumandgroup.py" />
     <Compile Include="FaresIndexPreparation\test for sum of weighings from superfile.py">
       <SubType>Code</SubType>
     </Compile>

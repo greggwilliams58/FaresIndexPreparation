@@ -88,4 +88,6 @@ def add_lennon_fares_info(df,lookupdf,year,typeofjoin):
     
     else:
         print("Type of join not recognised")
+        return None
+
     return df

@@ -12,20 +12,20 @@ def main():
 
 
     print("getting advanced data\n")
-    advanceddata = pd.read_csv(filelocation + 'advancedfile_20190425_16-11.csv',
+    advanceddata = pd.read_csv(filelocation + 'advancedfile_20190429_09-52.csv',
                                dtype={'Carrier TOC / Third Party Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
                                       'Product Code':'category','Product Primary Code':'category','class':'category','sector':'category'})
 
     #exportfile(advanceddata.info(),filelocation,"advanced_metadata")
     
     print("Getting non-advanced data\n")
-    nonadvanceddata = pd.read_csv(filelocation + 'nonadvancedfile_20190425_16-31.csv',
+    nonadvanceddata = pd.read_csv(filelocation + 'nonadvancedfile_20190429_10-11.csv',
                                   dtype={'Carrier TOC / Third Party Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
                                       'Product Code':'category','Product Primary Code':'category','class':'category','sector':'category'})
 
     #exportfile(nonadvanceddata.info(),filelocation,"non_advanced_metadata")
     print("getting superfile for weights")
-    rawsuperfile = pd.read_csv(filelocation + 'superfile without regulated steps_20190425_16-04.csv',
+    rawsuperfile = pd.read_csv(filelocation + 'superfile without regulated steps_20190429_09-45.csv',
                                dtype={'Carrier TOC / Third Party Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
                                       'Product Code':'category','Product Primary Code':'category','class':'category','sector':'category','ticket_type':'category'}
                                )

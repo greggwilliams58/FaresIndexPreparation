@@ -331,8 +331,8 @@ def setregulatedfares(df,destinationpath):
     df = assignedregulatedlookupvalues(df,'Regulation by TOCs',toc,'flag2','Regulated_Status_toc','Regulated_Status_Start')
 
     ##assign values based on Product Codes
-    products = {'2MTA':'Regulated_by_Product','2MTB':'Regulated_by_Product','2MTC':'Regulated_by_Product','2MTD':'Regulated_by_Product','2MTE':'Regulated_by_Product','2MTF':'Regulated_by_Product',
-                '2MTG':'Regulated_by_Product','2MTJ':'Regulated_by_Product','2MTK':'Regulated_by_Product','2MTK':'Regulated_by_Product',
+    products = {'2MTA':'Regulated_by_Product','2MTB':'Regulated_by_Product','2MTE':'Regulated_by_Product',
+                '2MTJ':'Regulated_by_Product','2MTK':'Regulated_by_Product','2MTN':'Regulated_by_Product','2VQA':'Regulated_by_Product',
                 '2MQA':'Regulated_by_Product', '2MSA':'Regulated_by_Product', '2MSH':'Regulated_by_Product', '2MSL':'Regulated_by_Product', '2MSW':'Regulated_by_Product', '2MTH':'Regulated_by_Product',
                 '2MTL':'Regulated_by_Product', '2MTW':'Regulated_by_Product', '2CGE':'Regulated_by_Product','2CGJ':'Regulated_by_Product', '2CGK':'Regulated_by_Product', '2CGN':'Regulated_by_Product',
                 '2CGO':'Regulated_by_Product', '2CGS':'Regulated_by_Product', '2CGT':'Regulated_by_Product', '2OBC':'Regulated_by_Product', '2OBD':'Regulated_by_Product', '2OBE':'Regulated_by_Product',

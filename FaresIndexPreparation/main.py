@@ -17,7 +17,7 @@ def main():
     RDGfarespath = root + 'RDG_Fares_information\\'  
     LENNONnonadvancedfarespath = root + 'LENNON_Fares_information\\non_advanced_data\\' 
     LENNONadvancedfarepath = root + 'LENNON_Fares_information\\advanced_data\\'
-    categorypath = root + 'SPSS\SPSS_Source_Data\\'
+    categorypath = root + 'Product_Category_information\\ProdCatLookup\\'
     manualdatapath = root + '\\Manually_checked_data\\ '
     destinationpath = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\'
     #upperandlowerbands[[-20,20],[-15,15],[-10,10],[-5,10]]

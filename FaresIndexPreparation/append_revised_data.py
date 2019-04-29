@@ -116,7 +116,13 @@ def appenddata(nonadvandadv):
     advanced_and_non_advanced['Regulated_Status'].fillna('Unregulated',inplace=True)
     advanced_and_non_advanced['Category'].fillna('advance',inplace=True)
 
+    #remove the orgin and destination codes that start with an alphabetic character
+    advanced_and_non_advanced = advanced_and_non_advanced[advanced_and_non_advanced['Origin Code'].str.contains('[0-9][0-9][0-9][0-9]')]
+    advanced_and_non_advanced = advanced_and_non_advanced[advanced_and_non_advanced['Destination Code'].str.contains('[0-9][0-9][0-9][0-9]')]
 
+    #remove these specific product codes
+    productcodestoremove = ['2MTC','2MTD','2MTF','2MTG']
+    advanced_and_non_advanced = advanced_and_non_advanced[~advanced_and_non_advanced['Product Code'].isin(productcodestoremove)]
     
     print("calculate factor\n")
     advanced_and_non_advanced.loc[:,'factor'] = advanced_and_non_advanced['Weightings'] * advanced_and_non_advanced['percentage_change']

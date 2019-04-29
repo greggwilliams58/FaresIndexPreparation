@@ -40,6 +40,8 @@ def main():
     advandnonadv = appenddata([advanceddata,nonadvanceddata])
     #exportfile(advandnonadv,outputto,'preparedadvandnonadv')
 
+
+
     advandnonadv.sort_values(by=['sector','class','Category','Regulated_Status'],ascending=True,inplace=True)
     preparedsuperfile.sort_values(by=['sector','class','Category','Regulated_Status'],ascending=True,inplace=True)
 
@@ -48,6 +50,7 @@ def main():
 
     ### move to calculate result from here to end
     answergrid = calc_weighted_average_price_change(advandnonadv,preparedsuperfile,['sector','class','Category','Regulated_Status'])
+
 
     #change name of weighted_price_change
     answergrid.rename(columns={answergrid.columns[0]:'weighted_price_change'},inplace=True)
@@ -113,19 +116,32 @@ def appenddata(nonadvandadv):
     advanced_and_non_advanced['Regulated_Status'].fillna('Unregulated',inplace=True)
     advanced_and_non_advanced['Category'].fillna('advance',inplace=True)
 
+
+    
     print("calculate factor\n")
     advanced_and_non_advanced.loc[:,'factor'] = advanced_and_non_advanced['Weightings'] * advanced_and_non_advanced['percentage_change']
-    #print(advanced_and_non_advanced.info())
+#    print(advanced_and_non_advanced.info())
     
+
+    #placeholder for Peter's subquery
+    subcutofdataLD2seasonUnregulated = advanced_and_non_advanced[(advanced_and_non_advanced['sector'] == 'Long D') & (advanced_and_non_advanced['class'] == '2') & (advanced_and_non_advanced['Category'] == 'season') & (advanced_and_non_advanced['Regulated_Status'] == 'Unregulated')  ]
+    exportfile(subcutofdataLD2seasonUnregulated,fileoutputpath,'LD2seasonunregulated')
+
+
     #drop unnecessary columns
     columnstodel = ['Unnamed: 0','Carrier TOC / Third Party Code','Origin Code','ticket_type','Destination Code','Route Code','Product Code','Product Primary Code','Operating Journeys','FARES_2018','FARES_2019']
     print("dropping columns")
     advanced_and_non_advanced.drop(columnstodel,axis=1,inplace=True)
 
+
+    #test for filter
+    exportfile(advanced_and_non_advanced,fileoutputpath,"advandnonadv before filter")
     print("filtering data")
     advanced_and_non_advanced_to_be_filtered = advanced_and_non_advanced.copy()
      #apply filter for upper and lower percentage changes
     advanced_and_non_advanced_filtered = advanced_and_non_advanced_to_be_filtered.query('percentage_change > -20 and percentage_change < 20')
+    exportfile(advanced_and_non_advanced_filtered,fileoutputpath,"advandnonadv after filter")
+
 
     #rename weightings column
     print("rename columns")

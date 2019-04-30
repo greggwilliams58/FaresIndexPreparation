@@ -123,10 +123,10 @@ def appenddata(nonadvandadv):
     advanced_and_non_advanced.loc[:,'factor'] = advanced_and_non_advanced['Weightings'] * advanced_and_non_advanced['percentage_change']
 #    print(advanced_and_non_advanced.info())
     
+    #function to contain last minute changes to advanced/non-advanced dataframe
+    advanced_and_non_advanced = lastminutechanges(advanced_and_non_advanced)
 
-    #placeholder for Peter's subquery
-    subcutofdataLD2seasonUnregulated = advanced_and_non_advanced[(advanced_and_non_advanced['sector'] == 'Long D') & (advanced_and_non_advanced['class'] == '2') & (advanced_and_non_advanced['Category'] == 'season') & (advanced_and_non_advanced['Regulated_Status'] == 'Unregulated')  ]
-    exportfile(subcutofdataLD2seasonUnregulated,fileoutputpath,'LD2seasonunregulated')
+
 
 
     #drop unnecessary columns
@@ -211,9 +211,12 @@ def lastminutechanges(df):
 
     #export for Nisha
     filtereddf = df[df.Category == 'season']
-    groupedadvandnonadvanced = filtereddf.groupby(['Category','Product Code','sector','class','Regulated_Status'])['Weightings','Operating Journeys'].agg('sum')
+    groupedadvandnonadvanced = filtereddf.groupby(['Category','Product Code','sector','class','Regulated_Status'])['Weightings'].agg('sum')
     exportfile(groupedadvandnonadvanced,fileoutputpath, "advandnonadv grouped")
 
+    #placeholder for Peter's subquery
+    subcutofdataseasonUnregulated = advanced_and_non_advanced[ (advanced_and_non_advanced['Category'] == 'season') & (advanced_and_non_advanced['Regulated_Status'] == 'Unregulated')  ]
+    exportfile(subcutofdataseasonUnregulated,fileoutputpath,'seasonunregulated')
 
     return df
 

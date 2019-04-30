@@ -136,12 +136,12 @@ def appenddata(nonadvandadv):
 
 
     #test for filter
-    exportfile(advanced_and_non_advanced,fileoutputpath,"advandnonadv before filter")
+    #exportfile(advanced_and_non_advanced,fileoutputpath,"advandnonadv before filter")
     print("filtering data")
     advanced_and_non_advanced_to_be_filtered = advanced_and_non_advanced.copy()
      #apply filter for upper and lower percentage changes
     advanced_and_non_advanced_filtered = advanced_and_non_advanced_to_be_filtered.query('percentage_change > -20 and percentage_change < 20')
-    exportfile(advanced_and_non_advanced_filtered,fileoutputpath,"advandnonadv after filter")
+    #exportfile(advanced_and_non_advanced_filtered,fileoutputpath,"advandnonadv after filter")
 
 
     #rename weightings column
@@ -216,6 +216,7 @@ def lastminutechanges(df):
 
 
     return df
+
 
 if __name__ == '__main__':
     main()

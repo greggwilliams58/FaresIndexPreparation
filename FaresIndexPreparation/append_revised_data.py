@@ -116,13 +116,8 @@ def appenddata(nonadvandadv):
     advanced_and_non_advanced['Regulated_Status'].fillna('Unregulated',inplace=True)
     advanced_and_non_advanced['Category'].fillna('advance',inplace=True)
 
-    #remove the orgin and destination codes that start with an alphabetic character
-    advanced_and_non_advanced = advanced_and_non_advanced[advanced_and_non_advanced['Origin Code'].str.contains('[0-9][0-9][0-9][0-9]')]
-    advanced_and_non_advanced = advanced_and_non_advanced[advanced_and_non_advanced['Destination Code'].str.contains('[0-9][0-9][0-9][0-9]')]
-
-    #remove these specific product codes
-    productcodestoremove = ['2MTC','2MTD','2MTF','2MTG']
-    advanced_and_non_advanced = advanced_and_non_advanced[~advanced_and_non_advanced['Product Code'].isin(productcodestoremove)]
+    #function to contain last minute changes to advanced/non-advanced dataframe
+    advanced_and_non_advanced = lastminutechanges(advanced_and_non_advanced)
     
     print("calculate factor\n")
     advanced_and_non_advanced.loc[:,'factor'] = advanced_and_non_advanced['Weightings'] * advanced_and_non_advanced['percentage_change']
@@ -191,6 +186,30 @@ def preparesuperfile(superfile):
     return superfile
 
 
+def lastminutechanges(df):
+    """
+    This is the location to make any last minute changes to the advanced non-advanced dataset prior to calculation of the calculations.
+    All origin and destination codes that contain an alphabetical character
+    Selected product codes are removed (refunds to season tickets?)
+
+    Parameters
+    df:     A dataframe containing the merged advanced and non advanced data
+
+    Returns:
+    df:     An amended dataframe
+    
+    
+    """
+    
+    #remove the orgin and destination codes that contain an alphabetic character
+    df = df[df['Origin Code'].str.contains('[0-9][0-9][0-9][0-9]')]
+    df = df[df['Destination Code'].str.contains('[0-9][0-9][0-9][0-9]')]
+
+    #remove these specific product codes
+    productcodestoremove = ['2MTC','2MTD','2MTF','2MTG']
+    df = df[~df['Product Code'].isin(productcodestoremove)]
+
+    return df
 
 if __name__ == '__main__':
     main()

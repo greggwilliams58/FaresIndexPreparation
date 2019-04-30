@@ -200,7 +200,7 @@ def lastminutechanges(df):
     
     
     """
-    
+    fileoutputpath ='C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\advanced_and_non_advanced_output\\adv_non_advanced_and_superfile\\'
     #remove the orgin and destination codes that contain an alphabetic character
     df = df[df['Origin Code'].str.contains('[0-9][0-9][0-9][0-9]')]
     df = df[df['Destination Code'].str.contains('[0-9][0-9][0-9][0-9]')]
@@ -208,6 +208,12 @@ def lastminutechanges(df):
     #remove these specific product codes
     productcodestoremove = ['2MTC','2MTD','2MTF','2MTG']
     df = df[~df['Product Code'].isin(productcodestoremove)]
+
+    #export for Nisha
+    filtereddf = df[df.Category == 'season']
+    groupedadvandnonadvanced = filtereddf.groupby(['Category','Product Code','sector','class','Regulated_Status'])['Weightings','Operating Journeys'].agg('sum')
+    exportfile(groupedadvandnonadvanced,fileoutputpath, "advandnonadv grouped")
+
 
     return df
 

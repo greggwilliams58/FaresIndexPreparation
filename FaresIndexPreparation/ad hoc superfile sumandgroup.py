@@ -15,13 +15,13 @@ def main():
                                )
 
     
-    superfilefiltered = rawsuperfile[rawsuperfile['Category']=='other']
+    superfilefiltered = rawsuperfile[rawsuperfile['Category']=='season']
 
     print(type(superfilefiltered))
     print(superfilefiltered.head(5))
     print(superfilefiltered.info())
 
-    groupedrawsuperfile = superfilefiltered.groupby(['Product Code','Category'])['Adjusted Earnings Amount'].agg('sum')
+    groupedrawsuperfile = superfilefiltered.groupby(['sector',''])['Adjusted Earnings Amount'].agg('sum')
     
 
 

@@ -12,20 +12,20 @@ def main():
 
 
     print("getting advanced data\n")
-    advanceddata = pd.read_csv(filelocation + 'advancedfile_20190429_09-52.csv',
+    advanceddata = pd.read_csv(filelocation + 'advancedfile_20190430_14-26.csv',
                                dtype={'Carrier TOC / Third Party Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
                                       'Product Code':'category','Product Primary Code':'category','class':'category','sector':'category'})
 
     #exportfile(advanceddata.info(),filelocation,"advanced_metadata")
     
     print("Getting non-advanced data\n")
-    nonadvanceddata = pd.read_csv(filelocation + 'nonadvancedfile_20190429_10-11.csv',
+    nonadvanceddata = pd.read_csv(filelocation + 'nonadvancedfile_20190430_14-46.csv',
                                   dtype={'Carrier TOC / Third Party Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
                                       'Product Code':'category','Product Primary Code':'category','class':'category','sector':'category'})
 
     #exportfile(nonadvanceddata.info(),filelocation,"non_advanced_metadata")
     print("getting superfile for weights")
-    rawsuperfile = pd.read_csv(filelocation + 'superfile without regulated steps_20190429_09-45.csv',
+    rawsuperfile = pd.read_csv(filelocation + 'superfile without regulated steps_20190430_14-18.csv',
                                dtype={'Carrier TOC / Third Party Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
                                       'Product Code':'category','Product Primary Code':'category','class':'category','sector':'category','ticket_type':'category'}
                                )
@@ -117,7 +117,7 @@ def appenddata(nonadvandadv):
     advanced_and_non_advanced['Category'].fillna('advance',inplace=True)
 
     #function to contain last minute changes to advanced/non-advanced dataframe
-    advanced_and_non_advanced = lastminutechanges(advanced_and_non_advanced)
+    #advanced_and_non_advanced = lastminutechanges(advanced_and_non_advanced)
     
     print("calculate factor\n")
     advanced_and_non_advanced.loc[:,'factor'] = advanced_and_non_advanced['Weightings'] * advanced_and_non_advanced['percentage_change']
@@ -215,7 +215,7 @@ def lastminutechanges(df):
     exportfile(groupedadvandnonadvanced,fileoutputpath, "advandnonadv grouped")
 
     #placeholder for Peter's subquery
-    subcutofdataseasonUnregulated = advanced_and_non_advanced[ (advanced_and_non_advanced['Category'] == 'season') & (advanced_and_non_advanced['Regulated_Status'] == 'Unregulated')  ]
+    subcutofdataseasonUnregulated = df[ (df['Category'] == 'season') & (df['Regulated_Status'] == 'Unregulated')  ]
     exportfile(subcutofdataseasonUnregulated,fileoutputpath,'seasonunregulated')
 
     return df

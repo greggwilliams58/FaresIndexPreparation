@@ -1,56 +1,53 @@
 import pandas as pd
 from commonfunctions import applydatatypes, exportfile
-#from export_data import exportfile
 from calculate_results import calc_weighted_average_price_change, calc_final
 
 
 
 def main():
-    #substitute for proper parameters in a function
+    """
+    This is a second stage of the fares index process which imports the advanced, nonadvanced and superfile.  The last two files are combined and then joined in term to the superfile.
+    Another function mimics the SUMPRODUCT function of excel.  A second function runs over the dataframe from the previous function and them combines the answers to produce the final answerset
+
+    Parameters
+    None:       But it does import adv, nonadv and superfile from file locations as CSV and converts them to dataframes
+
+    Returns:
+    None:       But it does export a csv file containing the final answerset.
+    """
+
+    #define where the files are and where they will go
     filelocation = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\advanced_and_non_advanced_output\\'
     outputto = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\advanced_and_non_advanced_output\\adv_non_advanced_and_superfile\\'
-
 
     print("getting advanced data\n")
     advanceddata = pd.read_csv(filelocation + 'advancedfile_20190430_14-26.csv',
                                dtype={'Carrier TOC / Third Party Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
                                       'Product Code':'category','Product Primary Code':'category','class':'category','sector':'category'})
-
-    #exportfile(advanceddata.info(),filelocation,"advanced_metadata")
     
     print("Getting non-advanced data\n")
     nonadvanceddata = pd.read_csv(filelocation + 'nonadvancedfile_20190430_14-46.csv',
                                   dtype={'Carrier TOC / Third Party Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
                                       'Product Code':'category','Product Primary Code':'category','class':'category','sector':'category'})
 
-    #exportfile(nonadvanceddata.info(),filelocation,"non_advanced_metadata")
     print("getting superfile for weights")
     rawsuperfile = pd.read_csv(filelocation + 'superfile without regulated steps_20190430_14-18.csv',
                                dtype={'Carrier TOC / Third Party Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
-                                      'Product Code':'category','Product Primary Code':'category','class':'category','sector':'category','ticket_type':'category'}
-                               )
-    ### preparatory work for function signature
-    ### appenddata(advanceddata,nonadvanceddata,rawsuperfile)
+                                      'Product Code':'category','Product Primary Code':'category','class':'category','sector':'category','ticket_type':'category'})
 
     print("preparing the superfile...\n")
     preparedsuperfile = preparesuperfile(rawsuperfile)
-    #exportfile(preparedsuperfile,outputto,"preparedsuperfile")
-    print("data joined.  showing metadata\n")
-     
+    
+    #join the advanced and nonadvanced data
+    print("data joined.  showing metadata\n") 
     advandnonadv = appenddata([advanceddata,nonadvanceddata])
-    #exportfile(advandnonadv,outputto,'preparedadvandnonadv')
 
-
-
+    #sort the advandnonadv and superfile by common fields so they match up when paired later
     advandnonadv.sort_values(by=['sector','class','Category','Regulated_Status'],ascending=True,inplace=True)
     preparedsuperfile.sort_values(by=['sector','class','Category','Regulated_Status'],ascending=True,inplace=True)
 
-    ####return(advandnonadv,preparedsuperfile)
-
-
-    ### move to calculate result from here to end
+    #calculate the weighted averages by sector, class, category and regulated_status
     answergrid = calc_weighted_average_price_change(advandnonadv,preparedsuperfile,['sector','class','Category','Regulated_Status'])
-
 
     #change name of weighted_price_change
     answergrid.rename(columns={answergrid.columns[0]:'weighted_price_change'},inplace=True)
@@ -65,10 +62,10 @@ def main():
     #wpc * superweightings
     answergrid['wpc_and_weights'] = answergrid['weighted_price_change'] * answergrid['Weightings_super']
     print("this is the answergrid\n")
-    #print(answergrid.info())
+ 
     exportfile(answergrid,outputto,"answerfile")
 
-    
+    #calculate the final set of group splits from the answer file as separate dataframes
     sectorsplit = calc_final(answergrid,['sector'],'sector')
     classsplit = calc_final(answergrid,['class'],'class')
     sectorclasssplit = calc_final(answergrid,['sector','class'],'sector and class')
@@ -78,16 +75,12 @@ def main():
     sectorclassregulatedstatus = calc_final(answergrid,['sector','class','Regulated_Status'],'sector, class and regulation')
     classregulatedstatus = calc_final(answergrid, ['class','Regulated_Status'],'class and regulation')
 
-
+    #combine the group splits as one dataframe
     combined = pd.concat([sectorsplit,classsplit,sectorclasssplit,regulatedstatussplit,categorysplit,sectorcategorysplit,sectorclassregulatedstatus,classregulatedstatus])
-    #combined_df = combined.to_frame()
-    #print(type(combined_df))
 
+    #end the process by exporting the final answer
+    exportfile(combined,outputto,"final answerset")
 
-    exportfile(combined,outputto,"combined")
-
-    #this is to be added to integrate this with the main function
-    #return combined
    
 
 
@@ -109,49 +102,35 @@ def appenddata(nonadvandadv):
     
     print("About to combine advanced and non-advanced data\n")
     advanced_and_non_advanced = pd.concat(nonadvandadv,ignore_index=True, sort=False)
-    #print(advanced_and_non_advanced.head())
-
 
     #populate values for advanced data
     advanced_and_non_advanced['Regulated_Status'].fillna('Unregulated',inplace=True)
     advanced_and_non_advanced['Category'].fillna('advance',inplace=True)
 
-    #function to contain last minute changes to advanced/non-advanced dataframe
-    #advanced_and_non_advanced = lastminutechanges(advanced_and_non_advanced)
     
     print("calculate factor\n")
     advanced_and_non_advanced.loc[:,'factor'] = advanced_and_non_advanced['Weightings'] * advanced_and_non_advanced['percentage_change']
-#    print(advanced_and_non_advanced.info())
     
     #function to contain last minute changes to advanced/non-advanced dataframe
     advanced_and_non_advanced = lastminutechanges(advanced_and_non_advanced)
-
-
-
 
     #drop unnecessary columns
     columnstodel = ['Unnamed: 0','Carrier TOC / Third Party Code','Origin Code','ticket_type','Destination Code','Route Code','Product Code','Product Primary Code','Operating Journeys','FARES_2018','FARES_2019']
     print("dropping columns")
     advanced_and_non_advanced.drop(columnstodel,axis=1,inplace=True)
 
-
-    #test for filter
-    #exportfile(advanced_and_non_advanced,fileoutputpath,"advandnonadv before filter")
-    print("filtering data")
+    #filtering data to remove outliers
+    print("filtering data\n")
     advanced_and_non_advanced_to_be_filtered = advanced_and_non_advanced.copy()
-     #apply filter for upper and lower percentage changes
     advanced_and_non_advanced_filtered = advanced_and_non_advanced_to_be_filtered.query('percentage_change > -20 and percentage_change < 20')
-    #exportfile(advanced_and_non_advanced_filtered,fileoutputpath,"advandnonadv after filter")
-
 
     #rename weightings column
-    print("rename columns")
+    print("rename eightings columns \n")
     advanced_and_non_advanced_filtered_renamed = advanced_and_non_advanced_filtered.rename(columns={'Weightings':'Weightings_advnonadv'})
 
-    print("change order of columns")
+    print("change order of columns \n")
     #change order of columns to match combined data
     advanced_and_non_advanced_reordered = advanced_and_non_advanced_filtered_renamed[['sector',	'class',	'Category',	'Regulated_Status','Weightings_advnonadv','factor']]
-
 
     return advanced_and_non_advanced_reordered 
 
@@ -166,29 +145,27 @@ def preparesuperfile(superfile):
     Returns
     superfile   A dataframe modified as indicated above
     """
-
+    
+    #drop columns no longer needed
     columnstodel = ['Unnamed: 0','Carrier TOC / Third Party Code','Origin Code','Destination Code','Route Code','Operating Journeys','ticket_type']
     superfile.drop(columnstodel,axis=1,inplace=True)
 
-
     #Rename column of "Earnings as Weightings"
     superfile.rename(columns={'Adjusted Earnings Amount':'Weightings_super'},inplace=True)
-
-    #change order of columns to match combined data
-    #superfile = superfile[['sector',	'class',	'Category',	'Regulated_Status','Weightings_super']]
     
-    #temp for peter change order of columns to match combined data
+    #Change order of columns to match combined data
     superfile = superfile[['Product Code','Product Primary Code','sector',	'class',	'Category',	'Regulated_Status','Weightings_super']]
 
-    #temp grouping for peter
+    #Grouping of superfile by relevant groups
     superfile = superfile.groupby(['Product Code','Product Primary Code','sector',	'class',	'Category',	'Regulated_Status']).agg('sum')
-    #print(superfile_grouped)
+
     return superfile
 
 
 def lastminutechanges(df):
     """
     This is the location to make any last minute changes to the advanced non-advanced dataset prior to calculation of the calculations.
+    These changes will tend to be diagnostic in character, usually around the assignment of product codes to regulated/unregulated status.
     All origin and destination codes that contain an alphabetical character
     Selected product codes are removed (refunds to season tickets?)
 
@@ -201,20 +178,21 @@ def lastminutechanges(df):
     
     """
     fileoutputpath ='C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\advanced_and_non_advanced_output\\adv_non_advanced_and_superfile\\'
+    
     #remove the orgin and destination codes that contain an alphabetic character
     df = df[df['Origin Code'].str.contains('[0-9][0-9][0-9][0-9]')]
     df = df[df['Destination Code'].str.contains('[0-9][0-9][0-9][0-9]')]
 
-    #remove these specific product codes
+    #remove these specific product codes: defined by Peter Moran by unknown process
     productcodestoremove = ['2MTC','2MTD','2MTF','2MTG']
     df = df[~df['Product Code'].isin(productcodestoremove)]
 
-    #export for Nisha
+    #export for Nisha to test if reassignment has worked
     filtereddf = df[df.Category == 'season']
     groupedadvandnonadvanced = filtereddf.groupby(['Category','Product Code','sector','class','Regulated_Status'])['Weightings'].agg('sum')
     exportfile(groupedadvandnonadvanced,fileoutputpath, "advandnonadv grouped")
 
-    #placeholder for Peter's subquery
+    #export for Nisah to see whether season unregulated reassignment has worked
     subcutofdataseasonUnregulated = df[ (df['Category'] == 'season') & (df['Regulated_Status'] == 'Unregulated')  ]
     exportfile(subcutofdataseasonUnregulated,fileoutputpath,'seasonunregulated')
 

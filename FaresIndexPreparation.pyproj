@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{bb8058d0-26a4-4432-8e06-20319ba65e2e}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>FaresIndexPreparation\main.py</StartupFile>
+    <StartupFile>FaresIndexPreparation\main_1 - create_superfile_adv_nonadv.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -24,19 +24,17 @@
     <Content Include="UpgradeLog2.htm" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FaresIndexPreparation\append_revised_data.py" />
-    <Compile Include="FaresIndexPreparation\calculate_non_advanced_stats.py" />
+    <Compile Include="FaresIndexPreparation\main_2 - get_results.py" />
     <Compile Include="FaresIndexPreparation\calculate_results.py" />
     <Compile Include="FaresIndexPreparation\commonfunctions.py" />
-    <Compile Include="FaresIndexPreparation\create_reg_fares_lookup.py" />
-    <Compile Include="FaresIndexPreparation\export_data.py" />
+    <Compile Include="FaresIndexPreparation\ad hoc create_reg_fares_lookup.py" />
     <Compile Include="FaresIndexPreparation\get_dw_data.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="FaresIndexPreparation\get_advanced.py" />
     <Compile Include="FaresIndexPreparation\get_non_advanced.py" />
     <Compile Include="FaresIndexPreparation\lennon_data.py" />
-    <Compile Include="FaresIndexPreparation\main.py" />
+    <Compile Include="FaresIndexPreparation\main_1 - create_superfile_adv_nonadv.py" />
     <Compile Include="FaresIndexPreparation\rail_financial_output.py">
       <SubType>Code</SubType>
     </Compile>

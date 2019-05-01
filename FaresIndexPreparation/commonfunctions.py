@@ -4,6 +4,20 @@ import datetime
 
 
 def handlezeroandnulls(df):
+    """
+    This procedure:
+    identifies "inf" and "-inf" values (results of division by zero), converts them to NaN
+    identifies 0 values (where no fares data is present), converts them to NaN
+    rows containing NaN are then dropped
+
+    Parameters:
+    df:     A dataframe containing LENNON/RDG Fares information
+
+    Returns:
+    df:     A dataframe with zeros/NULLS removed
+
+    """
+
     #replace the 'inf' and '-inf' value with NAN
     df.replace([np.inf, -np.inf],np.nan,inplace=True)   
 
@@ -17,6 +31,19 @@ def handlezeroandnulls(df):
 
 
 def percentagechange(df,col1,col2):
+    """
+    This procedure:
+    calculates precentage changes
+
+    Parameters:
+    df:     A dataframe containing two numerical fields
+    col1:   A string with the name of the first column
+    col2:   A string with the name of the second column
+
+    Returns:
+    df:     A dataframe with a new column displaying percentage change as percentage increase.
+    """
+
     #calculate percentage change for each row
     print("Adding percentage change info\n")
     df.loc[:,'percentage_change'] = (((df.loc[:,col1]-df.loc[:,col2])/df.loc[:,col2])*100).copy()
@@ -50,6 +77,17 @@ def applydatatypes(combinedfile,col_headers):
     return combinedfile
 
 def writeoutinfo(df,fileoutput,filename):
+    """
+    This procedure is used for diagnostic purposes and writes out dataframe info as a text file.
+
+    Parameters:
+    df:         A generic dataframe
+    fileoutput: A string containing the filepath where the output will be saved
+    filename:   A string containing the name of the file to be output.
+
+    Returns:
+    None:       But does export a text file containing info about the dataframe
+    """
     f = open(fileoutput + filename, 'w+')
     df.info(buf=f)
     f.close()
@@ -71,25 +109,5 @@ def exportfile(df,destinationpath,filename,numberoffiles=1):
     formatted_date = datetime.datetime.now().strftime('%Y%m%d_%H-%M')
     destinationfilename = f'{filename}_{formatted_date}.csv'
     print(f"Exporting {filename} to {destinationpath}{destinationfilename}\n")
-    checkmessage = "If you want to check on progress, refresh the folder "+ destinationpath + " and check the size of the " + filename + ".csv file. \n"  
-    print(checkmessage)
-
-#    if filename == 'superfile':
-#        if numberoffiles < 9:
-#            print("This is just testing so will be quick")
-#            print(checkmessage)
-#    
-#        elif numberoffiles > 10 and numberoffiles < 29:
-#            print("This may take a few minutes.  Why not go and have a nice cup of tea?\n")
-#            print(checkmessage)
-#
-#        elif numberoffiles > 30:
-#            print("This may possibly hang the PC due to memory issues.  If it hangs, turn off IE, Outlook and any other memory/resource hungry applications and try again.\n")
-#            print(checkmessage)
-#
-#        else:
-#            pass
-#    else:
-#        print(f"the {filename} file should be quick.")
-   
+    print(f"If you want to check on progress, refresh the folder "+ destinationpath + " and check the size of the " + filename + ".csv file. \n")  
     df.to_csv(destinationpath + destinationfilename)

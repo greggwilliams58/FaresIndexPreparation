@@ -2,14 +2,11 @@ from toc_file_processing import generatedata
 from get_non_advanced import non_advanced_data
 from get_advanced import advanced_data
 from commonfunctions import exportfile
-from calculate_non_advanced_stats import main
 from lennon_data import get_lennon_price_info,add_lennon_fares_info
 from rail_financial_output import getrailfinancial
-from calculate_results import calculate_endresults 
+
 
 def main():
-    #token change
-
     #parameters to be edited depending on users' file set up
     root = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\'
     originpath = root + 'TOC_files\\'
@@ -20,9 +17,6 @@ def main():
     categorypath = root + 'Product_Category_information\\ProdCatLookup\\'
     manualdatapath = root + '\\Manually_checked_data\\ '
     destinationpath = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\'
-    #upperandlowerbands[[-20,20],[-15,15],[-10,10],[-5,10]]
-
-
 
     # the calculation of the root 'superfile'
     superfile = generatedata(originpath,destinationpath,regulatedfarespath,categorypath)
@@ -54,13 +48,6 @@ def main():
     print("The data for rail financials is being prepared")
     getrailfinancial(superfileforrailfinance,destinationpath)
 
-    ##place holder for appending 
-    ##finaldataset = append_revised_data(advanced,nonadvanced,superfileforweights)
-
-    ##upperandlowerbands[[-20,20],[-15,15],[-10,10],[-5,10]]
-
-    ##place holder for end calculation
-    ##calculate_endresults(finaldataset,superfileforweights)
 
 
 if __name__ == '__main__':

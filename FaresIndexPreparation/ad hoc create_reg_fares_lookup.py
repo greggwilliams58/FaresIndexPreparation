@@ -4,6 +4,14 @@ import pandas as pd
 
 
 def main():
+    """
+    This was written at Peter Moran's request to perform a comparison between the old and new "regulated fares sort" files.  It was used once and is now kept in case a further update
+    to this file is needed on an adhoc basis.
+
+    Parameters
+    None:   but inmports is 
+    """
+    
     lookupslocation = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\regulated_fares_data\\'
     destination = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\regulated_fares_data\\comparison output\\'
     lookupfileslist, count = getdata(lookupslocation)
@@ -12,12 +20,6 @@ def main():
 
     newlookup = lookupfileslist[0]
     oldlookup = lookupfileslist[1]
-
-    #print("This is new lookup\n")
-    #print(newlookup.info())
-
-    #print("\n")
-    #print(oldlookup.info())
 
     #join new to old // old to new
     new_uniquevalues = pd.merge(left=newlookup,right=oldlookup,how='left',
@@ -36,7 +38,20 @@ def main():
 
 
 
+def getreglkupdata(originfilepath):
+    filepathsandnames = glob(f'{originfilepath}*.*')
+    numberoffiles = len(filepathsandnames)
+    
+    print(f"{numberoffiles} files need to be processed. \n")   # printout names of the files to be loaded
+    print(f"reading in CSV files from {originfilepath}\n\n")
 
+    dataframes = []
+   
+    for count, file in enumerate(filepathsandnames,1):
+        dataframes.append(temp)
+
+
+    return dataframes, numberoffiles
 
 
 

@@ -5,7 +5,8 @@ import numpy as np
 
 def calc_final(df, grouping,nameofsplit):
     """
-    This function takes a dataframe of the answer file and produces a SUMPRODUCT which is returned as a dataframe
+    This function takes a dataframe of the answer file and produces a SUMPRODUCT which is returned as a dataframe, 
+    with the names of splits, elements of split, final weights average prices changes and percentage of weights for each grouping
 
     Parameters
     df:                 A dataframe containing the answerfile from the calculated weighted percentage change
@@ -20,15 +21,26 @@ def calc_final(df, grouping,nameofsplit):
     answer = df.groupby(grouping)['wpc_and_weights'].agg('sum') / df.groupby(grouping)['Weightings_super'].agg('sum') 
     answer_df = answer.to_frame()
 
+
     #Production of matching aggregation from super_weights
     weightings = df.groupby(grouping)['Weightings_super'].agg('sum') 
     weightings_df = weightings.to_frame()
     
     #insert the names of splits as a new column into dataframe
-    answer_df.insert(0,'split_name',value = nameofsplit)
+    answer_df.insert(0,'grouping_name',value = nameofsplit)
 
-    #join the  answers and superweights together
-    answerwithweights = pd.concat([answer_df,weightings_df],axis=1)
+
+    #get sum of all weights
+    allsuperweights = df['Weightings_super'].sum()
+    #get percentage of weights by grouping
+    shareofweights = df.groupby(grouping)['Weightings_super'].agg('sum') / allsuperweights
+
+    #join the  answers, superweights and weightshare together
+    answerwithweights = pd.concat([answer_df,weightings_df,shareofweights],axis=1)
+
+    #rename the index and columns of the answerfile
+    answerwithweights.index.name = 'parts_of_the_grouping'
+     
 
     return answerwithweights
 

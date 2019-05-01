@@ -1,25 +1,35 @@
 from lennon_data import get_lennon_price_info,add_lennon_fares_info
-#from export_data import exportfile
 import pandas as pd
 from commonfunctions import handlezeroandnulls, percentagechange, exportfile
 from calculate_results import calc_weighted_average_price_change
 
 
 def advanced_data(df,destinationpath,LENNONfarespath): 
+    """
+    This procedure produces a cut of data from the superfile for advanced category of ticket data.  It 
+     Sums earnings and journeys, then groups by CarrierTOC; Origin, Destination, Route, Product and Primary Codes; class, sector
+     Renames columns
+     gets and merges LENNON prices information
+     deletes unnecessary columns, renames columns
+     removes rows where PRICE information is 0 or NULL
+     calculates percentage changes in PRICE
 
-    #identify which data is advanced data
+    Parameters
+    df:                 A dataframe containing the superfile
+    destinationpath:    A string indicating where the output will be exported to
+    LENNONfarespath:    A string containing the file path to the advanced LENNON fares information
+
+    Returns
+    advanced:           A dataframe containing the calculated advanced dataset 
+
+    """
+    #Filter dataset for data that is advanced data
     advanced = df[df['Category']=='advance']
 
-    #add trailing zeros - superceded by line 114 toc_file_processing
-    #advanced['Origin Code'] = advanced['Origin Code'].str.zfill(4)
-    #advanced['Destination Code'] = advanced['Destination Code'].str.zfill(4)
-    #advanced['Route Code'] = advanced['Route Code'].str.zfill(5)
-
-    print("This is the advanced file before ")
+    #sum and group data
     print("The advanced is being grouped \n")
     advanced = advanced.groupby(['Carrier TOC / Third Party Code','Origin Code','Destination Code','Route Code','Product Code','Product Primary Code','class','sector']).agg({'Adjusted Earnings Amount':['sum'],"Operating Journeys":['sum']})
-    
-    print("flattening the df")
+    #flattening the data into a dataframe
     advanced.columns = ['_'.join(col).strip() for col in advanced.columns.values]
     advanced = advanced.reset_index()
     
@@ -27,34 +37,28 @@ def advanced_data(df,destinationpath,LENNONfarespath):
     advanced.rename(columns={'Adjusted Earnings Amount_sum':'Adjusted Earnings Amount','Operating Journeys_sum':'Operating Journeys'},inplace=True)
 
     #getting LENNON fare information
-    LENNONadvancedprices2018 = get_lennon_price_info('2018','C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\LENNON_Fares_information\\advanced_data\\','pricefile_advanced_2018.csv','advanced')
-    #exportfile(LENNONadvancedprices2018,destinationpath,"LENNON2018lookup")
-    LENNONadvancedprices2019 = get_lennon_price_info('2019','C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\LENNON_Fares_information\\advanced_data\\','pricefile_advanced_2019.csv','advanced')
-    #exportfile(LENNONadvancedprices2019,destinationpath,"LENNON2019lookup")
-
-    print("This is the advanced file before adding lennon data")
-    #print(advanced.info())
-    
+    print("Getting the advanced LENNON information\n")
+    LENNONadvancedprices2018 = get_lennon_price_info('2018',LENNONfarespath,'pricefile_advanced_2018.csv','advanced')
+    LENNONadvancedprices2019 = get_lennon_price_info('2019',LENNONfarespath,'pricefile_advanced_2019.csv','advanced')
+ 
     #merging LENNON fares information
+    print("adding the advanced LENNON information\n")
     advanced = add_lennon_fares_info(advanced,LENNONadvancedprices2018,'_2018','advanced')
-    
-    #exportfile(advanced,destinationpath,"LENNON_2017_added")
     advanced = add_lennon_fares_info(advanced,LENNONadvancedprices2019,'_2019','advanced')
     
-    #exportfile(advanced,destinationpath,"LENNON_2018_added")
-
+    #deleting unnecessary files
     del advanced['price_2018']
     del advanced['price_2019']
-    #exportfile(advanced,destinationpath,"advanced before name change")
+
+    #renaming columns for year
     advanced.rename(columns={'LENNON_PRICE_2018':'FARES_2018','LENNON_PRICE_2019':'FARES_2019','Adjusted Earnings Amount':'Weightings'},inplace=True)
-    #exportfile(advanced,destinationpath,"advanced after name change")
+
+    #remove fares where the values are NULL or 0
     advanced = handlezeroandnulls(advanced)
-    #exportfile(advanced,destinationpath,"advanced after zeros handled")
 
+    #calculate percentage change
     advanced = percentagechange(advanced,'FARES_2019','FARES_2018')
-
-    #exportfile(advanced,destinationpath,'advancedfile')
-
+       
     return advanced
 
 

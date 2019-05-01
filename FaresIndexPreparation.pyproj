@@ -28,7 +28,7 @@
     <Compile Include="FaresIndexPreparation\calculate_results.py" />
     <Compile Include="FaresIndexPreparation\commonfunctions.py" />
     <Compile Include="FaresIndexPreparation\ad hoc create_reg_fares_lookup.py" />
-    <Compile Include="FaresIndexPreparation\get_dw_data.py">
+    <Compile Include="FaresIndexPreparation\zz_TESTING_get_dw_data.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="FaresIndexPreparation\get_advanced.py" />
@@ -40,11 +40,11 @@
     </Compile>
     <Compile Include="FaresIndexPreparation\rdg_prices_info.py" />
     <Compile Include="FaresIndexPreparation\ad hoc superfile sumandgroup.py" />
-    <Compile Include="FaresIndexPreparation\test for sum of weighings from superfile.py">
+    <Compile Include="FaresIndexPreparation\ad hoc_test for sum of weighings from superfile.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="FaresIndexPreparation\toc_file_processing.py" />
-    <Compile Include="FaresIndexPreparation\independent_rdg_prices_info.py" />
+    <Compile Include="FaresIndexPreparation\ad_hoc_rdg_prices_info.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="FaresIndexPreparation" />

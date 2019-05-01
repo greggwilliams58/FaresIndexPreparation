@@ -7,6 +7,21 @@ from rail_financial_output import getrailfinancial
 
 
 def main():
+    """
+    This is the main entry point for the creation of the superfile, advanced and non-advanced files from the raw data and lookups.
+    This calls various other functions to export the prepared files to be used in main_2 - get_results
+
+    Parameters:
+    NONE
+
+    Returns:
+    NONE, but exports the following CSV files:
+    'superfile without regulated steps': The superfile, not including intermediate columns of the regulated fares process.  To be used in 2nd stage
+    'advancedfile': The advanced file.  To be used in 2nd stage
+    'nonadvancedfile'.  The non-advanced file.  To be used in 2nd stage
+
+    """
+
     #parameters to be edited depending on users' file set up
     root = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\'
     originpath = root + 'TOC_files\\'
@@ -15,7 +30,6 @@ def main():
     LENNONnonadvancedfarespath = root + 'LENNON_Fares_information\\non_advanced_data\\' 
     LENNONadvancedfarepath = root + 'LENNON_Fares_information\\advanced_data\\'
     categorypath = root + 'Product_Category_information\\ProdCatLookup\\'
-    manualdatapath = root + '\\Manually_checked_data\\ '
     destinationpath = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\'
 
     # the calculation of the root 'superfile'
@@ -25,13 +39,12 @@ def main():
     ##copies of superfile, so superfile remains unamended for the various other functions
     superfileforadvanced = superfile.copy()
     superfilefornonadvanced = superfile.copy()
-    superfileforweights = superfile.copy()
     superfileforrailfinance = superfile.copy()
+    
+    #export superfile
     print("the superfile is coming....\n")
     exportfile(superfile,destinationpath,'superfile without regulated steps')
-
     
-
     #extraction of summed earnings and journeys for check of initial TOC extraction
     totalscheck = superfile.groupby(['Carrier TOC / Third Party Code'])['Adjusted Earnings Amount','Operating Journeys'].agg('sum')
     exportfile(totalscheck,destinationpath,'sum_of_earnings_and_journies_by_toc')

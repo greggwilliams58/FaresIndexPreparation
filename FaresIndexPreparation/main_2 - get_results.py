@@ -6,7 +6,7 @@ from calculate_results import calc_weighted_average_price_change, calc_final
 
 def main():
     """
-    This is a second stage of the fares index process which imports the advanced, nonadvanced and superfile.  The last two files are combined and then joined in term to the superfile.
+    This is a second stage of the fares index process which imports the CSV files advanced, nonadvanced and superfile.  The last two files are combined and then joined in term to the superfile.
     Another function mimics the SUMPRODUCT function of excel.  A second function runs over the dataframe from the previous function and them combines the answers to produce the final answerset
 
     Parameters

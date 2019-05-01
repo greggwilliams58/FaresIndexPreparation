@@ -1,6 +1,4 @@
 import pandas as pd
-#from pandas import ExcelWriter
-#from pandas import ExcelFile
 from commonfunctions import exportfile
 import xlsxwriter
 import re
@@ -36,18 +34,15 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year,exclu
     flow_df['VALID_UNTIL'].replace(['31122999'],['31122100'],inplace=True)
     
     print("converting the valid_until into date format \n")
-    #formatting the date valid until
+    #formatting the valid_until field as a date format
     flow_df['DATE_VALID_UNTIL'] = flow_df['VALID_UNTIL'].apply(lambda x: pd.to_datetime(str(x),format='%d%m%Y'))
 
     #remove rows where the Valid_Until date !=  the max value of Valid_Until
     idx = flow_df.groupby(['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE'])['DATE_VALID_UNTIL'].transform(max) == flow_df['DATE_VALID_UNTIL']
     flow_df = flow_df[idx]
 
-
-
     print("exporting the flow and fares with separate info\n")
     #exportfile(flow_df,outfilepath,'flow_info_'+ year)
-
 
     #joining the flow and fares information
     print("joining flow and fares information\n")
@@ -55,15 +50,15 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year,exclu
     combined_data.reset_index(drop=True, inplace=True)
     combined_data.index.name="FLOW_AND_FARES_INDEX"
 
-
+    #This is superceded by lines 41 and 42
     #add the filter for given year for flow_id to remove duplicate flow id information
-    combined_data_no_duplicates = removeRDGduplicates(combined_data, year,excludeflowid)
+    #combined_data_no_duplicates = removeRDGduplicates(combined_data, year,excludeflowid)
 
     #reading in the lookup value for the LENNON codes lookup
     lookupinfo = pd.read_excel(infilepath +'Lennon_product_codes_and_Fares_ticket_types_2017.xlsx','Fares to Lennon coding')
     
     ##join lookupinfo with Lennon keys
-    combined_data_with_lennon = pd.merge(combined_data_no_duplicates,lookupinfo,'left',left_on=['TICKET_CODE'],right_on=['Fares ticket type code'])
+    combined_data_with_lennon = pd.merge(combined_data,lookupinfo,'left',left_on=['TICKET_CODE'],right_on=['Fares ticket type code'])
 
     # remove duplicates where fares are the same
     combined_data_with_lennon.drop_duplicates(subset=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','TICKET_CODE','FARE'],keep='first',inplace=True)
@@ -111,8 +106,6 @@ def getdata(filepath, filename):
         return datasetlist1, datasetlist2
 
 
-
-    
 def splitter (data1, data2):
     """
     This function splits two lists of lists by indices and converts them to a data frame  
@@ -162,71 +155,72 @@ def addRDGfaresinfo(df,lookupdf,postfix):
     #copy of data frame made to avoid SettingWithCopyWarning by making the copy explicit
     df_dt = df.copy()
 
+    #data typing of key columns
     print("datatyping key columns in RDG file")
     df_dt.loc[:,'Origin Code'] = df.loc[:,'Origin Code'].astype(str)
     df_dt.loc[:,'Destination Code'] = df.loc[:,'Destination Code'].astype(str)
     df_dt.loc[:,'Route Code'] = df.loc[:,'Route Code'].astype(str)
     df_dt.loc[:,'Product Code'] = df.loc[:,'Product Code'].astype(str)
 
-    #print("lookup info from addRDG\n")
-    #print(lookupdf.info())
+    #merging of superfile with RDG dataframe
     print(f"about to attempt merging superfile with RDG data from{postfix}")
     df_dt = pd.merge(left=df_dt,right=lookupdf[['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','Lennon product code (CTOT)','FARE']],
                          how='left',
                          left_on=['Origin Code','Destination Code','Route Code','Product Code'],
                          right_on=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','Lennon product code (CTOT)'])
 
-
+    #drop unnecessary columns
     df_dt.drop(['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','Lennon product code (CTOT)'],axis=1,inplace=True)
 
-
+    #rename columns as needed
     df_dt.rename(columns={'FARE':'RDG_FARES'+postfix,'Fares ticket type description':'RDG_Fares ticket type description'+postfix},inplace=True)
 
     return df_dt
 
-def removeRDGduplicates(df, yr, excludeflowid):
-    """
-    This removes rows from RDG data where the origin_code or destination_code fields include an alphabetical character.  It also removes rows where the flow_id is a given flow_id for that specific year.
-    An initial run is required without this code being run to determine what the potential duplicates are.  Peter Moran then uses avantix data to determine which flow_ids should be removed
+#This has been superceded by lines 41 and 42 above
+#def removeRDGduplicates(df, yr, excludeflowid):
+#    """
+#    This removes rows from RDG data where the origin_code or destination_code fields include an alphabetical character.  It also removes rows where the flow_id is a given flow_id for that specific year.
+#    An initial run is required without this code being run to determine what the potential duplicates are.  Peter Moran then uses avantix data to determine which flow_ids should be removed
 
-    Parameters:
-    df:                                 A dataframe containing the flow and fares information from the extracted and joined RDG text file.
-    yr:                                 A string indicating which year this RDG data relates to.
-    excludeflowid:                      A boolean flag for whether flowids should be excluded from this run.
+#    Parameters:
+#    df:                                 A dataframe containing the flow and fares information from the extracted and joined RDG text file.
+#    yr:                                 A string indicating which year this RDG data relates to.
+#    excludeflowid:                      A boolean flag for whether flowids should be excluded from this run.
 
-    Returns:
-    filtered_fully_and_flow_removed:    A dataframe of RDG data with alpha orgin/dest codes and specified flow_ids excluded
+#    Returns:
+#    filtered_fully_and_flow_removed:    A dataframe of RDG data with alpha orgin/dest codes and specified flow_ids excluded
 
-    """
-    #remove origin and destination code with any letters
-    filtered_by_origin = df[~(df['ORIGIN_CODE'].str.match(r'[a-zA-Z]')) ]
+#    """
+#    #remove origin and destination code with any letters
+#    filtered_by_origin = df[~(df['ORIGIN_CODE'].str.match(r'[a-zA-Z]')) ]
 
-    filtered_fully = filtered_by_origin[~(filtered_by_origin['DESTINATION_CODE'].str.match(r'[A-Za-z]')) ]
+#    filtered_fully = filtered_by_origin[~(filtered_by_origin['DESTINATION_CODE'].str.match(r'[A-Za-z]')) ]
     
-    if excludeflowid is True:
-        #These codes will need to be reviewed each year to see what flow ids need to be removed to avoid duplication of routes with different fares
-        # These assignments for flow ids was completed by Peter Moran on 5th April 2019.
-        if yr == '2018':
-            flowtoremove= ['1141787','1141803','1141932','1141947','1141783','1141784','1141838','1141844','1141876','1141975','1141992']
+#    if excludeflowid is True:
+#        #These codes will need to be reviewed each year to see what flow ids need to be removed to avoid duplication of routes with different fares
+#        # These assignments for flow ids was completed by Peter Moran on 5th April 2019.
+#        if yr == '2018':
+#            flowtoremove= ['1141787','1141803','1141932','1141947','1141783','1141784','1141838','1141844','1141876','1141975','1141992']
 
-            # potential duplicates for 2018 which are left in the RDG data
-            # ['1142117','1142105','1141786','1141802','1141803','1142076']
-            filtered_fully_and_flow_removed =   filtered_fully[~(filtered_fully['FLOW_ID'].isin(flowtoremove))]
+#            # potential duplicates for 2018 which are left in the RDG data
+#            # ['1142117','1142105','1141786','1141802','1141803','1142076']
+#            filtered_fully_and_flow_removed =   filtered_fully[~(filtered_fully['FLOW_ID'].isin(flowtoremove))]
 
-        elif yr == '2019':
-            flowtoremove= ['9999999']
-            filtered_fully_and_flow_removed =   filtered_fully[~(filtered_fully['FLOW_ID'].isin(flowtoremove))]
-        else:
-            print(f"Check the assignment of the year value for RDG data.  {yr} isn't a valid value.")
+#        elif yr == '2019':
+#            flowtoremove= ['9999999']
+#            filtered_fully_and_flow_removed =   filtered_fully[~(filtered_fully['FLOW_ID'].isin(flowtoremove))]
+#        else:
+#            print(f"Check the assignment of the year value for RDG data.  {yr} isn't a valid value.")
 
-    else:
-        #set the partially modified dataframe to the returned dataframe
-        filtered_fully_and_flow_removed = filtered_fully.copy()
+#    else:
+#        #set the partially modified dataframe to the returned dataframe
+#        filtered_fully_and_flow_removed = filtered_fully.copy()
  
 
     
     
-    return filtered_fully_and_flow_removed
+#    return filtered_fully_and_flow_removed
 
 
 

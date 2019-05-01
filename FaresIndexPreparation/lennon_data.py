@@ -6,7 +6,6 @@ def get_lennon_price_info(year,filepath, filename,typeofjoin):
    This gets lennon prices information held as a csv file and puts it into a dataframe.  It also applies datatyping, 
    converts the cash values into pence and divides Receipt by Issues.  It finally drops unnecessary columns 
 
-
    Parameters:
    year         - a string giving the year to which the reference data relays
    filepath     - a string giving the file path where the reference data is held
@@ -17,8 +16,7 @@ def get_lennon_price_info(year,filepath, filename,typeofjoin):
    df           - a data frame containing the LENNON reference data
    """
    
-   #write new dictionary to handle non-advanced lennon datatyping here
-
+   #dictionaries to handle non-advanced lennon datatyping here
    advanceddtypedict = {'Origin Code':str,'Destination Code':str,'Route Code':str,'class':str}
    nonadvanceddtypedict = {'Route Code':str}
 
@@ -30,19 +28,23 @@ def get_lennon_price_info(year,filepath, filename,typeofjoin):
        print("incorrect join type specified for LENNON")
 
    df = pd.read_csv(filepath + filename,dtype = dtypedictionary) 
-   #'Origin Code','Destination Code','Route Code','Product Code'
+
+   #applying data typing to key fields
+   print("applying data typing to LENNON data\n")
    df['Origin Code'] = df['Origin Code'].str.zfill(4)
    df['Destination Code'] = df['Destination Code'].str.zfill(4)
    df['Route Code'] = df['Route Code'].str.zfill(5)
 
-
+   #convert the number of ticket issues to numeric datatype
    df['Issues'] = df[['Issues']].apply(pd.to_numeric,errors='coerce')
+
+   #convert values in pounds to pence
    df['NetReceiptSterling'] = df['NetReceiptSterling']*100
 
+   #create actual lennon price by dividing neceipts by number of tickets issued 
    df['LENNON_PRICE_'+year] = df['NetReceiptSterling']/df['Issues']
    
-
-
+   #delete unnecessary columns
    del df['NetReceiptSterling']
    del df['Issues']
 
@@ -62,7 +64,7 @@ def add_lennon_fares_info(df,lookupdf,year,typeofjoin):
     Returns:
     df          - a dataframe with LENNON data joined
     """
-
+    # apply appropriate merge type based on name of join
     if typeofjoin == 'non-advanced':
         #the non-advanced join
         df = pd.merge(left=df, right=lookupdf, how='left',
@@ -70,9 +72,11 @@ def add_lennon_fares_info(df,lookupdf,year,typeofjoin):
                   right_on=['Origin Code','Destination Code','Route Code','Product Code'],
                   suffixes=('','_LENNON'+year))
     
+        df = applydatatypes(df,['Origin Code','Destination Code','Route Code','Product Code'])
+
     elif typeofjoin == 'advanced':
-        #original join 
-        #['Origin Code','Destination Code','Route Code','class']
+        # advanced join 
+        # datatyping of key fields
         print("this is non advanced datatyping")
         df['Origin Code']=df['Origin Code'].astype(str)
         df['Destination Code']=df['Destination Code'].astype(str)
@@ -84,6 +88,7 @@ def add_lennon_fares_info(df,lookupdf,year,typeofjoin):
                       right_on=['Origin Code','Destination Code','Route Code','class'],
                       suffixes=('','_LENNON'+year)
                       )
+
         df = applydatatypes(df,['Origin Code','Destination Code','Route Code','class'])
     
     else:

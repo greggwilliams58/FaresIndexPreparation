@@ -40,7 +40,7 @@ def main():
     
     #join the advanced and nonadvanced data
     print("data joined.  showing metadata\n") 
-    advandnonadv = appenddata([advanceddata,nonadvanceddata])
+    advandnonadv = joinadvandnonadv([advanceddata,nonadvanceddata])
 
     #sort the advandnonadv and superfile by common fields so they match up when paired later
     advandnonadv.sort_values(by=['sector','class','Category','Regulated_Status'],ascending=True,inplace=True)
@@ -88,7 +88,7 @@ def main():
    
 
 
-def appenddata(nonadvandadv):
+def joinadvandnonadv(nonadvandadv):
     """
     This file joins two dataframes which are presented as a list.  
     A Factor of weightings * percentage change  is calculated
@@ -178,6 +178,7 @@ def lastminutechanges(df):
 
     Returns:
     df:     An amended dataframe
+    Exports various cuts and summed groups of advanced and non advanced data
     
     
     """

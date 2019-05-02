@@ -1,11 +1,11 @@
-from rdg_prices_info import get_rdg_prices_info, addRDGfaresinfo
-from lennon_data import add_lennon_fares_info, get_lennon_price_info
+from get_rdg_prices_info import get_rdg_prices_info, addRDGfaresinfo
+from get_lennon_data import add_lennon_fares_info, get_lennon_price_info
 from commonfunctions import handlezeroandnulls,percentagechange,applydatatypes, exportfile
 import pandas as pd
 import numpy as np
 
 
-def non_advanced_data(df,destinationpath,RDGfarespath,LENNONfarespath):
+def get_non_advanced_data(df,destinationpath,RDGfarespath,LENNONfarespath):
     """
     This function takes the combined file as a data frame, adds prepared RDG price data, adds LENNON price data which is used to fill gaps in RDG data.
     The combined file then moves rows where there is no prices information for both years.

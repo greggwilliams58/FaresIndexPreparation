@@ -33,12 +33,12 @@
     </Compile>
     <Compile Include="FaresIndexPreparation\get_advanced.py" />
     <Compile Include="FaresIndexPreparation\get_non_advanced.py" />
-    <Compile Include="FaresIndexPreparation\lennon_data.py" />
+    <Compile Include="FaresIndexPreparation\get_lennon_data.py" />
     <Compile Include="FaresIndexPreparation\main_1 - create_superfile_adv_nonadv.py" />
-    <Compile Include="FaresIndexPreparation\rail_financial_output.py">
+    <Compile Include="FaresIndexPreparation\calculate_rail_financials.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="FaresIndexPreparation\rdg_prices_info.py" />
+    <Compile Include="FaresIndexPreparation\get_rdg_prices_info.py" />
     <Compile Include="FaresIndexPreparation\ad hoc superfile sumandgroup.py" />
     <Compile Include="FaresIndexPreparation\ad hoc_test for sum of weighings from superfile.py">
       <SubType>Code</SubType>

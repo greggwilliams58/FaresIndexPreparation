@@ -1,9 +1,9 @@
 from toc_file_processing import generatedata
-from get_non_advanced import non_advanced_data
-from get_advanced import advanced_data
+from get_non_advanced import get_non_advanced_data
+from get_advanced import get_advanced_data
 from commonfunctions import exportfile
-from lennon_data import get_lennon_price_info,add_lennon_fares_info
-from rail_financial_output import getrailfinancial
+from get_lennon_data import get_lennon_price_info,add_lennon_fares_info
+from calculate_rail_financials import getrailfinancial
 
 
 def main():
@@ -50,12 +50,12 @@ def main():
     exportfile(totalscheck,destinationpath,'sum_of_earnings_and_journies_by_toc')
 
     print("the advanced data is coming.... main\n")
-    advanced = advanced_data(superfileforadvanced,destinationpath,LENNONadvancedfarepath)
+    advanced = get_advanced_data(superfileforadvanced,destinationpath,LENNONadvancedfarepath)
     exportfile(advanced,destinationpath,'advancedfile')
      
     ##calculation of non-advanced data prior to manual validation and advantix data
     print ("The non-advanced data is coming....")
-    nonadvanced = non_advanced_data(superfilefornonadvanced,destinationpath,RDGfarespath,LENNONnonadvancedfarespath)
+    nonadvanced = get_non_advanced_data(superfilefornonadvanced,destinationpath,RDGfarespath,LENNONnonadvancedfarespath)
     exportfile(nonadvanced,destinationpath,'nonadvancedfile')
     
     print("The data for rail financials is being prepared")

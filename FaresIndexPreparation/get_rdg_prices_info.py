@@ -24,10 +24,10 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year,exclu
     """
     
     print(f"getting RDG prices data for {year} \n ")
-    flow_list, fare_list = getdata(infilepath,infilename)
+    flow_list, fare_list = extract_rdg_data(infilepath,infilename)
     
     print("splitting the data into flow and fares \n")
-    flow_df, fares_df = splitter(flow_list, fare_list)
+    flow_df, fares_df = parse_rdg_data(flow_list, fare_list)
 
     print("replacing the outofbounds date values \n ")
     #replacing the outofbounds date value 31122999 with 31122100
@@ -72,7 +72,7 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year,exclu
     return combined_data_with_lennon
 
 
-def getdata(filepath, filename):
+def extract_rdg_data(filepath, filename):
     """
     This is a simple reading of a text file, using a context handler.  
     There is a test to exclude commentlines ('/!!') 
@@ -106,7 +106,7 @@ def getdata(filepath, filename):
         return datasetlist1, datasetlist2
 
 
-def splitter (data1, data2):
+def parse_rdg_data(data1, data2):
     """
     This function splits two lists of lists by indices and converts them to a data frame  
    

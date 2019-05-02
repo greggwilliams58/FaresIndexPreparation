@@ -25,7 +25,7 @@ def generatedata(originpath,destinationpath,regulatedfarespath,categorypath):
 
     joinedfile = combinefiles(list_of_tocs,filecount)
 
-    if filecount > 25:
+    if filecount > 50:
         print("As you are processing a large number of files, this may possibly cause the PC to freeze or crash due to memory issues.\n")  
         print("If this happens, restart the computer, then close down IE, Outlook and any other memory/resource hungry applications and try again.\n")
 

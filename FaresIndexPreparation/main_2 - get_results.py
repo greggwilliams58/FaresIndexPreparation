@@ -83,6 +83,7 @@ def main():
     combined_answers_data.columns = ['grouping_name','average_price_change','superweights','percentage_share_of_superweights_in_grouping']
 
     #end the process by exporting the final answer
+    print(combined_answers_data.info())
     exportfile(combined_answers_data,outputto,"final answerset") 
 
    

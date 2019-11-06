@@ -19,22 +19,29 @@ def set_template():
     fares_index_sector_template = getDWdata('NETL','factt_205_annual_Fares_Index_stat_release',9)
     fares_index_tt_template = getDWdata('NETL','factt_205_annual_Fares_Index_tt_stat_release',9)
 
-    print(fares_index_tt_template.info())
-
-    #prep_template(fares_index_sector_template,'ticket_category',2.5,outputgoesto)
+    prep_template(fares_index_sector_template,'ticket_category',2.5,outputgoesto)
     prep_template(fares_index_tt_template,'ticket_type',2.5,outputgoesto)
 
 
-def prep_template(df,type,RPI,outputpath):
-    if type == 'ticket_category':
-        orderingofyearandstats = 'ordering of year & stats'
-    elif type == 'ticket_type':
-        orderingofyearandstats = 'ordering value of year and stats'
-    else:
-        print("ERROR!")
-
+def prep_template(df,type,RPI,outputpath ):
+    
     #get max year and the new year value
     max_year =df['Year & stats'].to_list()[-2][8:]
+    
+    new_year = str(int(max_year) + 1)
+    previous_year = str( int(max_year)-1)
+    
+    if type == 'ticket_category':
+        orderingofyearandstats = 'ordering of year & stats'
+        orderofticketcat = 'ordering value of ticket category'
+        newrowitems = ['Average change in price (%)','Expenditure weights (%) total','Real terms change in average price year on year','Real terms change in average price year on 2004']
+    elif type == 'ticket_type':
+        orderingofyearandstats = 'ordering value of year and stats'
+        orderofticketcat = 'ordering values of ticket category'                                                                                           
+        newrowitems = ['Average change in price (%)','Expenditure weights (%) total',f'Real terms change in average price {max_year} on {previous_year}','Real terms change in average price '+ max_year +' on 1995']
+
+    else:
+        print("check prep_template values")
 
     #get max load id and the next ID value
     old_load_id = int(df['Load_ID'].to_list()[-1])
@@ -47,24 +54,20 @@ def prep_template(df,type,RPI,outputpath):
     max_stat_order = int(df[orderingofyearandstats][df['Year & stats']=='January '+max_year].to_list()[-1])
     latest_order = max_stat_order + 1
 
-    newrowitems = ['Average change in price (%)','Expenditure weights (%) total','Real terms change in average price year on year','Real terms change in average price year on 2004']
-
-    
-
     newdatarows = []
     for increment,items in enumerate(newrowitems,1):
-        newset = addnewcatrows(df,new_load_id,publication_status,items,latest_order,increment)
+        newset = addnewcatrows(df,type,new_load_id,publication_status,items,latest_order,increment,orderingofyearandstats,previous_year,max_year,new_year,RPI)
         newdatarows.append(newset)
         df.drop(df[df['Year & stats']==items].index,inplace=True)
 
     
-    annualdata = addnewyearsrows(df,max_year,new_load_id,publication_status)
+    annualdata = addnewyearsrows(df,type,max_year,new_load_id,publication_status,orderingofyearandstats)
 
     newdatarows.append(annualdata)
 
     #join old dataset with new rows
     newtemplate = df.append(newdatarows)
-    newtemplate.sort_values(by=['ordering value of ticket category','ordering of year & stats'],inplace=True)
+    newtemplate.sort_values(by=[orderofticketcat,orderingofyearandstats],inplace=True)
     newtemplate.loc[:,'Load_ID'] = new_load_id
     newtemplate.loc[:,'Publication_status'] = publication_status
 
@@ -74,7 +77,7 @@ def prep_template(df,type,RPI,outputpath):
     exportfile(newtemplate,outputpath,F"new_{type}")
 
    
-def addnewyearsrows(fulldataset,maxyear,newloadid,pubstatus):
+def addnewyearsrows(fulldataset,type,maxyear,newloadid,pubstatus,orderyearandstats):
     """
     This creates the dataset for the new year of data 
 
@@ -93,7 +96,7 @@ def addnewyearsrows(fulldataset,maxyear,newloadid,pubstatus):
     new_year = str(int(maxyear) + 1)
 
     #get latest stat order column
-    max_stat_order = int(fulldataset['ordering of year & stats'][fulldataset['Year & stats']=='January '+maxyear].to_list()[-1])
+    max_stat_order = int(fulldataset[orderyearandstats][fulldataset['Year & stats']=='January '+maxyear].to_list()[-1])
     latest_order = max_stat_order + 1
 
     #deepcopy to avoid warnings about copying a slice
@@ -106,13 +109,13 @@ def addnewyearsrows(fulldataset,maxyear,newloadid,pubstatus):
     #ticket category remains the same
     #ordering of ticket category remains the same
     janvalues.loc[:,'Year & stats'] = 'January '+new_year
-    janvalues.loc[:,'ordering of year & stats'] = latest_order
+    janvalues.loc[:,orderyearandstats] = latest_order
     janvalues.loc[:,'value'] = None
     
     return janvalues
 
 
-def addnewcatrows(fulldataset,new_load_id,publication_status,category,sortnumber,increment):
+def addnewcatrows(fulldataset,type,new_load_id,publication_status,category,sortnumber,increment,orderyearandstats,previous_year,max_year, new_year,RPI):
     """
     This is the add the rows for four generic items
 
@@ -136,19 +139,25 @@ def addnewcatrows(fulldataset,new_load_id,publication_status,category,sortnumber
     #sector remains the same
     #ticket category remains the same
     #ordering of ticket category remains the same
-    #year & stats remains the same
-    subset.loc[:,'ordering of year & stats'] = sortnumber + increment
+    
+    if type =='ticket_category':
+        #year & stats remains the same
+        pass
+        subset.loc[:,[['All items index','Average change in price (%)'],'value']]= RPI
+
+    elif type == 'ticket_type':
+        
+        subset.loc[:,'Year & stats'] = subset.loc[:,'Year & stats'].replace(max_year,new_year,regex=True)
+        subset.loc[:,'Year & stats'] = subset.loc[:,'Year & stats'].replace(previous_year,max_year,regex=True)
+
+    else:
+        print("check addnewcatrows line 144")
+    subset.loc[:,orderyearandstats] = sortnumber + increment
     subset.loc[:,'value'] = None
 
+
+
     return subset
-
-
-    
-
-
-
-
-
 
 
 def getDWdata(schema_name,table_name,source_item_id):

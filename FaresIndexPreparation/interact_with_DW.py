@@ -14,23 +14,20 @@ def main():
     set_template()
 
 def set_template():
-
+    outputgoesto = outputto = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\advanced_and_non_advanced_output\\adv_non_advanced_and_superfile\\'
+    #amend the values of the subset for Yon2004 change
     fares_index_sector_template = getDWdata('NETL','factt_205_annual_Fares_Index_stat_release',9)
     fares_index_tt_template = getDWdata('NETL','factt_205_annual_Fares_Index_tt_stat_release',9)
 
 
-    print(fares_index_sector_template.head(20))
-    print(fares_index_sector_template.info())
-
-    prep_template(fares_index_sector_template,'sector',2.5)
+    prep_template(fares_index_sector_template,'sector',2.5,outputgoesto)
 
 
 
-def prep_template(df,type,RPI):
+def prep_template(df,type,RPI,outputpath):
     
     #get max year and the new year value
     max_year =df['Year & stats'].to_list()[-2][8:]
-    new_year = str(int(max_year) + 1)
 
     #get max load id and the next ID value
     old_load_id = int(df['Load_ID'].to_list()[-1])
@@ -40,102 +37,78 @@ def prep_template(df,type,RPI):
     publication_status = 'Approved'
 
     #get latest year
-    latest_year_subset = df[df['Year & stats']=='January '+max_year]
+    #latest_year_subset = df[df['Year & stats']=='January '+max_year]
 
-    #get latest stat order column
+    ##get latest stat order column
     max_stat_order = int(df['ordering of year & stats'][df['Year & stats']=='January '+max_year].to_list()[-1])
     latest_order = max_stat_order + 1
 
+    newrowitems = ['Average change in price (%)','Expenditure weights (%) total','Real terms change in average price year on year','Real terms change in average price year on 2004']
+
+    
+
+    newdatarows = []
+    for increment,items in enumerate(newrowitems,1):
+        newset = addnewcatrows(df,new_load_id,publication_status,items,latest_order,increment)
+        newdatarows.append(newset)
+        df.drop(df[df['Year & stats']==items].index,inplace=True)
+
+    
+    annualdata = addnewyearsrows(df,max_year,new_load_id,publication_status)
+
+    newdatarows.append(annualdata)
+
+    #join old dataset with new rows
+    newtemplate = df.append(newdatarows)
+    newtemplate.sort_values(by=['ordering value of ticket category','ordering of year & stats'],inplace=True)
+    newtemplate.loc[:,'Load_ID'] = new_load_id
+    newtemplate.loc[:,'Publication_status'] = publication_status
+
+    newtemplate.reset_index(drop=True, inplace=True)
+
+    
+    exportfile(newtemplate,outputpath,"newtemplate")
+
+   
+def addnewyearsrows(fulldataset,maxyear,newloadid,pubstatus):
+    """
+    This creates the dataset for the new year of data 
+
+    Parameters:
+    fulldataset     A dataframe containing the full dataset
+    maxyear         An integer holding the maximum year value
+    pubstatus       A string holding the publication status of the dataset
+
+    Returns:
+    janvalue        A dataframe holding the new rows for january data
+
+    """
+    
+    #get latest year and increment by 1
+    latest_year_subset = fulldataset[fulldataset['Year & stats']=='January '+maxyear]
+    new_year = str(int(maxyear) + 1)
+
+    #get latest stat order column
+    max_stat_order = int(fulldataset['ordering of year & stats'][fulldataset['Year & stats']=='January '+maxyear].to_list()[-1])
+    latest_order = max_stat_order + 1
+
+    #deepcopy to avoid warnings about copying a slice
     janvalues = latest_year_subset.copy(deep=True)
-    print(latest_year_subset)
 
     #amend the values of the subset for Jan XXX
-    janvalues.loc[:,'Load_ID'] = new_load_id
-    janvalues.loc[:,'Publication_status'] = publication_status
+    janvalues.loc[:,'Load_ID'] = newloadid
+    janvalues.loc[:,'Publication_status'] = pubstatus
     #sector remains the same
     #ticket category remains the same
     #ordering of ticket category remains the same
-
     janvalues.loc[:,'Year & stats'] = 'January '+new_year
     janvalues.loc[:,'ordering of year & stats'] = latest_order
     janvalues.loc[:,'value'] = None
     
-    #print("New values")
-    #print(janvalues)
-
-    avg_price_change = addnewrows(df,new_load_id,publication_status,'Average change in price (%)',latest_order,1)
-    exp_weights = addnewrows(df,new_load_id,publication_status,'Expenditure weights (%) total',latest_order,2)
-    yoy_change = addnewrows(df,new_load_id,publication_status,'Real terms change in average price year on year',latest_order,3)
-    yon2004change = addnewrows(df,new_load_id,publication_status,'Real terms change in average price year on 2004',latest_order,4)
-
-    ##amend the values of the subset for Average change in price
-    #changeinprice = df[df['Year & stats']=='Average change in price (%)']
-    #pricechangevalues = changeinprice.copy(deep=True)
-
-    #pricechangevalues.loc[:,'Load_ID'] = new_load_id
-    #pricechangevalues.loc[:,'Publication_status'] = publication_status
-    ##sector remains the same
-    ##ticket category remains the same
-    ##ordering of ticket category remains the same
-    ##year & stats remains the same
-    #pricechangevalues.loc[:,'ordering of year & stats'] = latest_order + 1
-    #pricechangevalues.loc[:,'value'] = None
-
-    ##print(pricechangevalues)
+    return janvalues
 
 
-    ##amend the values of the subset for Expenditure Weights
-    #expweights = df[df['Year & stats']=='Expenditure weights (%) total']
-    #print(expweights)
-    #expweightvalues = expweights.copy(deep=True)
-
-    #expweightvalues.loc[:,'Load_ID'] = new_load_id
-    #expweightvalues.loc[:,'Publication_status'] = publication_status
-    ##sector remains the same
-    ##ticket category remains the same
-    ##ordering of ticket category remains the same
-    ##year & stats remains the same
-    #expweightvalues.loc[:,'ordering of year & stats'] = latest_order + 2
-    #expweightvalues.loc[:,'value'] = None
-
-    ##print(expweightvalues)
-
-    
-    ##amend the values of the subset for YonY change
-    #yoychange = df[df['Year & stats']=='Real terms change in average price year on year']
-    #print(yoychange)
-    #yoychangevalues = yoychange.copy(deep=True)
-
-    #yoychangevalues.loc[:,'Load_ID'] = new_load_id
-    #yoychangevalues.loc[:,'Publication_status'] = publication_status
-    ##sector remains the same
-    ##ticket category remains the same
-    ##ordering of ticket category remains the same
-    ##year & stats remains the same
-    #yoychangevalues.loc[:,'ordering of year & stats'] = latest_order + 3
-    #yoychangevalues.loc[:,'value'] = None
-
-    ##print(yoychangevalues)
-
-    ##amend the values of the subset for Yon2004 change
-    #yo2004change = df[df['Year & stats']=='Real terms change in average price year on 2004']
-    #print(yo2004change)
-    #yo2004changevalues = yoychange.copy(deep=True)
-
-    #yo2004changevalues.loc[:,'Load_ID'] = new_load_id
-    #yo2004changevalues.loc[:,'Publication_status'] = publication_status
-    ##sector remains the same
-    ##ticket category remains the same
-    ##ordering of ticket category remains the same
-    ##year & stats remains the same
-    #yo2004changevalues.loc[:,'ordering of year & stats'] = latest_order + 4
-    #yo2004changevalues.loc[:,'value'] = None
-
-    ##print(yo2004changevalues)
-
-
-
-def addnewrows(fulldataset,new_load_id,publication_status,category,sortnumber,increment):
+def addnewcatrows(fulldataset,new_load_id,publication_status,category,sortnumber,increment):
     """
     This is the add the rows for four generic items
 
@@ -149,8 +122,7 @@ def addnewrows(fulldataset,new_load_id,publication_status,category,sortnumber,in
 
 
     """
-    outputgoesto = outputto = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\advanced_and_non_advanced_output\\adv_non_advanced_and_superfile\\'
-    #amend the values of the subset for Yon2004 change
+    
     subset = fulldataset[fulldataset['Year & stats']==category ]
 
     subset = subset.copy(deep=True)
@@ -164,7 +136,7 @@ def addnewrows(fulldataset,new_load_id,publication_status,category,sortnumber,in
     subset.loc[:,'ordering of year & stats'] = sortnumber + increment
     subset.loc[:,'value'] = None
 
-    exportfile(subset,outputgoesto,category)
+    return subset
 
 
     

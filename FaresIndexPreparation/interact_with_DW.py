@@ -19,13 +19,20 @@ def set_template():
     fares_index_sector_template = getDWdata('NETL','factt_205_annual_Fares_Index_stat_release',9)
     fares_index_tt_template = getDWdata('NETL','factt_205_annual_Fares_Index_tt_stat_release',9)
 
+    print(fares_index_tt_template.info())
 
-    prep_template(fares_index_sector_template,'sector',2.5,outputgoesto)
-
+    #prep_template(fares_index_sector_template,'ticket_category',2.5,outputgoesto)
+    prep_template(fares_index_tt_template,'ticket_type',2.5,outputgoesto)
 
 
 def prep_template(df,type,RPI,outputpath):
-    
+    if type == 'ticket_category':
+        orderingofyearandstats = 'ordering of year & stats'
+    elif type == 'ticket_type':
+        orderingofyearandstats = 'ordering value of year and stats'
+    else:
+        print("ERROR!")
+
     #get max year and the new year value
     max_year =df['Year & stats'].to_list()[-2][8:]
 
@@ -36,11 +43,8 @@ def prep_template(df,type,RPI,outputpath):
     #set publication status
     publication_status = 'Approved'
 
-    #get latest year
-    #latest_year_subset = df[df['Year & stats']=='January '+max_year]
-
     ##get latest stat order column
-    max_stat_order = int(df['ordering of year & stats'][df['Year & stats']=='January '+max_year].to_list()[-1])
+    max_stat_order = int(df[orderingofyearandstats][df['Year & stats']=='January '+max_year].to_list()[-1])
     latest_order = max_stat_order + 1
 
     newrowitems = ['Average change in price (%)','Expenditure weights (%) total','Real terms change in average price year on year','Real terms change in average price year on 2004']
@@ -67,7 +71,7 @@ def prep_template(df,type,RPI,outputpath):
     newtemplate.reset_index(drop=True, inplace=True)
 
     
-    exportfile(newtemplate,outputpath,"newtemplate")
+    exportfile(newtemplate,outputpath,F"new_{type}")
 
    
 def addnewyearsrows(fulldataset,maxyear,newloadid,pubstatus):

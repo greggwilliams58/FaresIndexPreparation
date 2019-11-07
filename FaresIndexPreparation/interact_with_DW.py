@@ -70,10 +70,12 @@ def prep_template(df,type,RPI,outputpath ):
     newtemplate.sort_values(by=[orderofticketcat,orderingofyearandstats],inplace=True)
     newtemplate.loc[:,'Load_ID'] = new_load_id
     newtemplate.loc[:,'Publication_status'] = publication_status
+    
+    
 
     newtemplate.reset_index(drop=True, inplace=True)
-
-    
+    print(f"The index max is {newtemplate.index.max()}")
+    newtemplate.at[newtemplate.index.max(),'value'] = RPI
     exportfile(newtemplate,outputpath,F"new_{type}")
 
    
@@ -143,7 +145,6 @@ def addnewcatrows(fulldataset,type,new_load_id,publication_status,category,sortn
     if type =='ticket_category':
         #year & stats remains the same
         pass
-        subset.loc[:,[['All items index','Average change in price (%)'],'value']]= RPI
 
     elif type == 'ticket_type':
         

@@ -75,15 +75,21 @@ def main():
     sectorclassregulatedstatus = calc_final(answergrid,['sector','class','Regulated_Status'],'sector, class and regulation')
     classregulatedstatus = calc_final(answergrid, ['class','Regulated_Status'],'class and regulation')
 
+    listoffinalanswersubsets = [sectorsplit, classsplit, sectorclasssplit ,regulatedstatussplit, categorysplit,sectorcategorysplit,sectorclassregulatedstatus,classregulatedstatus ]
+
     #combine the group splits as one dataframe
     combined_answers_data = pd.concat([sectorsplit,classsplit,sectorclasssplit,regulatedstatussplit,categorysplit,sectorcategorysplit,sectorclassregulatedstatus,classregulatedstatus])
+
+    for items in listoffinalanswersubsets:
+        
+        print(items)
 
     #rename column headers
     combined_answers_data.index.rename("parts_of_the_grouping", inplace=True)
     combined_answers_data.columns = ['grouping_name','average_price_change','superweights','percentage_share_of_superweights_in_grouping']
 
     #end the process by exporting the final answer
-    print(combined_answers_data.info())
+    
     exportfile(combined_answers_data,outputto,"final answerset") 
 
 

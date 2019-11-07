@@ -156,8 +156,6 @@ def addnewcatrows(fulldataset,type,new_load_id,publication_status,category,sortn
     subset.loc[:,orderyearandstats] = sortnumber + increment
     subset.loc[:,'value'] = None
 
-
-
     return subset
 
 

@@ -6,7 +6,8 @@ from sqlalchemy import create_engine, MetaData, Table, select, inspect
 from sqlalchemy.orm import sessionmaker
 import pprint as pp
 from commonfunctions import exportfile
-
+from glob import glob
+import numpy as np
 
 
 def main():
@@ -14,16 +15,55 @@ def main():
     set_template()
 
 def set_template():
-    outputgoesto = outputto = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\advanced_and_non_advanced_output\\adv_non_advanced_and_superfile\\'
-    #amend the values of the subset for Yon2004 change
+    outputgoesto = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\Template_preparation\\'
+    
+
+
+    #get last year's data
     fares_index_sector_template = getDWdata('NETL','factt_205_annual_Fares_Index_stat_release',9)
     fares_index_tt_template = getDWdata('NETL','factt_205_annual_Fares_Index_tt_stat_release',9)
 
-    prep_template(fares_index_sector_template,'ticket_category',2.5,outputgoesto)
-    prep_template(fares_index_tt_template,'ticket_type',2.5,outputgoesto)
+    #populate the current year's data
+    sector_template = set_blank_template(fares_index_sector_template,'ticket_category',2.5,outputgoesto)
+    tt_template = set_blank_template(fares_index_tt_template,'ticket_type',2.5,outputgoesto)
+
+    sector_prep = poptemplate(sector_template,'ticket_category',outputgoesto)
+    #print(sector_prep.head(100))
 
 
-def prep_template(df,type,RPI,outputpath ):
+
+def poptemplate(new_template,output_type,output):
+    """
+    Get the blank templates, reading in the  lookup file and apply 
+
+    """
+    #get the answerfile
+    for f in glob(output + 'final answerset*.csv'):
+        answerfile = pd.read_csv(f)
+            
+    #get the answerfile lookup
+    answerslookup = pd.read_csv(output + 'answerfile_template_lookup.csv')
+    
+    #join the answerfile to the lookup file
+    answerfile_with_lookup = pd.merge(answerfile,answerslookup,how='left',left_on='parts_of_the_grouping',right_on='final_answers')
+
+    exportfile(answerfile_with_lookup,output,"answr_with_lookup")
+
+    if output_type == 'ticket_category':
+        merged_template = pd.merge(new_template,answerfile_with_lookup[['Sector','Ticket category','average_price_change']],how='left',left_on=['Sector','Ticket category'], right_on=['Sector','Ticket category'],suffixes=('x','y'))
+        
+        #print("This is the merged_template \n")
+        #exportfile(merged_template,output, 'crap join')
+        
+        #repeat this for other template and the weighting percentages
+        merged_template['value'] = np.where(merged_template['Year & stats']=='Average change in price (%)',merged_template['average_price_change'],merged_template['value'])
+        exportfile(merged_template,output, 'crap_join')
+
+    return answerfile_with_lookup
+
+
+
+def set_blank_template(df,type,RPI,basetemplatepreplocation ):
     
     #get max year and the new year value
     max_year =df['Year & stats'].to_list()[-2][8:]
@@ -71,13 +111,13 @@ def prep_template(df,type,RPI,outputpath ):
     newtemplate.loc[:,'Load_ID'] = new_load_id
     newtemplate.loc[:,'Publication_status'] = publication_status
     
-    
-
     newtemplate.reset_index(drop=True, inplace=True)
     print(f"The index max is {newtemplate.index.max()}")
+    
+    #set the RPI value here
     newtemplate.at[newtemplate.index.max(),'value'] = RPI
-    exportfile(newtemplate,outputpath,F"new_{type}")
-
+    #exportfile(newtemplate,basetemplatepreplocation,F"new_{type}")
+    return newtemplate
    
 def addnewyearsrows(fulldataset,type,maxyear,newloadid,pubstatus,orderyearandstats):
     """
@@ -112,7 +152,7 @@ def addnewyearsrows(fulldataset,type,maxyear,newloadid,pubstatus,orderyearandsta
     #ordering of ticket category remains the same
     janvalues.loc[:,'Year & stats'] = 'January '+new_year
     janvalues.loc[:,orderyearandstats] = latest_order
-    janvalues.loc[:,'value'] = None
+    janvalues.loc[:,'value'] = np.nan
     
     return janvalues
 
@@ -154,7 +194,7 @@ def addnewcatrows(fulldataset,type,new_load_id,publication_status,category,sortn
     else:
         print("check addnewcatrows line 144")
     subset.loc[:,orderyearandstats] = sortnumber + increment
-    subset.loc[:,'value'] = None
+    subset.loc[:,'value'] = np.nan
 
     return subset
 

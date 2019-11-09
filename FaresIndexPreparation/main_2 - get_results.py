@@ -19,6 +19,7 @@ def main():
     #define where the files are and where they will go
     filelocation = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\advanced_and_non_advanced_output\\'
     outputto = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\advanced_and_non_advanced_output\\adv_non_advanced_and_superfile\\'
+    final_answerto = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\Template_preparation\\'
 
     print("getting advanced data\n")
     advanceddata = pd.read_csv(filelocation + 'advancedfile_20190430_14-26.csv',
@@ -66,7 +67,8 @@ def main():
     exportfile(answergrid,outputto,"answerfile")
 
     #calculate the final set of group splits from the answer file as separate dataframes
-    sectorsplit = calc_final(answergrid,['sector'],'sector')
+    sectorsplit1 = calc_final(answergrid,['sector'],'sector1')
+    sectorsplit2 = calc_final(answergrid,['sector'],'sector2')
     classsplit = calc_final(answergrid,['class'],'class')
     sectorclasssplit = calc_final(answergrid,['sector','class'],'sector and class')
     regulatedstatussplit = calc_final(answergrid,['Regulated_Status'],'regulation')
@@ -75,14 +77,19 @@ def main():
     sectorclassregulatedstatus = calc_final(answergrid,['sector','class','Regulated_Status'],'sector, class and regulation')
     classregulatedstatus = calc_final(answergrid, ['class','Regulated_Status'],'class and regulation')
 
-    listoffinalanswersubsets = [sectorsplit, classsplit, sectorclasssplit ,regulatedstatussplit, categorysplit,sectorcategorysplit,sectorclassregulatedstatus,classregulatedstatus ]
-
+    listoffinalanswersubsetnames = ['sectorsplit1','sectorsplit2', 'classsplit', 'sectorclasssplit' ,'regulatedstatussplit', 'categorysplit','sectorcategorysplit','sectorclassregulatedstatus','classregulatedstatus' ]
+    listoffinalanswersubsets = [sectorsplit1, sectorsplit2,classsplit, sectorclasssplit ,regulatedstatussplit, categorysplit,sectorcategorysplit,sectorclassregulatedstatus,classregulatedstatus ]
+    
+    dictoffinalanswersubset = dict(zip(listoffinalanswersubsetnames, listoffinalanswersubsets))
+    
+    
     #combine the group splits as one dataframe
-    combined_answers_data = pd.concat([sectorsplit,classsplit,sectorclasssplit,regulatedstatussplit,categorysplit,sectorcategorysplit,sectorclassregulatedstatus,classregulatedstatus])
+    combined_answers_data = pd.concat([sectorsplit1,sectorsplit2,classsplit,sectorclasssplit,regulatedstatussplit,categorysplit,sectorcategorysplit,sectorclassregulatedstatus,classregulatedstatus])
 
-    for items in listoffinalanswersubsets:
-        
-        print(items)
+    #for names,subsets in dictoffinalanswersubset.items():
+    #    print(names + "\n")
+    #    print(subsets)
+    #    print("\n")
 
     #rename column headers
     combined_answers_data.index.rename("parts_of_the_grouping", inplace=True)
@@ -90,8 +97,10 @@ def main():
 
     #end the process by exporting the final answer
     
-    exportfile(combined_answers_data,outputto,"final answerset") 
-
+    exportfile(combined_answers_data,final_answerto,"final answerset") 
+    
+    #for names,subsets in dictoffinalanswersubset.items():
+    #    exportfile(subsets,final_answerto, names)
 
    
 

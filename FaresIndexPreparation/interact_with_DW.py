@@ -16,25 +16,42 @@ def main():
 
 def set_template():
     outputgoesto = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\Template_preparation\\'
-    
-
+    yeartocalculate = 'January 2019'
+    RPIvalue = 2.5
+    lastyearsloadid = 9
 
     #get last year's data
-    fares_index_sector_template = getDWdata('NETL','factt_205_annual_Fares_Index_stat_release',9)
-    fares_index_tt_template = getDWdata('NETL','factt_205_annual_Fares_Index_tt_stat_release',9)
+    fares_index_sector_template = getDWdata('NETL','factt_205_annual_Fares_Index_stat_release',lastyearsloadid)
+    fares_index_tt_template = getDWdata('NETL','factt_205_annual_Fares_Index_tt_stat_release',lastyearsloadid)
 
     #populate the current year's data
-    sector_template = set_blank_template(fares_index_sector_template,'ticket_category',2.5,outputgoesto)
-    tt_template = set_blank_template(fares_index_tt_template,'ticket_type',2.5,outputgoesto)
+    sector_template = set_blank_template(fares_index_sector_template,'ticket_category',RPIvalue,outputgoesto)
+    tt_template = set_blank_template(fares_index_tt_template,'ticket_type',RPIvalue,outputgoesto)
 
-    sector_prep = poptemplate(sector_template,'ticket_category',outputgoesto)
-    #print(sector_prep.head(100))
+    #exportfile(sector_template,outputgoesto,"sector_template")
+    #exportfile(tt_template,outputgoesto,"tt_template")
 
+    sector_prep = populatetemplate(sector_template,'ticket_category',outputgoesto,2.5,yeartocalculate)
+    tt_prep = populatetemplate(tt_template,'ticket_type',outputgoesto,RPIvalue,yeartocalculate)
 
+    exportfile(sector_prep,outputgoesto,"sector_template_populated")
+    exportfile(tt_prep,outputgoesto,"tt_template_populated")
 
-def poptemplate(new_template,output_type,output):
+def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
     """
-    Get the blank templates, reading in the  lookup file and apply 
+    Get the blank templates, addthe foreign key to the answerfile, join to the template.
+    Populate template with the Avg_change and Exp_Weights through the joined answerfile
+    Populate the latest year with shifts to get (prev_year * (avg_change/100))+prev_year
+
+    Parameters:
+    new_template:       A dataframe containing the new template with no new values
+    output_type:        A string holding the name of the template
+    output:             A string holding filepath for export
+    RPI:                A float holding the RPI figure
+    yeartocalculate:    A string holding the month and year to be calculates
+
+    Output:
+    merged_template:    A dataframe holding a template with populated values
 
     """
     #get the answerfile
@@ -44,22 +61,72 @@ def poptemplate(new_template,output_type,output):
     #get the answerfile lookup
     answerslookup = pd.read_csv(output + 'answerfile_template_lookup.csv')
     
-    #join the answerfile to the lookup file
+    #join the foreign key fields from the template
     answerfile_with_lookup = pd.merge(answerfile,answerslookup,how='left',left_on='parts_of_the_grouping',right_on='final_answers')
-
-    exportfile(answerfile_with_lookup,output,"answr_with_lookup")
-
-    if output_type == 'ticket_category':
-        merged_template = pd.merge(new_template,answerfile_with_lookup[['Sector','Ticket category','average_price_change']],how='left',left_on=['Sector','Ticket category'], right_on=['Sector','Ticket category'],suffixes=('x','y'))
+    
+    #join the answerfile to the lookup file
+    merged_template = pd.merge(new_template,answerfile_with_lookup[['Sector','Ticket category','average_price_change','superweights','percentage_share_of_superweights_in_grouping']]
+                                                                    ,how='left',left_on=['Sector','Ticket category'], right_on=['Sector','Ticket category'],suffixes=('x','y'))
         
-        #print("This is the merged_template \n")
-        #exportfile(merged_template,output, 'crap join')
-        
-        #repeat this for other template and the weighting percentages
-        merged_template['value'] = np.where(merged_template['Year & stats']=='Average change in price (%)',merged_template['average_price_change'],merged_template['value'])
-        exportfile(merged_template,output, 'crap_join')
+    #set the RPI value here
+    merged_template.at[merged_template.index.max(),'value'] = RPI
+    
+    #get avg change and exp_weights via lookupfile
+    merged_template['value'] = np.where(merged_template['Year & stats']=='Average change in price (%)',merged_template['average_price_change'],merged_template['value'])
+    merged_template['value'] = np.where(merged_template['Year & stats']=='Expenditure weights (%) total',merged_template['percentage_share_of_superweights_in_grouping']*100,merged_template['value'])
+    
+    #remove unecessary columns
+    del merged_template['average_price_change']
+    del merged_template['percentage_share_of_superweights_in_grouping']
+    del merged_template['superweights']
 
-    return answerfile_with_lookup
+    #calculated the latest year change; shift 1 = previous year, shift -1 = Average change in year
+    merged_template['value']= np.where(merged_template['Year & stats']==yeartocalculate,(merged_template['value'].shift(1) #previous years value
+                                                                                         * (merged_template['value'].shift(-1)/100)) #average change in year
+                                                                                        + merged_template['value'].shift(1) #previous year's values
+                                                                                    ,
+                                                                                    merged_template['value'])
+    
+    #get yoy change in realterms
+    merged_template['value'] = np.where((merged_template['Year & stats']==f'Real terms change in average price {yeartocalculate[-4:]} on {int(yeartocalculate[-4:])-1}')|(merged_template['Year & stats']==f'Real terms change in average price year on year'),
+                                        #((merged_template['value'].shift(4)*(RPI/100))+merged_template['value'].shift(4)) ,
+                                        ((merged_template['value'].shift(3) #latest year change
+                                        - ((merged_template['value'].shift(4)*(RPI/100))+merged_template['value'].shift(4))) #previous year change
+                                        / ((merged_template['value'].shift(4)*(RPI/100))+merged_template['value'].shift(4))
+                                        *100)
+                                        ,
+                                        merged_template['value'])
+    
+    #get allitems index
+    merged_template['value']= np.where((merged_template['Sector']=='RPI') & (merged_template['Ticket category']=='All items index') & (merged_template['Year & stats']==yeartocalculate) |
+                                       (merged_template['Sector']=='RPI (all items)') & (merged_template['Ticket category']=='RPI (all items)') & (merged_template['Year & stats']==yeartocalculate),
+                                       ((merged_template['value'].shift(1) #previous year's value
+                                       * RPI)/100)+merged_template['value'].shift(1)
+                                       ,
+                                       merged_template['value']
+                                        )
+    
+    #global RPI change across the 
+    globalRPI = merged_template['value'].to_list()[-2]
+    
+    
+    #get yonstart change in realterms
+    merged_template['value'] = np.where((merged_template['Year & stats']==f"Real terms change in average price {yeartocalculate[-4:]} on 1995")|(merged_template['Year & stats']==f"Real terms change in average price year on 2004")
+                                                                                                                                ,((merged_template['value'].shift(4) #latest year change
+                                                                                                                                - globalRPI) #RPI for all items
+                                                                                                                                / globalRPI)*100 #RPI for all items
+                                                                                                                                ,merged_template['value'])
+
+
+
+
+    
+    
+    #set the RPI value here
+    merged_template.at[merged_template.index.max(),'value'] = RPI
+    #exportfile(merged_template,output, f'{output_type} with price_change and superweight_share')
+
+    return merged_template
 
 
 
@@ -114,8 +181,7 @@ def set_blank_template(df,type,RPI,basetemplatepreplocation ):
     newtemplate.reset_index(drop=True, inplace=True)
     print(f"The index max is {newtemplate.index.max()}")
     
-    #set the RPI value here
-    newtemplate.at[newtemplate.index.max(),'value'] = RPI
+
     #exportfile(newtemplate,basetemplatepreplocation,F"new_{type}")
     return newtemplate
    

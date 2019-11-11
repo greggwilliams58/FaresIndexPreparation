@@ -37,6 +37,7 @@ def set_template():
     exportfile(sector_prep,outputgoesto,"sector_template_populated")
     exportfile(tt_prep,outputgoesto,"tt_template_populated")
 
+
 def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
     """
     Get the blank templates, addthe foreign key to the answerfile, join to the template.
@@ -48,7 +49,7 @@ def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
     output_type:        A string holding the name of the template
     output:             A string holding filepath for export
     RPI:                A float holding the RPI figure
-    yeartocalculate:    A string holding the month and year to be calculates
+    yeartocalculate:    A string holding the month and year to be calculated
 
     Output:
     merged_template:    A dataframe holding a template with populated values
@@ -67,12 +68,15 @@ def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
     #join the answerfile to the lookup file
     merged_template = pd.merge(new_template,answerfile_with_lookup[['Sector','Ticket category','average_price_change','superweights','percentage_share_of_superweights_in_grouping']]
                                                                     ,how='left',left_on=['Sector','Ticket category'], right_on=['Sector','Ticket category'],suffixes=('x','y'))
-        
+    
+    #duplicate rows generated during lookup are deleted here
+    merged_template = merged_template.drop_duplicates()
+    
     #set the RPI value here
     merged_template.at[merged_template.index.max(),'value'] = RPI
     
-    #get avg change and exp_weights via lookupfile
-    merged_template['value'] = np.where(merged_template['Year & stats']=='Average change in price (%)',merged_template['average_price_change'],merged_template['value'])
+    #get avg change and exp_weights via lookupfile where not Ticket Category = 'All tickets' in first lookup to prevent duplicate rows being generated
+    merged_template['value'] = np.where((merged_template['Year & stats']=='Average change in price (%)') ,merged_template['average_price_change'],merged_template['value'])
     merged_template['value'] = np.where(merged_template['Year & stats']=='Expenditure weights (%) total',merged_template['percentage_share_of_superweights_in_grouping']*100,merged_template['value'])
     
     #remove unecessary columns
@@ -89,7 +93,6 @@ def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
     
     #get yoy change in realterms
     merged_template['value'] = np.where((merged_template['Year & stats']==f'Real terms change in average price {yeartocalculate[-4:]} on {int(yeartocalculate[-4:])-1}')|(merged_template['Year & stats']==f'Real terms change in average price year on year'),
-                                        #((merged_template['value'].shift(4)*(RPI/100))+merged_template['value'].shift(4)) ,
                                         ((merged_template['value'].shift(3) #latest year change
                                         - ((merged_template['value'].shift(4)*(RPI/100))+merged_template['value'].shift(4))) #previous year change
                                         / ((merged_template['value'].shift(4)*(RPI/100))+merged_template['value'].shift(4))
@@ -106,7 +109,7 @@ def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
                                        merged_template['value']
                                         )
     
-    #global RPI change across the 
+    #global RPI change across the whole data 
     globalRPI = merged_template['value'].to_list()[-2]
     
     
@@ -116,11 +119,6 @@ def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
                                                                                                                                 - globalRPI) #RPI for all items
                                                                                                                                 / globalRPI)*100 #RPI for all items
                                                                                                                                 ,merged_template['value'])
-
-
-
-
-    
     
     #set the RPI value here
     merged_template.at[merged_template.index.max(),'value'] = RPI
@@ -179,12 +177,12 @@ def set_blank_template(df,type,RPI,basetemplatepreplocation ):
     newtemplate.loc[:,'Publication_status'] = publication_status
     
     newtemplate.reset_index(drop=True, inplace=True)
-    print(f"The index max is {newtemplate.index.max()}")
     
 
     #exportfile(newtemplate,basetemplatepreplocation,F"new_{type}")
     return newtemplate
    
+
 def addnewyearsrows(fulldataset,type,maxyear,newloadid,pubstatus,orderyearandstats):
     """
     This creates the dataset for the new year of data 

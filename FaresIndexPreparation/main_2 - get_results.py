@@ -1,6 +1,6 @@
 import pandas as pd
 from commonfunctions import applydatatypes, exportfile
-from calculate_results import calc_weighted_average_price_change, calc_final
+from calculate_results import calc_weighted_average_price_change, calc_final,calc_final_all
 
 
 
@@ -76,15 +76,18 @@ def main():
     sectorcategorysplit = calc_final(answergrid,['sector','Category'],'sector and category')
     sectorclassregulatedstatus = calc_final(answergrid,['sector','class','Regulated_Status'],'sector, class and regulation')
     classregulatedstatus = calc_final(answergrid, ['class','Regulated_Status'],'class and regulation')
+    all = calc_final_all(answergrid,'All tickets')
 
-    listoffinalanswersubsetnames = ['sectorsplit1','sectorsplit2', 'classsplit', 'sectorclasssplit' ,'regulatedstatussplit', 'categorysplit','sectorcategorysplit','sectorclassregulatedstatus','classregulatedstatus' ]
-    listoffinalanswersubsets = [sectorsplit1, sectorsplit2,classsplit, sectorclasssplit ,regulatedstatussplit, categorysplit,sectorcategorysplit,sectorclassregulatedstatus,classregulatedstatus ]
+
+    #create a nosplit calcfinal and add to the list of final answer subsets below
+    listoffinalanswersubsetnames = ['sectorsplit1','sectorsplit2', 'classsplit', 'sectorclasssplit' ,'regulatedstatussplit', 'categorysplit','sectorcategorysplit','sectorclassregulatedstatus','classregulatedstatus','alltickets' ]
+    listoffinalanswersubsets = [sectorsplit1, sectorsplit2,classsplit, sectorclasssplit ,regulatedstatussplit, categorysplit,sectorcategorysplit,sectorclassregulatedstatus,classregulatedstatus,all ]
     
     dictoffinalanswersubset = dict(zip(listoffinalanswersubsetnames, listoffinalanswersubsets))
     
     
     #combine the group splits as one dataframe
-    combined_answers_data = pd.concat([sectorsplit1,sectorsplit2,classsplit,sectorclasssplit,regulatedstatussplit,categorysplit,sectorcategorysplit,sectorclassregulatedstatus,classregulatedstatus])
+    combined_answers_data = pd.concat([sectorsplit1,sectorsplit2,classsplit,sectorclasssplit,regulatedstatussplit,categorysplit,sectorcategorysplit,sectorclassregulatedstatus,classregulatedstatus,all])
 
     #for names,subsets in dictoffinalanswersubset.items():
     #    print(names + "\n")

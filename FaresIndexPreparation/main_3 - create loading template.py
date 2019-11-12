@@ -90,18 +90,23 @@ def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
                                         allticketsalloperators,
                                         merged_template['value']
                                         )
-    #lines 94 - 141 commented out for testing purposes
+    
     #get avg change and exp_weights via lookupfile where not Ticket Category = 'All tickets' in first lookup to prevent duplicate rows being generated
     #this code below is overwriting lines 84-92 above - need to filter out the rows already populated with all ticket values.
     merged_template['value'] = np.where((merged_template['Year & stats']=='Average change in price (%)') &((merged_template['Sector']!='All tickets')| (merged_template['Sector']!='All operators' ) ) 
                                         ,merged_template['average_price_change']
+                                        #add the function call for all ticketsalloperators here?
                                         ,merged_template['value'])
     
     
     merged_template['value'] = np.where(merged_template['Year & stats']=='Expenditure weights (%) total',merged_template['percentage_share_of_superweights_in_grouping']*100,merged_template['value'])
     
 
-
+    #remove unecessary columns
+    del merged_template['average_price_change']
+    del merged_template['percentage_share_of_superweights_in_grouping']
+    del merged_template['superweights']
+    
     #calculated the latest year change; shift 1 = previous year, shift -1 = Average change in year
     merged_template['value']= np.where(merged_template['Year & stats']==yeartocalculate,(merged_template['value'].shift(1) #previous years value
                                                                                          * (merged_template['value'].shift(-1)/100)) #average change in year
@@ -144,10 +149,7 @@ def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
     
     
 
-    #remove unecessary columns
-    #del merged_template['average_price_change']
-    #del merged_template['percentage_share_of_superweights_in_grouping']
-    #del merged_template['superweights']
+
     #exportfile(merged_template,output, f'{output_type} with price_change and superweight_share')
 
     return merged_template

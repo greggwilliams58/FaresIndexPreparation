@@ -24,7 +24,7 @@
     <Content Include="UpgradeLog2.htm" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FaresIndexPreparation\interact_with_DW.py">
+    <Compile Include="FaresIndexPreparation\main_3 - create loading template.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="FaresIndexPreparation\main_2 - get_results.py" />

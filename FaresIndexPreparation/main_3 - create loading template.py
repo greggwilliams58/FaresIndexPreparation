@@ -25,8 +25,8 @@ def set_template():
     fares_index_tt_template = getDWdata('NETL','factt_205_annual_Fares_Index_tt_stat_release',lastyearsloadid)
 
     #populate the current year's data
-    sector_template = set_blank_template(fares_index_sector_template,'ticket_category',RPIvalue,outputgoesto)
-    tt_template = set_blank_template(fares_index_tt_template,'ticket_type',RPIvalue,outputgoesto)
+    sector_template = set_blank_template(fares_index_sector_template,'ticket_category',RPIvalue)
+    tt_template = set_blank_template(fares_index_tt_template,'ticket_type',RPIvalue)
 
     #exportfile(sector_template,outputgoesto,"sector_template")
     #exportfile(tt_template,outputgoesto,"tt_template")
@@ -78,16 +78,29 @@ def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
     merged_template.at[merged_template.index.max(),'value'] = RPI
     #exportfile(merged_template,output,"full merged_file_before all ops calc")
     #prepare all tickets, all operator figures
+    
     allticketsalloperators = getallticketsalloperators(merged_template, output_type  , yeartocalculate)
-
+    print(allticketsalloperators)
+    merged_template['value'] = np.where(
+                                        #sector merge
+                                        ((merged_template['Sector']=='All operators') & (merged_template['Ticket category']=='All tickets')  & (merged_template['Year & stats']=='Average change in price (%)')
+                                        |
+                                        #tt merge
+                                        (merged_template['Sector']=='All tickets')&(merged_template['Ticket category']=='All tickets') &  (merged_template['Year & stats']=='Average change in price (%)')),
+                                        allticketsalloperators,
+                                        merged_template['value']
+                                        )
+    #lines 94 - 141 commented out for testing purposes
     #get avg change and exp_weights via lookupfile where not Ticket Category = 'All tickets' in first lookup to prevent duplicate rows being generated
-    merged_template['value'] = np.where((merged_template['Year & stats']=='Average change in price (%)') ,merged_template['average_price_change'],merged_template['value'])
+    #this code below is overwriting lines 84-92 above - need to filter out the rows already populated with all ticket values.
+    merged_template['value'] = np.where((merged_template['Year & stats']=='Average change in price (%)') &((merged_template['Sector']!='All tickets')| (merged_template['Sector']!='All operators' ) ) 
+                                        ,merged_template['average_price_change']
+                                        ,merged_template['value'])
+    
+    
     merged_template['value'] = np.where(merged_template['Year & stats']=='Expenditure weights (%) total',merged_template['percentage_share_of_superweights_in_grouping']*100,merged_template['value'])
     
-    #remove unecessary columns
-    del merged_template['average_price_change']
-    del merged_template['percentage_share_of_superweights_in_grouping']
-    del merged_template['superweights']
+
 
     #calculated the latest year change; shift 1 = previous year, shift -1 = Average change in year
     merged_template['value']= np.where(merged_template['Year & stats']==yeartocalculate,(merged_template['value'].shift(1) #previous years value
@@ -125,8 +138,16 @@ def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
                                                                                                                                 / globalRPI)*100 #RPI for all items
                                                                                                                                 ,merged_template['value'])
     
+    #get the odds and sorts sorted out here
     #set the RPI value here
     merged_template.at[merged_template.index.max(),'value'] = RPI
+    
+    
+
+    #remove unecessary columns
+    #del merged_template['average_price_change']
+    #del merged_template['percentage_share_of_superweights_in_grouping']
+    #del merged_template['superweights']
     #exportfile(merged_template,output, f'{output_type} with price_change and superweight_share')
 
     return merged_template
@@ -175,17 +196,30 @@ def getallticketsalloperators(df,typeofoutput,yeartocalculate):
     #print(sumofsuperweights)
     sumofsuperweights = np.sum(sumofsuperweights)
 
-    print(f"the total of superweights is {sumofsuperweights}")
+    #print(f"the total of superweights is {sumofsuperweights}")
 
     alloperatorsalltickets = total_pc_and_superweights/sumofsuperweights
 
-    print(f"the final all ops, all tickets is {alloperatorsalltickets}")
+    #print(f"the final all ops, all tickets is {alloperatorsalltickets}")
 
     return alloperatorsalltickets
 
 
-def set_blank_template(df,type,RPI,basetemplatepreplocation ):
+def set_blank_template(df,type,RPI ):
+    """
+    This creates a new blank template by operating on a copy of last year's template stored as a dataframe
+    The value for the next year, next load_id and publication_status is calculated and added to names for relevant fields into a list of new items
+    dependent functions are  addnewcatrows (which adds newly formatted rows to dataframe) and addnewyearsrows (which adds new "january 20xx" rows to dataframe
+    This list of new row items is them appended to the df holding the previous year' template and is sorted by ticket category and year&stat number fields
+
+    Parameters:
+    df:             A dataframe holding the previous year's template extracted from warehouse
+    type:           A string holding the template being created (tt or sector)
+    RPI:            A float holding the RPI value
     
+    Returns:
+    newtemplate:    A dataframe holding descriptions of data for the new year's publication
+    """
     #get max year and the new year value
     max_year =df['Year & stats'].to_list()[-2][8:]
     
@@ -234,8 +268,6 @@ def set_blank_template(df,type,RPI,basetemplatepreplocation ):
     
     newtemplate.reset_index(drop=True, inplace=True)
     
-
-    #exportfile(newtemplate,basetemplatepreplocation,F"new_{type}")
     return newtemplate
    
 

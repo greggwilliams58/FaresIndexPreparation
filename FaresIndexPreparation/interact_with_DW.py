@@ -28,8 +28,8 @@ def set_template():
     sector_template = set_blank_template(fares_index_sector_template,'ticket_category',RPIvalue,outputgoesto)
     tt_template = set_blank_template(fares_index_tt_template,'ticket_type',RPIvalue,outputgoesto)
 
-    exportfile(sector_template,outputgoesto,"sector_template")
-    exportfile(tt_template,outputgoesto,"tt_template")
+    #exportfile(sector_template,outputgoesto,"sector_template")
+    #exportfile(tt_template,outputgoesto,"tt_template")
 
     sector_prep = populatetemplate(sector_template,'ticket_category',outputgoesto,2.5,yeartocalculate)
     tt_prep = populatetemplate(tt_template,'ticket_type',outputgoesto,RPIvalue,yeartocalculate)
@@ -72,13 +72,13 @@ def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
     #duplicate rows generated during lookup are deleted here
     merged_template = merged_template.drop_duplicates()
     merged_template.reset_index()
-    exportfile(merged_template,output,"full merged_file")
+    
 
     #set the RPI value here
     merged_template.at[merged_template.index.max(),'value'] = RPI
-    
+    #exportfile(merged_template,output,"full merged_file_before all ops calc")
     #prepare all tickets, all operator figures
-    allticketsalloperators = getallticketsalloperators(merged_template,yeartocalculate)
+    allticketsalloperators = getallticketsalloperators(merged_template, output_type  , yeartocalculate)
 
     #get avg change and exp_weights via lookupfile where not Ticket Category = 'All tickets' in first lookup to prevent duplicate rows being generated
     merged_template['value'] = np.where((merged_template['Year & stats']=='Average change in price (%)') ,merged_template['average_price_change'],merged_template['value'])
@@ -132,24 +132,28 @@ def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
     return merged_template
 
 
-def getallticketsalloperators(df,yeartocalculate):
+def getallticketsalloperators(df,typeofoutput,yeartocalculate):
+    
+    
     #prepare all tickets, all operator figures
+    
+    if typeofoutput == 'ticket_type':
+        fieldstosearch =['London and SE operators','Long-distance operators','Regional operators']
+    elif typeofoutput =='ticket_category':
+        fieldstosearch =['London and South East','Long distance','Regional']
+    else:
+        print("assignment of output type wrong in getallticketoperators")
+
     #get LSE data
-    LSE = np.where((df['Sector']=='London and SE operators')&(df['Ticket category']=='All tickets')&(df['Year & stats']==yeartocalculate),
-                   df['average_price_change'] * df['superweights'],0
-                   
-                   )
+    LSE = np.where((df['Sector']==fieldstosearch[0])   &(df['Ticket category']=='All tickets')&(df['Year & stats']==yeartocalculate),
+                   df['average_price_change'] * df['superweights'],0  )
     #get LD data
-    LD = np.where((df['Sector']=='Long-distance operators')&(df['Ticket category']=='All tickets')&(df['Year & stats']==yeartocalculate),
-                   df['average_price_change'] * df['superweights'],0
-                   
-                   )
+    LD = np.where((df['Sector']==fieldstosearch[1]) &(df['Ticket category']=='All tickets')&(df['Year & stats']==yeartocalculate),
+                   df['average_price_change'] * df['superweights'],0 )
 
     #get regional data
-    Regional = np.where((df['Sector']=='Regional operators')&(df['Ticket category']=='All tickets')&(df['Year & stats']==yeartocalculate),
-                df['average_price_change'] * df['superweights'],0
-                   
-                )
+    Regional = np.where((df['Sector']==fieldstosearch[2])   &(df['Ticket category']=='All tickets')&(df['Year & stats']==yeartocalculate),
+                df['average_price_change'] * df['superweights'],0   )
     
     #strip out unnecessary zeros by summing np.array
     LSE = np.sum(LSE)
@@ -159,12 +163,16 @@ def getallticketsalloperators(df,yeartocalculate):
     total_pc_and_superweights = LSE + LD + Regional
     print(f"the total pc * superweights is {total_pc_and_superweights}")
 
-    sumofsuperweights = np.where(((df['Sector']=='Regional operators')|(df['Sector']=='Long-distance operators')|(df['Sector']=='London and SE operators'))
-                                 &(df['Ticket category']=='All tickets')&(df['Year & stats']==yeartocalculate),
-                df['superweights'],0
-                   
+    sumofsuperweights = np.where(
+        (
+        (df['Sector']==fieldstosearch[0])
+        |(df['Sector']==fieldstosearch[1])
+        |(df['Sector']==fieldstosearch[2]))  &(df['Ticket category']=='All tickets')&(df['Year & stats']==yeartocalculate),
+                df['superweights']
+                ,0 
                 )
 
+    #print(sumofsuperweights)
     sumofsuperweights = np.sum(sumofsuperweights)
 
     print(f"the total of superweights is {sumofsuperweights}")

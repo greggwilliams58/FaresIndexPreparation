@@ -77,7 +77,6 @@ def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
     #set the RPI value here
     merged_template.at[merged_template.index.max(),'value'] = RPI
     
-    
     #prepare all tickets, all operator figures
     allticketsalloperators = getallticketsalloperators(merged_template,yeartocalculate)
 
@@ -175,6 +174,7 @@ def getallticketsalloperators(df,yeartocalculate):
     print(f"the final all ops, all tickets is {alloperatorsalltickets}")
 
     return alloperatorsalltickets
+
 
 def set_blank_template(df,type,RPI,basetemplatepreplocation ):
     

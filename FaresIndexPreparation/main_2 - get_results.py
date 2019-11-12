@@ -88,7 +88,7 @@ def main():
     
     
     #combine the group splits as one dataframe
-    combined_answers_data = pd.concat([sectorsplit1,sectorsplit2,classsplit,sectorclasssplit,regulatedstatussplit,categorysplit,sectorcategorysplit,sectorclassregulatedstatus,classregulatedstatus,all])
+    combined_answers_data = pd.concat([sectorsplit1,sectorsplit2,classsplit,sectorclasssplit,regulatedstatussplit,categorysplit,sectorcategorysplit,sectorclassregulatedstatus,classregulatedstatus])
 
     #for names,subsets in dictoffinalanswersubset.items():
     #    print(names + "\n")

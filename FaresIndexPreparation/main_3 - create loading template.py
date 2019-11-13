@@ -73,14 +73,14 @@ def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
     merged_template = merged_template.drop_duplicates()
     merged_template.reset_index()
     
-
     #set the RPI value here
     merged_template.at[merged_template.index.max(),'value'] = RPI
-    #exportfile(merged_template,output,"full merged_file_before all ops calc")
-    #prepare all tickets, all operator figures
     
+
+    #prepare all tickets, all operator annual change here
     allticketsalloperators = getallticketsalloperators(merged_template, output_type  , yeartocalculate)
-    #print(allticketsalloperators)
+    
+
     merged_template['alltickets'] = np.where(
                                         #sector merge
                                         ((merged_template['Sector']=='All operators') & (merged_template['Ticket category']=='All tickets')  & (merged_template['Year & stats']=='Average change in price (%)')
@@ -91,8 +91,6 @@ def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
                                         merged_template['value']
                                         )
     
-    #get avg change and exp_weights via lookupfile where not Ticket Category = 'All tickets' in first lookup to prevent duplicate rows being generated
-    #this code below is overwriting lines 84-92 above - need to filter out the rows already populated with all ticket values.
     merged_template['value'] = np.where((merged_template['Year & stats']=='Average change in price (%)') &((merged_template['Sector']!='All tickets')| (merged_template['Sector']!='All operators' ) ) 
                                         ,merged_template['average_price_change']
                                         #add the function call for all ticketsalloperators here?
@@ -121,9 +119,6 @@ def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
     merged_template = getyoychange(merged_template,'value',yeartocalculate,RPI)
     merged_template = getyoychange(merged_template,'alltickets',yeartocalculate,RPI)
 
-
-
-
     #get allitems index
     merged_template['value']= np.where((merged_template['Sector']=='RPI') & (merged_template['Ticket category']=='All items index') & (merged_template['Year & stats']==yeartocalculate) |
                                        (merged_template['Sector']=='RPI (all items)') & (merged_template['Ticket category']=='RPI (all items)') & (merged_template['Year & stats']==yeartocalculate),
@@ -133,13 +128,13 @@ def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
                                        merged_template['value']
                                         )
     
+    #define the RPI change since the beginning of the series here
     globalRPI = merged_template['value'].to_list()[-2]
     
     #get yonstart change in realterms
     merged_template = getyonstartchange(merged_template,'value',yeartocalculate,globalRPI)
     merged_template = getyonstartchange(merged_template,'alltickets',yeartocalculate,globalRPI)
 
-    
     #where value is blank, fill with 'all ticket' values
     merged_template['value'].fillna(merged_template['alltickets'],inplace=True)
 
@@ -158,31 +153,81 @@ def getlatestyearchange(df,fieldtoworkon,yeartocalculate):
     return df
 
 
-def getyoychange(df,fieldtoworkon, yeartocalculate,RPI):
+def getyoychange(df,field, nextyear,RPI):
+    """
+    This calculates the year on year change in prices
+
+    yoy = (latest year- (previous year * (RPI/100 )) / previous year * (RPI/100) 
+
+    Parameters:
+    df:         A dataframe containing the template
+    field:      A string holding the name of the column to be manipulated
+    nextyear:   A string holding the name of the year being calculated
+    RPI:        A float holding RPI value for the current year
+
+    Returns:
+    df:         A dataframe with the year on year change value
+
+    """
+    
     #get yoy change in realterms
-    df[fieldtoworkon] = np.where((df['Year & stats']==f'Real terms change in average price {yeartocalculate[-4:]} on {int(yeartocalculate[-4:])-1}')|(df['Year & stats']==f'Real terms change in average price year on year'),
-                                        ((df[fieldtoworkon].shift(3) #latest year change
-                                        - ((df[fieldtoworkon].shift(4)*(RPI/100))+df[fieldtoworkon].shift(4))) #previous year change
-                                        / ((df[fieldtoworkon].shift(4)*(RPI/100))+df[fieldtoworkon].shift(4))
+    df[field] = np.where((df['Year & stats']==f'Real terms change in average price {nextyear[-4:]} on {int(nextyear[-4:])-1}')|(df['Year & stats']==f'Real terms change in average price year on year'),
+                                        ((df[field].shift(3) #latest year change
+                                        - ((df[field].shift(4)*(RPI/100))+df[field].shift(4))) #previous year change
+                                        / ((df[field].shift(4)*(RPI/100))+df[field].shift(4))
                                         *100)
                                         ,
-                                        df[fieldtoworkon])
+                                        df[field])
     return df
 
 
-def getyonstartchange(df,field,yeartocalculate,globalRPI):
+def getyonstartchange(df,field,nextyear,seriesRPI):
+    """
+    This calculates the real terms price change from the start of the series to latest year
+
+    y on start change = ((latest year - seriesRPIchange )/seriesRPIchange) * 100
+
+    Parameters:
+    df:         A dataframe containing the template
+    field:      A string holding the name of the column to be manipulated
+    nextyear:   A string holding the name of the year being calculated
+    seriesRPI:  A float holding RPI value for whole series
+
+    Returns:
+    df:         A dataframe with the year on year change value
+    """
+    
     #get yonstart change in realterms
-    df[field] = np.where((df['Year & stats']==f"Real terms change in average price {yeartocalculate[-4:]} on 1995")
+    df[field] = np.where((df['Year & stats']==f"Real terms change in average price {nextyear[-4:]} on 1995")
                                         |(df['Year & stats']==f"Real terms change in average price year on 2004")
                             ,((df[field].shift(4) #latest year change
-                            - globalRPI) #RPI for all items
-                            / globalRPI)*100 #RPI for all items
+                            - seriesRPI) #RPI for all items
+                            / seriesRPI)*100 #RPI for all items
                             ,df[field])
     return df
 
 
-def getallticketsalloperators(df,typeofoutput,yeartocalculate):
-    
+def getallticketsalloperators(df,typeofoutput,nextyear):
+    """
+    This calculates the annual change data for the "all tickets" category.  This is needed as the answerfile does not contain a non-split set of values to work with.
+    The relevant values are extracted from the template itself  and manipulated to produce the values which are then inserted back to relevant rows of the template.
+    As the name so the fields vary between templates a if statement is needed to declare lists holding relevant values.
+
+    alloperators, all tickets = total_pc_and_superweights/all superweights
+
+    total_pc_and_superweights = average_price_change * superweights WHERE sectors = LSE,LD,REgional
+
+    all superweights = superweights WHERE sectors = LSE,LD,Regional
+
+    Parameters:
+    df:                                 A dataframe holding the template
+    typeofout:                          A string determining the type of template being produced
+    nextyear:                           A string holding the year being calculated
+
+    Returns:
+    alloperatorsallticketspricechange:  A float holding the pricechange for all operators, all tickets
+
+    """
     
     #prepare all tickets, all operator figures
     
@@ -193,15 +238,15 @@ def getallticketsalloperators(df,typeofoutput,yeartocalculate):
     else:
         print("assignment of output type wrong in getallticketoperators")
 
-    #get LSE data
-    LSE = np.where((df['Sector']==fieldstosearch[0])   &(df['Ticket category']=='All tickets')&(df['Year & stats']==yeartocalculate),
+    #create np array holding LSE data
+    LSE = np.where((df['Sector']==fieldstosearch[0])   &(df['Ticket category']=='All tickets')&(df['Year & stats']==nextyear),
                    df['average_price_change'] * df['superweights'],0  )
-    #get LD data
-    LD = np.where((df['Sector']==fieldstosearch[1]) &(df['Ticket category']=='All tickets')&(df['Year & stats']==yeartocalculate),
+    #create np array holding LD data
+    LD = np.where((df['Sector']==fieldstosearch[1]) &(df['Ticket category']=='All tickets')&(df['Year & stats']==nextyear),
                    df['average_price_change'] * df['superweights'],0 )
 
-    #get regional data
-    Regional = np.where((df['Sector']==fieldstosearch[2])   &(df['Ticket category']=='All tickets')&(df['Year & stats']==yeartocalculate),
+    #create np array holding Regional data
+    Regional = np.where((df['Sector']==fieldstosearch[2])   &(df['Ticket category']=='All tickets')&(df['Year & stats']==nextyear),
                 df['average_price_change'] * df['superweights'],0   )
     
     #strip out unnecessary zeros by summing np.array
@@ -209,27 +254,25 @@ def getallticketsalloperators(df,typeofoutput,yeartocalculate):
     LD = np.sum(LD)
     Regional = np.sum(Regional)
 
+    #add the three sectors together for a total
     total_pc_and_superweights = LSE + LD + Regional
 
+    #get the superweights by looking for sectors 
     sumofsuperweights = np.where(
         (
         (df['Sector']==fieldstosearch[0])
         |(df['Sector']==fieldstosearch[1])
-        |(df['Sector']==fieldstosearch[2]))  &(df['Ticket category']=='All tickets')&(df['Year & stats']==yeartocalculate),
+        |(df['Sector']==fieldstosearch[2]))  &(df['Ticket category']=='All tickets')&(df['Year & stats']==nextyear),
                 df['superweights']
-                ,0 
-                )
+                ,0 )
 
-    #print(sumofsuperweights)
+    #strip out zeros by summing
     sumofsuperweights = np.sum(sumofsuperweights)
 
-    #print(f"the total of superweights is {sumofsuperweights}")
+    #calculate final ratio
+    alloperatorsallticketspricechange = total_pc_and_superweights/sumofsuperweights
 
-    alloperatorsalltickets = total_pc_and_superweights/sumofsuperweights
-
-    #print(f"the final all ops, all tickets is {alloperatorsalltickets}")
-
-    return alloperatorsalltickets
+    return alloperatorsallticketspricechange
 
 
 def set_blank_template(df,type,RPI ):

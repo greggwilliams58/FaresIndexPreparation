@@ -80,8 +80,8 @@ def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
     #prepare all tickets, all operator figures
     
     allticketsalloperators = getallticketsalloperators(merged_template, output_type  , yeartocalculate)
-    print(allticketsalloperators)
-    merged_template['value'] = np.where(
+    #print(allticketsalloperators)
+    merged_template['alltickets'] = np.where(
                                         #sector merge
                                         ((merged_template['Sector']=='All operators') & (merged_template['Ticket category']=='All tickets')  & (merged_template['Year & stats']=='Average change in price (%)')
                                         |
@@ -101,6 +101,12 @@ def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
     
     merged_template['value'] = np.where(merged_template['Year & stats']=='Expenditure weights (%) total',merged_template['percentage_share_of_superweights_in_grouping']*100,merged_template['value'])
     
+    # 'all tickets' are fixed at 100 of percentage share 
+    merged_template['alltickets'] = np.where(
+                                            ((merged_template['Year & stats']=='Expenditure weights (%) total') &(merged_template['Sector']=='All tickets') &(merged_template['Ticket category']=='All tickets') ) |
+                                            ((merged_template['Year & stats']=='Expenditure weights (%) total') & (merged_template['Sector']=='All operators')&(merged_template['Ticket category']=='All tickets'))
+                                        
+                                        ,100.000,merged_template['alltickets'])
 
     #remove unecessary columns
     del merged_template['average_price_change']
@@ -108,21 +114,25 @@ def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
     del merged_template['superweights']
     
     #calculated the latest year change; shift 1 = previous year, shift -1 = Average change in year
-    merged_template['value']= np.where(merged_template['Year & stats']==yeartocalculate,(merged_template['value'].shift(1) #previous years value
-                                                                                         * (merged_template['value'].shift(-1)/100)) #average change in year
-                                                                                        + merged_template['value'].shift(1) #previous year's values
-                                                                                    ,
-                                                                                    merged_template['value'])
-    
+    merged_template = getlatestyearchange(merged_template,'value',yeartocalculate)
+    merged_template = getlatestyearchange(merged_template,'alltickets',yeartocalculate)
+
     #get yoy change in realterms
-    merged_template['value'] = np.where((merged_template['Year & stats']==f'Real terms change in average price {yeartocalculate[-4:]} on {int(yeartocalculate[-4:])-1}')|(merged_template['Year & stats']==f'Real terms change in average price year on year'),
-                                        ((merged_template['value'].shift(3) #latest year change
-                                        - ((merged_template['value'].shift(4)*(RPI/100))+merged_template['value'].shift(4))) #previous year change
-                                        / ((merged_template['value'].shift(4)*(RPI/100))+merged_template['value'].shift(4))
-                                        *100)
-                                        ,
-                                        merged_template['value'])
-    
+    merged_template = getyoychange(merged_template,'value',yeartocalculate,RPI)
+    merged_template = getyoychange(merged_template,'alltickets',yeartocalculate,RPI)
+
+    #get yonstart change in realterms
+    merged_template = getyonstartchange(merged_template,'value',yeartocalculate,RPI)
+    merged_tempalte = getyonstartchange(merged_template,'alltickets',yeartocalculate,RPI)
+
+    #get yonstart change in realterms
+    #merged_template['value'] = np.where((merged_template['Year & stats']==f"Real terms change in average price {yeartocalculate[-4:]} on 1995")|(merged_template['Year & stats']==f"Real terms change in average price year on 2004")
+    #                                                                                                                            ,((merged_template['value'].shift(4) #latest year change
+    #                                                                                                                            - RPI) #RPI for all items
+    #                                                                                                                            / RPI)*100 #RPI for all items
+    #                                                                                                                            ,merged_template['value'])
+
+
     #get allitems index
     merged_template['value']= np.where((merged_template['Sector']=='RPI') & (merged_template['Ticket category']=='All items index') & (merged_template['Year & stats']==yeartocalculate) |
                                        (merged_template['Sector']=='RPI (all items)') & (merged_template['Ticket category']=='RPI (all items)') & (merged_template['Year & stats']==yeartocalculate),
@@ -131,28 +141,51 @@ def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
                                        ,
                                        merged_template['value']
                                         )
+
+
     
-    #global RPI change across the whole data 
-    globalRPI = merged_template['value'].to_list()[-2]
     
-    
-    #get yonstart change in realterms
-    merged_template['value'] = np.where((merged_template['Year & stats']==f"Real terms change in average price {yeartocalculate[-4:]} on 1995")|(merged_template['Year & stats']==f"Real terms change in average price year on 2004")
-                                                                                                                                ,((merged_template['value'].shift(4) #latest year change
-                                                                                                                                - globalRPI) #RPI for all items
-                                                                                                                                / globalRPI)*100 #RPI for all items
-                                                                                                                                ,merged_template['value'])
+
     
     #get the odds and sorts sorted out here
     #set the RPI value here
-    merged_template.at[merged_template.index.max(),'value'] = RPI
+    #merged_template.at[merged_template.index.max(),'value'] = RPI
     
-    
-
-
     #exportfile(merged_template,output, f'{output_type} with price_change and superweight_share')
 
     return merged_template
+
+
+def getlatestyearchange(df,fieldtoworkon,yeartocalculate):
+    #calculated the latest year change; shift 1 = previous year, shift -1 = Average change in year
+    df[fieldtoworkon]= np.where(df['Year & stats']==yeartocalculate,(df[fieldtoworkon].shift(1) #previous years value
+                                                                   * (df[fieldtoworkon].shift(-1)/100)) #average change in year
+                                                                   + df[fieldtoworkon].shift(1) #previous year's values
+                                                                   , df[fieldtoworkon]) # if not relevant field, keep current field values
+    return df
+
+
+def getyoychange(df,fieldtoworkon, yeartocalculate,RPI):
+    #get yoy change in realterms
+    df[fieldtoworkon] = np.where((df['Year & stats']==f'Real terms change in average price {yeartocalculate[-4:]} on {int(yeartocalculate[-4:])-1}')|(df['Year & stats']==f'Real terms change in average price year on year'),
+                                        ((df[fieldtoworkon].shift(3) #latest year change
+                                        - ((df[fieldtoworkon].shift(4)*(RPI/100))+df[fieldtoworkon].shift(4))) #previous year change
+                                        / ((df[fieldtoworkon].shift(4)*(RPI/100))+df[fieldtoworkon].shift(4))
+                                        *100)
+                                        ,
+                                        df[fieldtoworkon])
+    return df
+
+
+def getyonstartchange(df,field,yeartocalculate,RPI):
+    #get yonstart change in realterms
+    df[fieldtoworkwith] = np.where((df['Year & stats']==f"Real terms change in average price {yeartocalculate[-4:]} on 1995")
+                                        |(df['Year & stats']==f"Real terms change in average price year on 2004")
+                            ,((df[field].shift(4) #latest year change
+                            - RPI) #RPI for all items
+                            / RPI)*100 #RPI for all items
+                            ,df[field])
+    return df
 
 
 def getallticketsalloperators(df,typeofoutput,yeartocalculate):
@@ -184,7 +217,6 @@ def getallticketsalloperators(df,typeofoutput,yeartocalculate):
     Regional = np.sum(Regional)
 
     total_pc_and_superweights = LSE + LD + Regional
-    print(f"the total pc * superweights is {total_pc_and_superweights}")
 
     sumofsuperweights = np.where(
         (

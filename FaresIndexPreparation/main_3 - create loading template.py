@@ -121,16 +121,7 @@ def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
     merged_template = getyoychange(merged_template,'value',yeartocalculate,RPI)
     merged_template = getyoychange(merged_template,'alltickets',yeartocalculate,RPI)
 
-    #get yonstart change in realterms
-    merged_template = getyonstartchange(merged_template,'value',yeartocalculate,RPI)
-    merged_tempalte = getyonstartchange(merged_template,'alltickets',yeartocalculate,RPI)
 
-    #get yonstart change in realterms
-    #merged_template['value'] = np.where((merged_template['Year & stats']==f"Real terms change in average price {yeartocalculate[-4:]} on 1995")|(merged_template['Year & stats']==f"Real terms change in average price year on 2004")
-    #                                                                                                                            ,((merged_template['value'].shift(4) #latest year change
-    #                                                                                                                            - RPI) #RPI for all items
-    #                                                                                                                            / RPI)*100 #RPI for all items
-    #                                                                                                                            ,merged_template['value'])
 
 
     #get allitems index
@@ -141,17 +132,19 @@ def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
                                        ,
                                        merged_template['value']
                                         )
+    
+    globalRPI = merged_template['value'].to_list()[-2]
+    
+    #get yonstart change in realterms
+    merged_template = getyonstartchange(merged_template,'value',yeartocalculate,globalRPI)
+    merged_template = getyonstartchange(merged_template,'alltickets',yeartocalculate,globalRPI)
 
+    
+    #where value is blank, fill with 'all ticket' values
+    merged_template['value'].fillna(merged_template['alltickets'],inplace=True)
 
-    
-    
-
-    
-    #get the odds and sorts sorted out here
-    #set the RPI value here
-    #merged_template.at[merged_template.index.max(),'value'] = RPI
-    
-    #exportfile(merged_template,output, f'{output_type} with price_change and superweight_share')
+    #drop the redundant 'alltickets' column
+    del merged_template['alltickets']
 
     return merged_template
 
@@ -177,13 +170,13 @@ def getyoychange(df,fieldtoworkon, yeartocalculate,RPI):
     return df
 
 
-def getyonstartchange(df,field,yeartocalculate,RPI):
+def getyonstartchange(df,field,yeartocalculate,globalRPI):
     #get yonstart change in realterms
-    df[fieldtoworkwith] = np.where((df['Year & stats']==f"Real terms change in average price {yeartocalculate[-4:]} on 1995")
+    df[field] = np.where((df['Year & stats']==f"Real terms change in average price {yeartocalculate[-4:]} on 1995")
                                         |(df['Year & stats']==f"Real terms change in average price year on 2004")
                             ,((df[field].shift(4) #latest year change
-                            - RPI) #RPI for all items
-                            / RPI)*100 #RPI for all items
+                            - globalRPI) #RPI for all items
+                            / globalRPI)*100 #RPI for all items
                             ,df[field])
     return df
 

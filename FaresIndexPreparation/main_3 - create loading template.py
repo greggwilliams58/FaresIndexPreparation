@@ -19,12 +19,10 @@ def set_template():
     outputgoesto = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\Template_preparation\\'
     yeartocalculate = 'January 2019'
     JanuaryRPI = 2.5
-    lastyearsloadid = 9
+    
 
-    #gert max load_id here
-    lastyearsloadid_test = getmaxloadid('NETL','factt_205_annual_Fares_Index_stat_release')
-    print(f"test of last_year_load: {lastyearsloadid_test}")
-
+    #get max load_id here
+    lastyearsloadid = getmaxloadid('NETL','factt_205_annual_Fares_Index_stat_release')
 
     #get last year's data
     fares_index_sector_template = getDWdata('NETL','factt_205_annual_Fares_Index_stat_release',lastyearsloadid)
@@ -469,7 +467,8 @@ def getDWdata(schema_name,table_name,source_item_id):
     table_name:     A string representing the name of the table
     source_item_id: An integer representing the source_item_id needed
 
-    returns:        A dataframe containing the table   
+    returns:        
+    df:             A dataframe containing the table   
     """
     engine = sqlalchemy.create_engine('mssql+pyodbc://AZORRDWSC01/ORR_DW?driver=SQL+Server+Native+Client+11.0?trusted_connection=yes')
     
@@ -496,29 +495,30 @@ def getmaxloadid(schema_name,table_name):
     table_name:     A string representing the name of the table
     
 
-    returns:        A dataframe containing the table   
+    returns:
+    maxid:          An integer containing the highest value for Load_ID in the DW   
     """
     engine = sqlalchemy.create_engine('mssql+pyodbc://AZORRDWSC01/ORR_DW?driver=SQL+Server+Native+Client+11.0?trusted_connection=yes')
     
     conn = engine.connect()
 
-    
     metadata = MetaData()
 
-    example_table = Table(table_name, metadata
-                         
-                          ,autoload=True, autoload_with=engine, schema=schema_name)
+    example_table = Table(table_name, metadata,autoload=True, autoload_with=engine, schema=schema_name)
 
-    #get raw table data, filtered by source_item_id
+    #get the load_id column
     query = select([example_table.c.Load_ID])
 
-    
+    #get the resultset converted into a single column dataframe
     loadids = pd.read_sql(query, conn)
     
+    #get the first (and only) instance of the load_id column as a integer
+    maxid = int(loadids.max()[0])
     
-    maxid = loadids.max()
-    
-    return 9
+    return maxid
+
+
+
 if __name__ == '__main__':
     main()
 

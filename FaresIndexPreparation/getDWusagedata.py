@@ -52,7 +52,7 @@ def getusagedata(schema_name,table_name,source_item_id):
 
     metadata = MetaData()
 
-    example_table = Table(table_name,
+    usagedata = Table(table_name,
                          metadata,
                          #handle the oddly named columns
                         Column("financial_year_key",Integer,key = "financial_year_key")
@@ -63,18 +63,18 @@ def getusagedata(schema_name,table_name,source_item_id):
                           )
 
     #get raw table data, filtered by source_item_id
-    query = select([example_table.c.financial_year_key
-                    ,example_table.c.year_and_quarter
-                    ,func.sum(example_table.c.Long_distance).label("Long_distance") 
-                    ,func.sum(example_table.c.LSE).label("LSE")
-                    ,func.sum(example_table.c.Regional).label("Regional")
-                    ,func.sum(example_table.c.Non_Franchised).label("Non_Franchised")  ]                   
+    query = select([usagedata.c.financial_year_key
+                    ,usagedata.c.year_and_quarter
+                    ,func.sum(usagedata.c.Long_distance).label("Long_distance") 
+                    ,func.sum(usagedata.c.LSE).label("LSE")
+                    ,func.sum(usagedata.c.Regional).label("Regional")
+                    ,func.sum(usagedata.c.Non_Franchised).label("Non_Franchised")  ]                   
                    )
-    query = query.where(example_table.c.source_item_id != source_item_id)
-    query = query.where(example_table.c.publication_status == 'published')
-    query = query.where(example_table.c.year_and_quarter >= '2002-03 Quarter 1')
-    query = query.group_by(example_table.c.financial_year_key,example_table.c.year_and_quarter)
-    query = query.order_by(example_table.c.financial_year_key.asc())
+    query = query.where(usagedata.c.source_item_id != source_item_id)
+    query = query.where(usagedata.c.publication_status == 'published')
+    query = query.where(usagedata.c.year_and_quarter >= '2002-03 Quarter 1')
+    query = query.group_by(usagedata.c.financial_year_key,usagedata.c.year_and_quarter)
+    query = query.order_by(usagedata.c.financial_year_key.asc())
 
     df_plain = pd.read_sql(query, conn)
 

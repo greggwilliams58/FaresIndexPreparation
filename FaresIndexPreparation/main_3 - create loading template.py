@@ -2,11 +2,12 @@ import pandas as pd
 from pandas import DataFrame
 import pyodbc
 import sqlalchemy 
-from sqlalchemy import create_engine, MetaData, Table, select, inspect
+from sqlalchemy import create_engine, MetaData, Table, select, inspect, Column, Integer, func
 from sqlalchemy.orm import sessionmaker
 import pprint as pp
 from commonfunctions import exportfile
 from glob import glob
+from getDWusagedata import get_journey_by_revenue
 import numpy as np
 
 
@@ -17,26 +18,38 @@ def main():
 def set_template():
     outputgoesto = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\Template_preparation\\'
     yeartocalculate = 'January 2019'
-    RPIvalue = 2.5
+    JanuaryRPI = 2.5
     lastyearsloadid = 9
+
+    #gert max load_id here
+    lastyearsloadid_test = getmaxloadid('NETL','factt_205_annual_Fares_Index_stat_release')
+    print(f"test of last_year_load: {lastyearsloadid_test}")
+
 
     #get last year's data
     fares_index_sector_template = getDWdata('NETL','factt_205_annual_Fares_Index_stat_release',lastyearsloadid)
-    fares_index_tt_template = getDWdata('NETL','factt_205_annual_Fares_Index_tt_stat_release',lastyearsloadid)
+    #fares_index_tt_template = getDWdata('NETL','factt_205_annual_Fares_Index_tt_stat_release',lastyearsloadid)
 
-    #populate the current year's data
-    sector_template = set_blank_template(fares_index_sector_template,'ticket_category',RPIvalue)
-    tt_template = set_blank_template(fares_index_tt_template,'ticket_type',RPIvalue)
+    #populate the template with blank entries for this year's data
+    sector_template = set_blank_template(fares_index_sector_template,'ticket_category',JanuaryRPI)
+    #tt_template = set_blank_template(fares_index_tt_template,'ticket_type',RPIvalue)
 
     #exportfile(sector_template,outputgoesto,"sector_template")
     #exportfile(tt_template,outputgoesto,"tt_template")
 
+    #populate the template with new data, apart from from passenger revenue
     sector_prep = populatetemplate(sector_template,'ticket_category',outputgoesto,2.5,yeartocalculate)
-    tt_prep = populatetemplate(tt_template,'ticket_type',outputgoesto,RPIvalue,yeartocalculate)
+    #tt_prep = populatetemplate(tt_template,'ticket_type',outputgoesto,RPIvalue,yeartocalculate)
+
+    #get the data required for calculating the percentage change for passenger revenue
+    revjourneyraw = get_journey_by_revenue()
+
+    #exportfile(revjourneyraw,outputgoesto,"raw rev journey")
+    #insert the index values into the template
+    sector_prep = insertrevjourneydata(sector_prep,revjourneyraw)
 
     exportfile(sector_prep,outputgoesto,"sector_template_populated")
-    exportfile(tt_prep,outputgoesto,"tt_template_populated")
-
+    #exportfile(tt_prep,outputgoesto,"tt_template_populated")
 
 def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
     """
@@ -142,6 +155,31 @@ def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
     del merged_template['alltickets']
 
     return merged_template
+
+
+def insertrevjourneydata(st,revjourney):
+    """
+    This function takes the raw rev/journey data and calculates the year on year change for the full time series
+
+    Parameters:
+    st:      A dataframe holding the partially populated sector template
+    rj:     A dataframe holding the calculated passrev data
+    """
+    #insert base value for index
+    st['passrev'] = np.where(
+        (st['Year & stats'] == 'January 2004' ) & (st['Ticket category']=='Revenue per journey'),
+        100,
+        np.nan
+        )
+
+    #join the raw pass_rev to the template
+    stpassrev = pd.merge(st,revjourney,how='left',on=['Sector','Year & stats'],suffixes=('_st','_rj'))
+
+    #calculate the year on year change
+    stpassrev['passrev'] = np.where((stpassrev['Ticket category']=='Revenue per journey'  ) & (pd.isna(stpassrev['value_rj'])==False)
+                               ,999 ,np.nan)
+    
+    return stpassrev
 
 
 def getlatestyearchange(df,fieldtoworkon,yeartocalculate):
@@ -448,6 +486,39 @@ def getDWdata(schema_name,table_name,source_item_id):
     return df
 
 
+def getmaxloadid(schema_name,table_name):
+    """
+    This uses SQL Alchemy to connect to SQL Server via a trusted connection and extract a filtered table, which is then coverted into a dataframe.
+    This is intended for getting the partial table for fact data.
+
+    Parameters
+    schema_name:    A string represetnting the schema of the table
+    table_name:     A string representing the name of the table
+    
+
+    returns:        A dataframe containing the table   
+    """
+    engine = sqlalchemy.create_engine('mssql+pyodbc://AZORRDWSC01/ORR_DW?driver=SQL+Server+Native+Client+11.0?trusted_connection=yes')
+    
+    conn = engine.connect()
+
+    
+    metadata = MetaData()
+
+    example_table = Table(table_name, metadata
+                         
+                          ,autoload=True, autoload_with=engine, schema=schema_name)
+
+    #get raw table data, filtered by source_item_id
+    query = select([example_table.c.Load_ID])
+
+    
+    loadids = pd.read_sql(query, conn)
+    
+    
+    maxid = loadids.max()
+    
+    return 9
 if __name__ == '__main__':
     main()
 

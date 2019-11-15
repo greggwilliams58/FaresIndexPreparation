@@ -9,7 +9,7 @@ from commonfunctions import exportfile
 from glob import glob
 import numpy as np
 
-def main():
+def get_journey_by_revenue():
     """
     This function is to produce the passenger/revenue calculations for the rail fares index
 
@@ -17,11 +17,10 @@ def main():
     schema:     A string containing the schema of the view
     view:       A sting containing the name of the view
     to_exclude: An integer giving the load_id of the non-lennon data to ignore
-
     """
 
     #extract the usage data from the warehouse
-    rev = getusagedata('ORR','factv_205_cube_lennon_passenger_revenue_by_sector',99999)
+    rev = getusagedata('ORR','factv_205_cube_lennon_passenger_revenue_by_sector',99999  )
     journey = getusagedata('ORR','factv_205_cube_lennon_passenger_journies_by sector',99999)
 
     #reshape the data into what is required
@@ -45,24 +44,29 @@ def main():
     final_dataframe = pct_change_with_labels.rename(columns=mapper)
     
     #delete redundant columns
-    del pct_change_with_labels['financial_year_key']
+    del final_dataframe['financial_year_key']
     del final_dataframe['year_and_quarter']
 
+    final_dataframe = final_dataframe.melt(id_vars=['Year & stats'],value_vars=['Long distance','London and South East','Regional', 'All operators'])
+    mapper_after_stack = {'variable':'Sector'}
+    
+    final_dataframe = final_dataframe.rename(columns=mapper_after_stack)
+    return final_dataframe
 
-    print(final_dataframe)
 
-def getusagedata(schema_name,table_name,source_item_id):
+def getusagedata(schema_name,table_name,source_item_id, publication_status=('published','approved')):
     """
     This uses SQL Alchemy to connect to SQL Server via a trusted connection and extract a view, which is then coverted into a dataframe.
     This is intended for extracting usage data for journeys and revenue.
 
-    Note use of func.sum; Column within the table definition, as well as group and order by
+    Note use of func.sum; Column within the table definition for aliasing; the use of .in_;  as well as group and order by
 
 
     Parameters
-    schema_name:    A string represetnting the schema of the table
-    table_name:     A string representing the name of the table
-    source_item_id: An integer representing the source_item_id needed
+    schema_name:        A string represetnting the schema of the table
+    table_name:         A string representing the name of the table
+    source_item_id:     An integer representing the source_item_id to be excluded (to avoid double-counting)
+    publication_status: A tuple representing the publication status to included (set to published and approved by default)
 
     returns:        A dataframe containing the table   
     """
@@ -91,7 +95,7 @@ def getusagedata(schema_name,table_name,source_item_id):
                     ,func.sum(usagedata.c.Non_Franchised).label("Non_Franchised")  ]                   
                    )
     query = query.where(usagedata.c.source_item_id != source_item_id)
-    query = query.where(usagedata.c.publication_status == 'published')
+    query = query.where(usagedata.c.publication_status.in_(('approved', 'published'))  )
     query = query.where(usagedata.c.year_and_quarter >= '2002-03 Quarter 1')
     query = query.group_by(usagedata.c.financial_year_key,usagedata.c.year_and_quarter)
     query = query.order_by(usagedata.c.financial_year_key.asc())

@@ -10,34 +10,54 @@ from glob import glob
 import numpy as np
 
 def main():
+    """
+    This function is to produce the passenger/revenue calculations for the rail fares index
+
+    Parameters:
+    schema:     A string containing the schema of the view
+    view:       A sting containing the name of the view
+    to_exclude: An integer giving the load_id of the non-lennon data to ignore
+
+    """
+
+    #extract the usage data from the warehouse
     rev = getusagedata('ORR','factv_205_cube_lennon_passenger_revenue_by_sector',99999)
     journey = getusagedata('ORR','factv_205_cube_lennon_passenger_journies_by sector',99999)
 
+    #reshape the data into what is required
     rolling_rev = manipulatethedata(rev)
     rolling_journey = manipulatethedata(journey)
 
+    #produce revenue by journey: divide rev by journey
     rev_by_journey = rolling_rev[['Long_distance','LSE','Regional','Total_Franchised']]/rolling_journey[['Long_distance','LSE','Regional','Total_Franchised']]
 
+    #calculate percentage change and *100 to show it as percentage
     pct_change = rev_by_journey.pct_change()*100
 
+    #put the labels lost by rollling sum back in
     pct_change_with_labels = rolling_rev[['financial_year_key','year_and_quarter']].join(pct_change[['Long_distance','LSE','Regional','Total_Franchised']]).dropna()
 
-    del pct_change_with_labels['financial_year_key']
-    print(pct_change_with_labels['year_and_quarter'].str[5:7])
-   
+    #create the 'Year and stats' column for the template
     pct_change_with_labels['Year & stats'] = "January 20" + pct_change_with_labels['year_and_quarter'].str[5:7]
 
-
+    #rename columns to match categories in the template
     mapper = {'Long_distance':'Long distance','LSE':'London and South East','Regional':'Regional','Total_Franchised':'All operators'}
     final_dataframe = pct_change_with_labels.rename(columns=mapper)
+    
+    #delete redundant columns
+    del pct_change_with_labels['financial_year_key']
+    del final_dataframe['year_and_quarter']
 
 
     print(final_dataframe)
 
 def getusagedata(schema_name,table_name,source_item_id):
     """
-    This uses SQL Alchemy to connect to SQL Server via a trusted connection and extract a filtered table, which is then coverted into a dataframe.
-    This is intended for getting the partial table for fact data.
+    This uses SQL Alchemy to connect to SQL Server via a trusted connection and extract a view, which is then coverted into a dataframe.
+    This is intended for extracting usage data for journeys and revenue.
+
+    Note use of func.sum; Column within the table definition, as well as group and order by
+
 
     Parameters
     schema_name:    A string represetnting the schema of the table
@@ -82,14 +102,27 @@ def getusagedata(schema_name,table_name,source_item_id):
 
 
 def manipulatethedata(df):
+    """
+    This takes the raw df and performs the necessary manipulations to produce the end figures.
+    
+    Parameters:
+    df:         A dataframe containing the responses from the query to the datawarehouse
+
+    Returns:
+    dfQ3only:   A dataframe containing a rolling annual sum for Q3 data
+    
+    """
+    #produces total figures as sum of components
     df['Total_Franchised'] = df['Long_distance'] + df['LSE'] + df['Regional'] 
 
+    #produces a rolling total based on 4 quarters
     df_rolling = df[['Long_distance','LSE','Regional','Non_Franchised','Total_Franchised']].rolling(4).sum()
 
+    #joins the labels back to the data-only view produced by the previous step
     df_with_labels = df[['financial_year_key','year_and_quarter']].join(df_rolling[['Long_distance','LSE','Regional','Total_Franchised']])
 
+    #strips out the non-Q3 data, so irrlevant data is not present
     df_Q3_only = df_with_labels[df_with_labels['year_and_quarter'].str.contains('Quarter 3')]
-
 
     return df_Q3_only
 

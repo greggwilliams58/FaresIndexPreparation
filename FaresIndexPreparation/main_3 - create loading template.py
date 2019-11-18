@@ -21,8 +21,8 @@ def set_template():
     JanuaryRPI = 2.5
     
 
-    #get max load_id here
-    lastyearsloadid = getmaxloadid('NETL','factt_205_annual_Fares_Index_stat_release')
+    #get max load_id here' -1 to allow for replication of test data of last year
+    lastyearsloadid = getmaxloadid('NETL','factt_205_annual_Fares_Index_stat_release') -1
 
     #get last year's data
     fares_index_sector_template = getDWdata('NETL','factt_205_annual_Fares_Index_stat_release',lastyearsloadid)
@@ -163,21 +163,41 @@ def insertrevjourneydata(st,revjourney):
     st:      A dataframe holding the partially populated sector template
     rj:     A dataframe holding the calculated passrev data
     """
+    
+    #join the raw pass_rev to the template
+    stpassrev = pd.merge(st,revjourney,how='left',on=['Sector','Year & stats'],suffixes=('_st','_rj'))
+    
     #insert base value for index
-    st['passrev'] = np.where(
-        (st['Year & stats'] == 'January 2004' ) & (st['Ticket category']=='Revenue per journey'),
-        100,
+    stpassrev['passrev'] = np.where(
+        (stpassrev['Year & stats'] == 'January 2004' ) & (stpassrev['Ticket category']=='Revenue per journey'),
+        100.00,
         np.nan
         )
 
-    #join the raw pass_rev to the template
-    stpassrev = pd.merge(st,revjourney,how='left',on=['Sector','Year & stats'],suffixes=('_st','_rj'))
-
     #calculate the year on year change
-    stpassrev['passrev'] = np.where((stpassrev['Ticket category']=='Revenue per journey'  ) & (pd.isna(stpassrev['value_rj'])==False)
-                               ,999 ,np.nan)
-    
+    #set up first values
+    stpassrev['prev_row'] = np.where(
+                (stpassrev['Year & stats'] == 'January 2005' ) & (stpassrev['Ticket category']=='Revenue per journey'),
+        100.00,
+        np.nan
+        )
+
+
+    for i in range(1,len(stpassrev)):
+        
+        stpassrev.loc[i,'passrev'] = np.where(
+            (stpassrev.loc[i,'Ticket category']=='Revenue per journey'  )  & (pd.isna(stpassrev.loc[i,'value_rj'])==False),
+                ((100+stpassrev.loc[i,'value_rj'] ) /stpassrev.loc[i-1,'passrev'])*100,
+                stpassrev.loc[i,'passrev'])
+       
+
+        stpassrev.loc[i,'prev_row'] = stpassrev.loc[i-1,'passrev']
+
+
     return stpassrev
+
+
+
 
 
 def getlatestyearchange(df,fieldtoworkon,yeartocalculate):

@@ -125,7 +125,7 @@ def manipulatethedata(df):
     #joins the labels back to the data-only view produced by the previous step
     df_with_labels = df[['financial_year_key','year_and_quarter']].join(df_rolling[['Long_distance','LSE','Regional','Total_Franchised']])
 
-    #strips out the non-Q3 data, so irrlevant data is not present
+    #strips out the non-Q3 data, so irrelevant data is not present
     df_Q3_only = df_with_labels[df_with_labels['year_and_quarter'].str.contains('Quarter 3')]
 
     return df_Q3_only

@@ -182,7 +182,7 @@ def insertrevjourneydata(st,revjourney):
         np.nan
         )
 
-
+    ##my first attempt that has failed
     for i in range(1,len(stpassrev)):
         
         stpassrev.loc[i,'passrev'] = np.where(
@@ -192,6 +192,20 @@ def insertrevjourneydata(st,revjourney):
        
 
         stpassrev.loc[i,'prev_row'] = stpassrev.loc[i-1,'passrev']
+
+    #stpassrev['afactor'] = stpassrev['value_rj'].fillna(0).div(100).add(1)
+
+    #stpassrev['new_index_val'] = stpassrev.afactor.cumprod()
+    
+    #= 1/stpassrev.iloc[::7]
+
+    #stpassrev['new_index_value'] = stpassrev.afactor.cumprod()
+
+    #stpassrev.iloc[::7,-1] = 1 /stpassrev[::7,-1]
+
+
+
+    
 
 
     return stpassrev

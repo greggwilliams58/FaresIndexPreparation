@@ -212,10 +212,6 @@ def insertrevjourneydata(st,revjourney):
 
     return stpassrev
 
-
-
-
-
 def getlatestyearchange(df,fieldtoworkon,yeartocalculate):
     #calculated the latest year change; shift 1 = previous year, shift -1 = Average change in year
     df[fieldtoworkon]= np.where(df['Year & stats']==yeartocalculate,(df[fieldtoworkon].shift(1) #previous years value

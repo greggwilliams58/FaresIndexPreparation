@@ -26,18 +26,18 @@ def set_template():
 
     #get last year's data
     fares_index_sector_template = getDWdata('NETL','factt_205_annual_Fares_Index_stat_release',lastyearsloadid)
-    #fares_index_tt_template = getDWdata('NETL','factt_205_annual_Fares_Index_tt_stat_release',lastyearsloadid)
+    fares_index_tt_template = getDWdata('NETL','factt_205_annual_Fares_Index_tt_stat_release',lastyearsloadid)
 
     #populate the template with blank entries for this year's data
     sector_template = set_blank_template(fares_index_sector_template,'ticket_category',JanuaryRPI)
-    #tt_template = set_blank_template(fares_index_tt_template,'ticket_type',RPIvalue)
+    tt_template = set_blank_template(fares_index_tt_template,'ticket_type',JanuaryRPI)
 
     #exportfile(sector_template,outputgoesto,"sector_template")
     #exportfile(tt_template,outputgoesto,"tt_template")
 
     #populate the template with new data, apart from from passenger revenue
-    sector_prep = populatetemplate(sector_template,'ticket_category',outputgoesto,2.5,yeartocalculate)
-    #tt_prep = populatetemplate(tt_template,'ticket_type',outputgoesto,RPIvalue,yeartocalculate)
+    sector_prep = populatetemplate(sector_template,'ticket_category',outputgoesto,JanuaryRPI,yeartocalculate)
+    tt_prep = populatetemplate(tt_template,'ticket_type',outputgoesto,JanuaryRPI,yeartocalculate)
 
     #get the data required for calculating the percentage change for passenger revenue
     revjourneyraw = get_journey_by_revenue()
@@ -50,7 +50,7 @@ def set_template():
     
 
     exportfile(sector_prep,outputgoesto,"sector_template_populated")
-    #exportfile(tt_prep,outputgoesto,"tt_template_populated")
+    exportfile(tt_prep,outputgoesto,"tt_template_populated")
 
 def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
     """

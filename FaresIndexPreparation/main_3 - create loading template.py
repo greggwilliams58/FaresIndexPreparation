@@ -46,6 +46,9 @@ def set_template():
     #insert the index values into the template
     sector_prep = insertrevjourneydata(sector_prep,revjourneyraw)
 
+    #get latest year on year change here
+    
+
     exportfile(sector_prep,outputgoesto,"sector_template_populated")
     #exportfile(tt_prep,outputgoesto,"tt_template_populated")
 
@@ -104,7 +107,6 @@ def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
     
     merged_template['value'] = np.where((merged_template['Year & stats']=='Average change in price (%)') &((merged_template['Sector']!='All tickets')| (merged_template['Sector']!='All operators' ) ) 
                                         ,merged_template['average_price_change']
-                                        #add the function call for all ticketsalloperators here?
                                         ,merged_template['value'])
     
     
@@ -167,45 +169,37 @@ def insertrevjourneydata(st,revjourney):
     #join the raw pass_rev to the template
     stpassrev = pd.merge(st,revjourney,how='left',on=['Sector','Year & stats'],suffixes=('_st','_rj'))
     
-    #insert base value for index
-    stpassrev['passrev'] = np.where(
-        (stpassrev['Year & stats'] == 'January 2004' ) & (stpassrev['Ticket category']=='Revenue per journey'),
-        100.00,
-        np.nan
-        )
+    # assign a new temp_factor with initial values and prep 
+    stpassrev['temp_factor'] = np.where((stpassrev['value_rj'].isna()==False) & (stpassrev['Ticket category']=='Revenue per journey')
+                                        ,stpassrev['value_rj'].add(100).div(100)
+                                        ,np.nan)
 
-    #calculate the year on year change
-    #set up first values
-    stpassrev['prev_row'] = np.where(
-                (stpassrev['Year & stats'] == 'January 2005' ) & (stpassrev['Ticket category']=='Revenue per journey'),
-        100.00,
-        np.nan
-        )
+    # calculate the cumprod based on the temp_factor (grouped by Sector) and multiply by 100 for index_value
+    stpassrev['index_value'] = stpassrev.groupby('Sector')['temp_factor'].cumprod().mul(100)
 
-    ##my first attempt that has failed
-    for i in range(1,len(stpassrev)):
-        
-        stpassrev.loc[i,'passrev'] = np.where(
-            (stpassrev.loc[i,'Ticket category']=='Revenue per journey'  )  & (pd.isna(stpassrev.loc[i,'value_rj'])==False),
-                ((100+stpassrev.loc[i,'value_rj'] ) /stpassrev.loc[i-1,'passrev'])*100,
-                stpassrev.loc[i,'passrev'])
-       
+    #set the inital passrev index to 100
+    stpassrev['index_value'] = np.where((stpassrev['value_st'] == 100 ) & (stpassrev['Ticket category']=='Revenue per journey') 
+                                        ,100
+                                        ,stpassrev['index_value'] )
 
-        stpassrev.loc[i,'prev_row'] = stpassrev.loc[i-1,'passrev']
+    ##get variance from last year
+    stpassrev['passrev_variance_from_last_year'] = np.where(stpassrev['index_value'].isna()==False
+                                    ,stpassrev['value_st'] - stpassrev['index_value']
+                                    ,np.nan )
 
-    #stpassrev['afactor'] = stpassrev['value_rj'].fillna(0).div(100).add(1)
+    ##transfer new passrev values into value column
+    stpassrev['value_st'] = np.where(stpassrev['index_value'].isna()==False
+                                     ,stpassrev['index_value']
+                                     ,stpassrev['value_st'])
 
-    #stpassrev['new_index_val'] = stpassrev.afactor.cumprod()
-    
-    #= 1/stpassrev.iloc[::7]
+    #delete unnecessary columns
+    #del stpassrev['value_rj']
+    #del stpassrev['temp_factor']
+    #del stpassrev['index_value']
 
-    #stpassrev['new_index_value'] = stpassrev.afactor.cumprod()
+    #rename value column
+    stpassrev.rename(columns={'value_st':'value'},inplace=True)
 
-    #stpassrev.iloc[::7,-1] = 1 /stpassrev[::7,-1]
-
-
-
-    
 
 
     return stpassrev

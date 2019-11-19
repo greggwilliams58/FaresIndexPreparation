@@ -192,10 +192,18 @@ def insertrevjourneydata(st,revjourney):
                                      ,stpassrev['index_value']
                                      ,stpassrev['value_st'])
 
+    # get the average change in price from the value_rj column and pass it into the 
+    stpassrev['value_st'] = np.where((stpassrev['Year & stats'] == 'Average change in price (%)' ) & (stpassrev['Ticket category']=='Revenue per journey')
+                                     ,stpassrev['value_rj'].shift(1)
+                                     ,stpassrev['value_st']
+        
+        
+        )
+
     #delete unnecessary columns
-    #del stpassrev['value_rj']
-    #del stpassrev['temp_factor']
-    #del stpassrev['index_value']
+    del stpassrev['value_rj']
+    del stpassrev['temp_factor']
+    del stpassrev['index_value']
 
     #rename value column
     stpassrev.rename(columns={'value_st':'value'},inplace=True)

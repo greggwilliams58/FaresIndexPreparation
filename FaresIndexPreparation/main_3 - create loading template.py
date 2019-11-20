@@ -22,7 +22,7 @@ def set_template():
     
 
     #get max load_id here' -1 to allow for replication of test data of last year
-    lastyearsloadid = getmaxloadid('NETL','factt_205_annual_Fares_Index_stat_release') -1
+    lastyearsloadid = getmaxloadid('NETL','factt_205_annual_Fares_Index_stat_release') 
 
     #get last year's data
     fares_index_sector_template = getDWdata('NETL','factt_205_annual_Fares_Index_stat_release',lastyearsloadid)
@@ -51,6 +51,33 @@ def set_template():
 
     exportfile(sector_prep,outputgoesto,"sector_template_populated")
     exportfile(tt_prep,outputgoesto,"tt_template_populated")
+
+    #drop comparison column no longer needed
+    del sector_prep['passrev_variance_from_last_year']
+
+    #import data to warehouse
+    importdatatoDW(sector_prep,'NETL','factt_205_annual_Fares_Index_stat_release_test')
+    importdatatoDW(tt_prep,'NETL','factt_205_annual_Fares_Index_tt_stat_release_test')
+
+
+
+
+def importdatatoDW(dataset,schema,tablename):
+    
+    print(f"inserting data into {tablename}\n")
+    
+    engine = sqlalchemy.create_engine('mssql+pyodbc://AZORRDWSC01/ORR_DW?driver=SQL+Server+Native+Client+11.0?trusted_connection=yes')
+    
+    conn = engine.connect()
+
+    #metadata = MetaData()
+
+
+    dataset.to_sql(tablename,conn,schema,if_exists='append',index=False)
+
+    conn.close()
+
+
 
 def populatetemplate(new_template,output_type,output,RPI,yeartocalculate):
     """
@@ -514,6 +541,9 @@ def getDWdata(schema_name,table_name,source_item_id):
     query = select([example_table]).where(example_table.c.Load_ID == source_item_id)
 
     df = pd.read_sql(query, conn)
+    
+    conn.close()
+
     return df
 
 
@@ -547,6 +577,8 @@ def getmaxloadid(schema_name,table_name):
     #get the first (and only) instance of the load_id column as a integer
     maxid = int(loadids.max()[0])
     
+
+    conn.close()
     return maxid
 
 

@@ -102,6 +102,9 @@ def getusagedata(schema_name,table_name,source_item_id, publication_status=('pub
 
     df_plain = pd.read_sql(query, conn)
 
+
+    conn.close()
+
     return df_plain
 
 

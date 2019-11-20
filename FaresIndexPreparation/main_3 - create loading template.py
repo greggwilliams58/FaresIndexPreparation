@@ -22,11 +22,11 @@ def set_template():
     
 
     #get max load_id here' -1 to allow for replication of test data of last year
-    lastyearsloadid = getmaxloadid('NETL','factt_205_annual_Fares_Index_stat_release') 
+    lastyearsloadid = getmaxloadid('NETL','factt_205_annual_Fares_Index_stat_release') -1
 
     #get last year's data
-    fares_index_sector_template = getDWdata('NETL','factt_205_annual_Fares_Index_stat_release',lastyearsloadid)
-    fares_index_tt_template = getDWdata('NETL','factt_205_annual_Fares_Index_tt_stat_release',lastyearsloadid)
+    fares_index_sector_template = getDWdata('NETL','factt_205_annual_Fares_Index_stat_release_test',lastyearsloadid)
+    fares_index_tt_template = getDWdata('NETL','factt_205_annual_Fares_Index_tt_stat_release_test',lastyearsloadid)
 
     #populate the template with blank entries for this year's data
     sector_template = set_blank_template(fares_index_sector_template,'ticket_category',JanuaryRPI)
@@ -69,9 +69,6 @@ def importdatatoDW(dataset,schema,tablename):
     engine = sqlalchemy.create_engine('mssql+pyodbc://AZORRDWSC01/ORR_DW?driver=SQL+Server+Native+Client+11.0?trusted_connection=yes')
     
     conn = engine.connect()
-
-    #metadata = MetaData()
-
 
     dataset.to_sql(tablename,conn,schema,if_exists='append',index=False)
 

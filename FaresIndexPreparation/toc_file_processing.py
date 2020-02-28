@@ -137,7 +137,6 @@ def getdata(originfilepath):
 def combinefiles(toc_list,file_count):
     """
     This procedure take a list of dataframe and combines them into a single dataframe, with a new index
-    It also populates 'Carrier TOC / Third Party Code' where NULL with first two characters of the 'Carrier Subdivision Code' fields, then deletes the latter field
     The non-numerical fields are converted into Categorical data types
 
     Parameters:
@@ -156,7 +155,7 @@ def combinefiles(toc_list,file_count):
 
     return tocs
 
-# This has been superceded by change TOC Data format.
+# This has been superceded by changes to TOC Data format; formerly used in combinefiles.
 #def populatenullprofitcentres(df):
 #    """
 #    This procedure populates blank Carrier TOC / Third Party Codes with 2 char from Carrier Subdivision Code

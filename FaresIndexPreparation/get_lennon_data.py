@@ -17,8 +17,8 @@ def get_lennon_price_info(year,filepath, filename,typeofjoin):
    """
    
    #dictionaries to handle non-advanced lennon datatyping here
-   advanceddtypedict = {'origin_code':str,'destination_code':str,'route_code':str,'class':str}
-   nonadvanceddtypedict = {'route_code':str}
+   advanceddtypedict = {'Origin Code':str,'Destination Code':str,'Route Code':str,'class':str}
+   nonadvanceddtypedict = {'Route Code':str}
 
    if typeofjoin == 'non-advanced':
        dtypedictionary = nonadvanceddtypedict
@@ -31,9 +31,9 @@ def get_lennon_price_info(year,filepath, filename,typeofjoin):
 
    #applying data typing to key fields
    print("applying data typing to LENNON data\n")
-   df['origin_code'] = df['origin_code'].str.zfill(4)
-   df['destination_code'] = df['destination_code'].str.zfill(4)
-   df['route_code'] = df['route_code'].str.zfill(5)
+   df['Origin Code'] = df['Origin Code'].str.zfill(4)
+   df['Destination Code'] = df['Destination Code'].str.zfill(4)
+   df['Route Code'] = df['Route Code'].str.zfill(5)
 
    #convert the number of ticket issues to numeric datatype
    df['Issues'] = df[['Issues']].apply(pd.to_numeric,errors='coerce')
@@ -69,10 +69,10 @@ def add_lennon_fares_info(df,lookupdf,year,typeofjoin):
         #the non-advanced join
         df = pd.merge(left=df, right=lookupdf, how='left',
                   left_on=['origin_code','destination_code','route_code','product_code'],
-                  right_on=['origin_code','destination_code','route_code','product_code'],
+                  right_on=['Origin Code','Destination Code','Route Code','Product Code'],
                   suffixes=('','_LENNON'+year))
     
-        df = applydatatypes(df,['origin_code','destination_code','route_code','product_code'])
+        df = applydatatypes(df,['origin_code','destination_code','Route Code','product_code'])
 
     elif typeofjoin == 'advanced':
         # advanced join 
@@ -85,11 +85,11 @@ def add_lennon_fares_info(df,lookupdf,year,typeofjoin):
 
         df = pd.merge(left=df,right=lookupdf,how='left',
                       left_on=['origin_code','destination_code','route_code','class'],
-                      right_on=['origin_code','destination_code','route_code','class'],
+                      right_on=['Origin Code','Destination Code','Route Code','class'],
                       suffixes=('','_LENNON'+year)
                       )
 
-        df = applydatatypes(df,['origin_code','destination_code','route_code','class'])
+        df = applydatatypes(df,['Origin Code','Destination Code','Route Code','class'])
     
     else:
         print("Type of join not recognised")

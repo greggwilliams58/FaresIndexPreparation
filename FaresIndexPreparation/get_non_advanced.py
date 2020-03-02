@@ -58,9 +58,9 @@ def get_non_advanced_data(df,destinationpath,RDGfarespath,LENNONfarespath):
 
     print("datatyping of key columns\n")
     #datatyping
-    #df['Origin Code'] = df['Origin Code'].str.zfill(4)
-    #df['Destination Code'] = df['Destination Code'].str.zfill(4)
-    #df['Route Code'] = df['Route Code'].str.zfill(5)
+    #df['origin_code'] = df['origin_code'].str.zfill(4)
+    #df['destination_code'] = df['destination_code'].str.zfill(4)
+    #df['route_code'] = df['route_code'].str.zfill(5)
 
     #converting RDG fares to numeric 
     print("convert rdg fares to numeric\n")
@@ -85,7 +85,7 @@ def get_non_advanced_data(df,destinationpath,RDGfarespath,LENNONfarespath):
     del df['LENNON_PRICE_2019']
 
     # rename the RDG Fares Columns, Earnings and axis
-    df.rename(columns={'RDG_FARES_2018':'FARES_2018','RDG_FARES_2019':'FARES_2019','Adjusted Earnings Amount':'Weightings'},inplace=True)
+    df.rename(columns={'RDG_FARES_2018':'FARES_2018','RDG_FARES_2019':'FARES_2019','adjusted_earnings':'Weightings'},inplace=True)
     df.rename_axis('index')
 
     #filters non-advanced where earnings are over £500,000

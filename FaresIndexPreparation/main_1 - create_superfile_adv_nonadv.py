@@ -46,7 +46,7 @@ def main():
     exportfile(superfile,destinationpath,'superfile without regulated steps')
     
     #extraction of summed earnings and journeys for check of initial TOC extraction
-    totalscheck = superfile.groupby(['Carrier TOC / Third Party Code'])['Adjusted Earnings Amount','Operating Journeys'].agg('sum')
+    totalscheck = superfile.groupby(['carrier_toc_code'])['adjusted_earnings','operating_journeys'].agg('sum')
     exportfile(totalscheck,destinationpath,'sum_of_earnings_and_journies_by_toc')
 
     print("the advanced data is coming.... main\n")

@@ -10,8 +10,8 @@ def main():
     
     print("getting superfile for weights")
     rawsuperfile = pd.read_csv(filelocation + 'superfile without regulated steps_20190425_16-04.csv',
-                               dtype={'Carrier TOC / Third Party Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
-                                      'Product Code':'category','Product Primary Code':'category','class':'category','sector':'category','ticket_type':'category'}
+                               dtype={'carrier_toc_code':'category','origin_code':'category','destination_code':'category','route_code':'category',
+                                      'product_code':'category','pro_group_1_code':'category','class':'category','sector':'category','ticket_type':'category'}
                                )
 
     
@@ -21,11 +21,11 @@ def main():
     print(superfilefiltered.head(5))
     print(superfilefiltered.info())
 
-    groupedrawsuperfile = superfilefiltered.groupby(['sector',''])['Adjusted Earnings Amount'].agg('sum')
+    groupedrawsuperfile = superfilefiltered.groupby(['sector',''])['adjusted_earnings'].agg('sum')
     
 
 
-    exportfile(groupedrawsuperfile,outputto, "superfile others by product code")
+    exportfile(groupedrawsuperfile,outputto, "superfile others by product_code")
 
 if __name__ == '__main__':
     main()

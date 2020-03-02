@@ -179,7 +179,7 @@ def splitter (data1, data2):
 
 def addRDGfaresinfo(df,lookupdf,postfix):
     """
-    This procedure joins the RDG data to the superfile on a common key of origin, destination, route and product codes.  it also drops columns that aren't needed and renames columns.
+    This procedure joins the RDG data to the superfile on a common key of origin, destination, route and product_codes.  it also drops columns that aren't needed and renames columns.
 
     Parameters:
     df          - A dataframe containing the superfile data
@@ -193,19 +193,19 @@ def addRDGfaresinfo(df,lookupdf,postfix):
     df_dt = df.copy()
 
     #datatyping of RDG info to match later match with superfile
-    df_dt.loc[:,'Origin Code'] = df.loc[:,'Origin Code'].astype(str)
-    df_dt.loc[:,'Destination Code'] = df.loc[:,'Destination Code'].astype(str)
-    df_dt.loc[:,'Route Code'] = df.loc[:,'Route Code'].astype(str)
-    df_dt.loc[:,'Product Code'] = df.loc[:,'Product Code'].astype(str)
+    df_dt.loc[:,'origin_code'] = df.loc[:,'origin_code'].astype(str)
+    df_dt.loc[:,'destination_code'] = df.loc[:,'destination_code'].astype(str)
+    df_dt.loc[:,'route_code'] = df.loc[:,'route_code'].astype(str)
+    df_dt.loc[:,'product_code'] = df.loc[:,'product_code'].astype(str)
 
     #merge of the RDG info with superfile
-    df_dt = pd.merge(left=df_dt,right=lookupdf[['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','Lennon product code (CTOT)','FARE']],
+    df_dt = pd.merge(left=df_dt,right=lookupdf[['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','Lennon product_code (CTOT)','FARE']],
                          how='left',
-                         left_on=['Origin Code','Destination Code','Route Code','Product Code'],
-                         right_on=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','Lennon product code (CTOT)'])
+                         left_on=['origin_code','destination_code','route_code','product_code'],
+                         right_on=['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','Lennon product_code (CTOT)'])
 
     #drop unnecessary columns from the merge process
-    df_dt.drop(['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','Lennon product code (CTOT)'],axis=1,inplace=True)
+    df_dt.drop(['ORIGIN_CODE','DESTINATION_CODE','ROUTE_CODE','Lennon product_code (CTOT)'],axis=1,inplace=True)
 
     #rename columns as needed
     df_dt.rename(columns={'FARE':'RDG_FARES'+postfix,'Fares ticket type description':'RDG_Fares ticket type description'+postfix},inplace=True)
@@ -227,7 +227,7 @@ def addRDGfaresinfo(df,lookupdf,postfix):
 #    filtered_fully_and_flow_removed:    A dataframe of RDG data with alpha orgin/dest codes and specified flow_ids excluded
 
 #    """
-#    #remove origin and destination code with any letters
+#    #remove origin and destination_code with any letters
 #    filtered_by_origin = df[~(df['ORIGIN_CODE'].str.match(r'[a-zA-Z]')) ]
 
 #    filtered_fully = filtered_by_origin[~(filtered_by_origin['DESTINATION_CODE'].str.match(r'[A-Za-z]')) ]

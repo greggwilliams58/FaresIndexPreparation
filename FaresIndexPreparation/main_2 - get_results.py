@@ -24,18 +24,18 @@ def main():
 
     print("getting advanced data\n")
     advanceddata = pd.read_csv(filelocation + 'advancedfile_20190430_14-26.csv',
-                               dtype={'Carrier TOC / Third Party Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
-                                      'Product Code':'category','Product Primary Code':'category','class':'category','sector':'category'})
+                               dtype={'carrier_toc_code':'category','origin_code':'category','destination_code':'category','route_code':'category',
+                                      'product_code':'category','pro_group_1_code':'category','class':'category','sector':'category'})
     
     print("Getting non-advanced data\n")
     nonadvanceddata = pd.read_csv(filelocation + 'nonadvancedfile_20190430_14-46.csv',
-                                  dtype={'Carrier TOC / Third Party Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
-                                      'Product Code':'category','Product Primary Code':'category','class':'category','sector':'category'})
+                                  dtype={'carrier_toc_code':'category','origin_code':'category','destination_code':'category','route_code':'category',
+                                      'product_code':'category','pro_group_1_code':'category','class':'category','sector':'category'})
 
     print("getting superfile for weights")
     rawsuperfile = pd.read_csv(filelocation + 'superfile without regulated steps_20190430_14-18.csv',
-                               dtype={'Carrier TOC / Third Party Code':'category','Origin Code':'category','Destination Code':'category','Route Code':'category',
-                                      'Product Code':'category','Product Primary Code':'category','class':'category','sector':'category','ticket_type':'category'})
+                               dtype={'carrier_toc_code':'category','origin_code':'category','destination_code':'category','route_code':'category',
+                                      'product_code':'category','pro_group_1_code':'category','class':'category','sector':'category','ticket_type':'category'})
 
     print("preparing the superfile...\n")
     preparedsuperfile = preparesuperfile(rawsuperfile)
@@ -140,7 +140,7 @@ def joinadvandnonadv(nonadvandadv):
     advanced_and_non_advanced = lastminutechanges(advanced_and_non_advanced)
 
     #drop unnecessary columns
-    columnstodel = ['Unnamed: 0','Carrier TOC / Third Party Code','Origin Code','ticket_type','Destination Code','Route Code','Product Code','Product Primary Code','Operating Journeys','FARES_2018','FARES_2019']
+    columnstodel = ['Unnamed: 0','carrier_toc_code','origin_code','ticket_type','destination_code','route_code','product_code','pro_group_1_code','operating_journeys','FARES_2018','FARES_2019']
     print("dropping columns")
     advanced_and_non_advanced.drop(columnstodel,axis=1,inplace=True)
 
@@ -172,17 +172,17 @@ def preparesuperfile(superfile):
     """
     
     #drop columns no longer needed
-    columnstodel = ['Unnamed: 0','Carrier TOC / Third Party Code','Origin Code','Destination Code','Route Code','Operating Journeys','ticket_type']
+    columnstodel = ['Unnamed: 0','carrier_toc_code','origin_code','destination_code','route_code','operating_journeys','ticket_type']
     superfile.drop(columnstodel,axis=1,inplace=True)
 
     #Rename column of "Earnings as Weightings"
-    superfile.rename(columns={'Adjusted Earnings Amount':'Weightings_super'},inplace=True)
+    superfile.rename(columns={'adjusted_earnings':'Weightings_super'},inplace=True)
     
     #Change order of columns to match combined data
-    superfile = superfile[['Product Code','Product Primary Code','sector',	'class',	'Category',	'Regulated_Status','Weightings_super']]
+    superfile = superfile[['product_code','pro_group_1_code','sector',	'class',	'Category',	'Regulated_Status','Weightings_super']]
 
     #Grouping of superfile by relevant groups
-    superfile = superfile.groupby(['Product Code','Product Primary Code','sector',	'class',	'Category',	'Regulated_Status']).agg('sum')
+    superfile = superfile.groupby(['product_code','pro_group_1_code','sector',	'class',	'Category',	'Regulated_Status']).agg('sum')
 
     return superfile
 
@@ -190,9 +190,9 @@ def preparesuperfile(superfile):
 def lastminutechanges(df):
     """
     This is the location to make any last minute changes to the advanced non-advanced dataset prior to calculation of the calculations.
-    These changes will tend to be diagnostic in character, usually around the assignment of product codes to regulated/unregulated status.
-    All origin and destination codes that contain an alphabetical character
-    Selected product codes are removed (refunds to season tickets?)
+    These changes will tend to be diagnostic in character, usually around the assignment of product_codes to regulated/unregulated status.
+    All origin and destination_codes that contain an alphabetical character
+    Selected product_codes are removed (refunds to season tickets?)
 
     Parameters
     df:     A dataframe containing the merged advanced and non advanced data
@@ -205,17 +205,17 @@ def lastminutechanges(df):
     """
     fileoutputpath ='C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\advanced_and_non_advanced_output\\adv_non_advanced_and_superfile\\'
     
-    #remove the orgin and destination codes that contain an alphabetic character
-    df = df[df['Origin Code'].str.contains('[0-9][0-9][0-9][0-9]')]
-    df = df[df['Destination Code'].str.contains('[0-9][0-9][0-9][0-9]')]
+    #remove the orgin and destination_codes that contain an alphabetic character
+    df = df[df['origin_code'].str.contains('[0-9][0-9][0-9][0-9]')]
+    df = df[df['destination_code'].str.contains('[0-9][0-9][0-9][0-9]')]
 
-    #remove these specific product codes: defined by Peter Moran by unknown process
+    #remove these specific product_codes: defined by Peter Moran by unknown process
     productcodestoremove = ['2MTC','2MTD','2MTF','2MTG']
-    df = df[~df['Product Code'].isin(productcodestoremove)]
+    df = df[~df['product_code'].isin(productcodestoremove)]
 
     #export for Nisha to test if reassignment has worked
     filtereddf = df[df.Category == 'season']
-    groupedadvandnonadvanced = filtereddf.groupby(['Category','Product Code','sector','class','Regulated_Status'])['Weightings'].agg('sum')
+    groupedadvandnonadvanced = filtereddf.groupby(['Category','product_code','sector','class','Regulated_Status'])['Weightings'].agg('sum')
     exportfile(groupedadvandnonadvanced,fileoutputpath, "advandnonadv grouped")
 
     #export for Nisah to see whether season unregulated reassignment has worked

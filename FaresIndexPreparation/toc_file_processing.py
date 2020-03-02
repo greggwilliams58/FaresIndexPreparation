@@ -69,7 +69,7 @@ def generatedata(originpath,destinationpath,regulatedfarespath,categorypath):
     superfile = getcategorylookup(superfile,categorypath,'Product_category_lookup_2019.xlsx',destinationpath)
 
     #dropping columns no longer needed
-    superfile = superfile.drop(['Carrier Sub Division Code','orig','dest','route'], axis=1)
+    superfile = superfile.drop(['orig','dest','route'], axis=1)
 
     #apply final superfile datatyping
     superfile = applydatatypes(superfile,['Carrier TOC / Third Party Code','Origin Code','Destination Code','Route Code','Product Code','sector','ticket_type','class','Regulated_Status_Start','Regulated_Status_toc','Regulated_Status_Products','Regulated_Status_exceptions','Regulated_Status_class','Regulated_Status_PCC','Regulated_Status','Category'])
@@ -107,7 +107,7 @@ def getdata(originfilepath):
     print(f"reading in CSV files from {originfilepath}\n\n")
 
     dataframes = []
-    dtypedictionary = {'Carrier TOC / Third Party Code':str,'Origin Code':str, 'Carrier Sub Division Code':str, 'Destination Code':str, 'Route Code':str, 'Product Code':str,'Product Primary Code':str,'Adjusted Earnings Amount':str,'Operating Journeys':str}
+    dtypedictionary = {'Carrier TOC / Third Party Code':str,'Origin Code':str,  'Destination Code':str, 'Route Code':str, 'Product Code':str,'Product Primary Code':str,'Adjusted Earnings Amount':str,'Operating Journeys':str}
     for count, file in enumerate(filepathsandnames,1):
         print(f"Loading {os.path.basename(file)} into memory.")
         print(f"That's {count} out of {numberoffiles}, or {str(int((count/numberoffiles)*100))} percent loaded.\n")

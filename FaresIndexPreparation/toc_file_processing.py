@@ -30,11 +30,10 @@ def generatedata(originpath,destinationpath,regulatedfarespath,categorypath):
         print("If this happens, restart the computer, then close down IE, Outlook and any other memory/resource hungry applications and try again.\n")
 
     superfile = joinedfile.copy()
-
     #drop where category_code not starting with 1 or 2
+    
     superfile = superfile[superfile['product_code'].str.contains('1[A-Z][A-Z][A-Z]|2[A-Z][A-Z][A-Z]',regex=True)]
-
-
+    
     #fields to convert to categorical data type
     superfile = applydatatypes(superfile,['carrier_toc_code','product_code','pro_group_1_code'])
 
@@ -243,6 +242,10 @@ def assignedregulatedlookupvalues(df,lookuptype, mapping_dictionary,reference_co
     print(f"assigning {lookuptype} values\n")
     
     df[column_name] = df.loc[:,reference_column].map(mapping_dictionary)
+    print(df.info())
+    print(df.head(10))
+    #attempt to solve category type error results in memory error lately?
+    #df[column_name] = df[column_name].astype('object')
     df[column_name].fillna(df[orig_column_name],inplace=True)
 
     

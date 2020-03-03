@@ -29,6 +29,9 @@ def generatedata(originpath,destinationpath,regulatedfarespath,categorypath):
         print("As you are processing a large number of files, this may possibly cause the PC to freeze or crash due to memory issues.\n")  
         print("If this happens, restart the computer, then close down IE, Outlook and any other memory/resource hungry applications and try again.\n")
 
+
+        
+        
     superfile = joinedfile.copy()
 
     #drop where category_code not starting with 1 or 2
@@ -107,12 +110,24 @@ def getdata(originfilepath):
     print(f"reading in CSV files from {originfilepath}\n\n")
 
     dataframes = []
-    dtypedictionary = {'Carrier TOC / Third Party Code':str,'Origin Code':str,  'Destination Code':str, 'Route Code':str, 'Product Code':str,'Product Primary Code':str,'Adjusted Earnings Amount':str,'Operating Journeys':str}
+    #define data types according to the new RDG field names
+    dtypedictionary = {'carrier_toc_code':str,'origin_code':str,  'destination_code':str, 'route_code':str, 'product_code':str,'pro_group_1_code':str,'adjusted_earnings':str,'operating_journeys':str}
     for count, file in enumerate(filepathsandnames,1):
         print(f"Loading {os.path.basename(file)} into memory.")
         print(f"That's {count} out of {numberoffiles}, or {str(int((count/numberoffiles)*100))} percent loaded.\n")
         temp = pd.read_csv(file,dtype=dtypedictionary,encoding='Windows-1252')
         
+
+        #rename fields from old Tableau format to new RDG format
+        temp.rename(columns={"carrier_toc_code":"Carrier TOC / Third Party Code",
+                               "origin_code":"Origin Code",
+                               "destination_code":"Destination Code",
+                               "route_code":"Route Code",
+                               "product_code":"Product Code",
+                               "pro_group_1_code":"Product Primary Code",
+                               "adjusted_earnings":"Adjusted Earnings Amount",
+                               "operating_journeys":"Operating Journeys"},inplace=True)
+
         #remove currency markers and 1000 markers from each toc file
         temp['Adjusted Earnings Amount'] = temp['Adjusted Earnings Amount'].str.replace(',','')
         temp['Adjusted Earnings Amount'] = temp['Adjusted Earnings Amount'].str.replace('£','')

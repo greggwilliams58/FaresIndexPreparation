@@ -25,10 +25,12 @@ def get_advanced_data(df,destinationpath,LENNONfarespath):
     """
     #Filter dataset for data that is advanced data
     advanced = df[df['Category']=='advance']
+    print(advanced.info())
+    print(advanced.shape)
 
     #sum and group data
     print("The advanced is being grouped \n")
-    advanced = advanced.groupby(['Carrier TOC / Third Party Code','Origin Code','Destination Code','Route Code','Product Code','Product Primary Code','class','sector']).agg({'Adjusted Earnings Amount':['sum'],"Operating Journeys":['sum']})
+    advanced = advanced.groupby(['Carrier TOC / Third Party Code','Origin Code','Destination Code','Route Code','Product Code','Product Primary Code','class','sector']).agg({'Adjusted Earnings Amount':['sum'],"Operating Journeys":['sum']},observed=True)
     #flattening the data into a dataframe
     advanced.columns = ['_'.join(col).strip() for col in advanced.columns.values]
     advanced = advanced.reset_index()

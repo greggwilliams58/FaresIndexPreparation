@@ -155,7 +155,6 @@ def addRDGfaresinfo(df,lookupdf,postfix):
     #copy of data frame made to avoid SettingWithCopyWarning by making the copy explicit
     df_dt = df.copy()
 
-
     #data typing of key columns
     print("datatyping key columns in RDG file")
     df_dt.loc[:,'origin_code'] = df.loc[:,'origin_code'].astype(str)

@@ -38,8 +38,8 @@ def get_advanced_data(df,destinationpath,LENNONfarespath):
 
     #getting LENNON fare information
     print("Getting the advanced LENNON information\n")
-    LENNONadvancedprices2019 = get_lennon_price_info('2019',LENNONfarespath,'pricefile_advanced_2018.csv','advanced')
-    LENNONadvancedprices2020 = get_lennon_price_info('2020',LENNONfarespath,'pricefile_advanced_2019.csv','advanced')
+    LENNONadvancedprices2019 = get_lennon_price_info('2019',LENNONfarespath,'pricefile_advanced_2019.csv','advanced')
+    LENNONadvancedprices2020 = get_lennon_price_info('2020',LENNONfarespath,'pricefile_advanced_2020.csv','advanced')
  
     #merging LENNON fares information
     print("adding the advanced LENNON information\n")

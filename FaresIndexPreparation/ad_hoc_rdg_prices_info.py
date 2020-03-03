@@ -24,14 +24,14 @@ def main():
     destinationpath = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\'
 
     RDGprices2019 = get_rdg_prices_info(RDGfarespath
-                        ,'2018 fares extract.txt'
+                        ,'2019 fares extract.txt'
                         , destinationpath
                         ,'prices2019.csv'
                         ,'2019'
                         ,True)
 
-    RDGprices2020 = get_rdg_prices_info(RDGfarespath
-                        ,'2019 fares extract.txt'
+    RDGprices2019 = get_rdg_prices_info(RDGfarespath
+                        ,'2020 fares extract.txt'
                         , destinationpath
                         ,'prices2020.csv'
                         ,'2020'

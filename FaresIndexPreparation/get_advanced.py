@@ -28,13 +28,13 @@ def get_advanced_data(df,destinationpath,LENNONfarespath):
 
     #sum and group data
     print("The advanced is being grouped \n")
-    advanced = advanced.groupby(['carrier_toc_code','origin_code','destination_code','route_code','product_code','pro_group_1_code','class','sector']).agg({'adjusted_earnings':['sum'],"operating_journeys":['sum']})
+    advanced = advanced.groupby(['Carrier TOC / Third Party Code','Origin Code','Destination Code','Route Code','Product Code','Product Primary Code','class','sector']).agg({'Adjusted Earnings Amount':['sum'],"Operating Journeys":['sum']})
     #flattening the data into a dataframe
     advanced.columns = ['_'.join(col).strip() for col in advanced.columns.values]
     advanced = advanced.reset_index()
     
     #strip out the '_sum' prefix from the result of grouping
-    advanced.rename(columns={'adjusted_earnings_sum':'adjusted_earnings','operating_journeys_sum':'operating_journeys'},inplace=True)
+    advanced.rename(columns={'Adjusted Earnings Amount_sum':'Adjusted Earnings Amount','Operating Journeys_sum':'Operating Journeys'},inplace=True)
 
     #getting LENNON fare information
     print("Getting the advanced LENNON information\n")
@@ -51,7 +51,7 @@ def get_advanced_data(df,destinationpath,LENNONfarespath):
     del advanced['price_2019']
 
     #renaming columns for year
-    advanced.rename(columns={'LENNON_PRICE_2018':'FARES_2018','LENNON_PRICE_2019':'FARES_2019','adjusted_earnings':'Weightings'},inplace=True)
+    advanced.rename(columns={'LENNON_PRICE_2018':'FARES_2018','LENNON_PRICE_2019':'FARES_2019','Adjusted Earnings Amount':'Weightings'},inplace=True)
 
     #remove fares where the values are NULL or 0
     advanced = handlezeroandnulls(advanced)

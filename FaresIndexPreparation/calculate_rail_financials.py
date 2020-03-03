@@ -18,12 +18,12 @@ def getrailfinancial(df,outputlocation):
     destinationfilename = f'rail_financial_data_{formatted_date}.xlsx'
 
     # group and sum the superfile by two cuts
-    revsplitbytocticketreg = df.groupby(['carrier_toc_code','product_code','Regulated_Status'],as_index=False).agg({'adjusted_earnings':['sum']})
-    revsplitbytocsectorclasscatreg = df.groupby(['carrier_toc_code','sector','class','Category','Regulated_Status'], as_index=False).agg({'adjusted_earnings':['sum']})
+    revsplitbytocticketreg = df.groupby(['Carrier TOC / Third Party Code','Product Code','Regulated_Status'],as_index=False).agg({'Adjusted Earnings Amount':['sum']})
+    revsplitbytocsectorclasscatreg = df.groupby(['Carrier TOC / Third Party Code','sector','class','Category','Regulated_Status'], as_index=False).agg({'Adjusted Earnings Amount':['sum']})
 
     # rename columns of the group and summed data
-    revsplitbytocticketreg.rename(columns = {'carrier_toc_code':'TOC','product_code':'Ticket','Regulated_Status':'Reg/Unreg','adjusted_earnings':'Earnings'},inplace=True)
-    revsplitbytocsectorclasscatreg.rename(columns = {'carrier_toc_code':'TOC','sector':'Sector','class':'Class','Category':'Category','Regulated_Status':'Reg/Unreg','adjusted_earnings':'Earnings'},inplace=True) 
+    revsplitbytocticketreg.rename(columns = {'Carrier TOC / Third Party Code':'TOC','Product Code':'Ticket','Regulated_Status':'Reg/Unreg','Adjusted Earnings Amount':'Earnings'},inplace=True)
+    revsplitbytocsectorclasscatreg.rename(columns = {'Carrier TOC / Third Party Code':'TOC','sector':'Sector','class':'Class','Category':'Category','Regulated_Status':'Reg/Unreg','Adjusted Earnings Amount':'Earnings'},inplace=True) 
 
     #prepare excel writer object, export dataframes to two different ranges and save excel file
     writer = pd.ExcelWriter(outputlocation + destinationfilename, engine='xlsxwriter')

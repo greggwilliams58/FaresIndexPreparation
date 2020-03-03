@@ -34,13 +34,6 @@ def get_non_advanced_data(df,destinationpath,RDGfarespath,LENNONfarespath):
     df = df[df['Category']!='advance']
 
     print("Starting to get RDG data\n")
-    RDGprices2018 = get_rdg_prices_info(RDGfarespath
-                        ,'2018 fares extract.txt'
-                        , destinationpath
-                        ,'prices2018.csv'
-                        ,'2018'
-                        ,False)
-
     RDGprices2019 = get_rdg_prices_info(RDGfarespath
                         ,'2019 fares extract.txt'
                         , destinationpath
@@ -48,11 +41,18 @@ def get_non_advanced_data(df,destinationpath,RDGfarespath,LENNONfarespath):
                         ,'2019'
                         ,False)
 
+    RDGprices2020 = get_rdg_prices_info(RDGfarespath
+                        ,'2020 fares extract.txt'
+                        , destinationpath
+                        ,'prices2020.csv'
+                        ,'2020'
+                        ,False)
+
     print("about to merge RDG info into main dataset.\n")
 
     #merging RDG fares information
-    df = addRDGfaresinfo(df, RDGprices2018,'_2018')
     df = addRDGfaresinfo(df, RDGprices2019,'_2019')
+    df = addRDGfaresinfo(df, RDGprices2020,'_2020')
 
     #exportfile(df,destinationpath,'non_advanced_data_after_RDG')
 
@@ -64,45 +64,45 @@ def get_non_advanced_data(df,destinationpath,RDGfarespath,LENNONfarespath):
 
     #converting RDG fares to numeric 
     print("convert rdg fares to numeric\n")
-    df[['RDG_FARES_2018','RDG_FARES_2019']] = df[['RDG_FARES_2018','RDG_FARES_2019']].apply(pd.to_numeric)
+    df[['RDG_FARES_2019','RDG_FARES_2020']] = df[['RDG_FARES_2019','RDG_FARES_2020']].apply(pd.to_numeric)
     
     #getting LENNON fare information
     print("getting non-advanced LENNON information\n")
-    LENNONprices2018 = get_lennon_price_info('2018',LENNONfarespath,'pricefile_nonadvanced_2018.csv','non-advanced')
     LENNONprices2019 = get_lennon_price_info('2019',LENNONfarespath,'pricefile_nonadvanced_2019.csv','non-advanced')
+    LENNONprices2020 = get_lennon_price_info('2020',LENNONfarespath,'pricefile_nonadvanced_2020.csv','non-advanced')
 
     #merging LENNON fares information
     print("merging non-advanced LENNON information with non-advanced file\n")
-    df = add_lennon_fares_info(df,LENNONprices2018,'_2018','non-advanced')
     df = add_lennon_fares_info(df,LENNONprices2019,'_2019','non-advanced')
+    df = add_lennon_fares_info(df,LENNONprices2020,'_2020','non-advanced')
 
     #replace empty RDG data with LENNON data
-    df['RDG_FARES_2018'].fillna(df['LENNON_PRICE_2018'],inplace=True)
     df['RDG_FARES_2019'].fillna(df['LENNON_PRICE_2019'],inplace=True)
+    df['RDG_FARES_2020'].fillna(df['LENNON_PRICE_2020'],inplace=True)
 
     #drop unnecessary columns 
-    del df['LENNON_PRICE_2018']
     del df['LENNON_PRICE_2019']
+    del df['LENNON_PRICE_2020']
 
     # rename the RDG Fares Columns, Earnings and axis
-    df.rename(columns={'RDG_FARES_2018':'FARES_2018','RDG_FARES_2019':'FARES_2019','adjusted_earnings':'Weightings'},inplace=True)
+    df.rename(columns={'RDG_FARES_2019':'FARES_2019','RDG_FARES_2020':'FARES_2020','adjusted_earnings':'Weightings'},inplace=True)
     df.rename_axis('index')
 
     #filters non-advanced where earnings are over £500,000
     bigearners = df.query('Weightings > 500000') 
         
     #drop rows where FARES are NaN or 0
-    populated2018and2019 = handlezeroandnulls(df)
+    populated2019and2020 = handlezeroandnulls(df)
 
     #add percentagechange to populated file
-    populated2018and2019 = percentagechange(populated2018and2019,'FARES_2019','FARES_2018')
+    populated2019and2020 = percentagechange(populated2019and2020,'FARES_2019','FARES_2020')
 
     #this is for validation of large percentage changes' amended data to be added to coredata later
-    bigchange = populated2018and2019.query('percentage_change > 20.0 and Weightings < 500000')
-    littlechange = populated2018and2019.query('percentage_change < -20.0 and Weightings < 500000')
+    bigchange = populated2019and2020.query('percentage_change > 20.0 and Weightings < 500000')
+    littlechange = populated2019and2020.query('percentage_change < -20.0 and Weightings < 500000')
 
     #not filtering at this stage anymore
-    coredata = populated2018and2019.copy()
+    coredata = populated2019and2020.copy()
 
     #export diagnostic files
     exportfile(bigchange.sort_values('Weightings', ascending=False),destinationpath,'big_change_file')

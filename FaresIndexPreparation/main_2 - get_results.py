@@ -140,7 +140,7 @@ def joinadvandnonadv(nonadvandadv):
     advanced_and_non_advanced = lastminutechanges(advanced_and_non_advanced)
 
     #drop unnecessary columns
-    columnstodel = ['Unnamed: 0','carrier_toc_code','origin_code','ticket_type','destination_code','route_code','product_code','pro_group_1_code','operating_journeys','FARES_2018','FARES_2019']
+    columnstodel = ['Unnamed: 0','carrier_toc_code','origin_code','ticket_type','destination_code','route_code','product_code','pro_group_1_code','operating_journeys','FARES_2019','FARES_2020']
     print("dropping columns")
     advanced_and_non_advanced.drop(columnstodel,axis=1,inplace=True)
 

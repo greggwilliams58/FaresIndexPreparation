@@ -34,8 +34,6 @@ def generatedata(originpath,destinationpath,regulatedfarespath,categorypath):
     #drop where category_code not starting with 1 or 2
     superfile = superfile[superfile['product_code'].str.contains('1[A-Z][A-Z][A-Z]|2[A-Z][A-Z][A-Z]',regex=True)]
 
-    print("this is superfile after drop of cat codes")
-    print(superfile)
 
     #fields to convert to categorical data type
     superfile = applydatatypes(superfile,['carrier_toc_code','product_code','pro_group_1_code'])

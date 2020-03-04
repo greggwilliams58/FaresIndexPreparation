@@ -52,23 +52,15 @@ def get_advanced_data(df,destinationpath,LENNONfarespath):
     
     advanced = add_lennon_fares_info(advanced,LENNONadvancedprices2019,'_2019','advanced')
     
-
-
     #deleting unnecessary files
     del advanced['price_2018']
     del advanced['price_2019']
 
     #renaming columns for year
     advanced.rename(columns={'LENNON_PRICE_2018':'FARES_2018','LENNON_PRICE_2019':'FARES_2019','Adjusted Earnings Amount':'Weightings'},inplace=True)
-
-    #removed as no fares info being seen with test data
+  
     #remove fares where the values are NULL or 0
-    #advanced = handlezeroandnulls(advanced)
-
-    print("advanced after handle zero or nulls")
-    print(advanced)
-    print(advanced.info())
-    print(advanced.shape)
+    advanced = handlezeroandnulls(advanced)
 
     #calculate percentage change
     advanced = percentagechange(advanced,'FARES_2019','FARES_2018')

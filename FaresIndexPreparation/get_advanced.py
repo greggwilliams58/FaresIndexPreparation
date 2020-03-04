@@ -54,8 +54,8 @@ def get_advanced_data(df,destinationpath,LENNONfarespath):
     advanced = add_lennon_fares_info(advanced,LENNONadvancedprices2020,'_2020','advanced')
     
     #deleting unnecessary files
-    del advanced['price_2018']
     del advanced['price_2019']
+    del advanced['price_2020']
 
     #renaming columns for year
     advanced.rename(columns={'LENNON_PRICE_2019':'FARES_2019','LENNON_PRICE_2020':'FARES_2020','Adjusted Earnings Amount':'Weightings'},inplace=True)

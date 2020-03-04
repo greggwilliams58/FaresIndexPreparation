@@ -254,15 +254,12 @@ def assignedregulatedlookupvalues(df,lookuptype, mapping_dictionary,reference_co
     df                  - a datatype containing the modified data.
 
     """
-    print(f"assigning {lookuptype} values\n")
-    print(df.info())
-    print(f"reference column:{reference_column}")
-    print(f"column_name: {column_name}")
-    print(f"orig_column_name: {column_name}")
+
     df[column_name] = df.loc[:,reference_column].map(mapping_dictionary)
-    df[column_name] = df[column_name].astype(str)
+    
+    #this breaks with Pandas 1.0.1 - suspect a rigorous application of fillna with categories
     df[column_name].fillna(df[orig_column_name],inplace=True)
-    #df[column_name] = df[column_name].astype('category')
+    
 
     
     return df

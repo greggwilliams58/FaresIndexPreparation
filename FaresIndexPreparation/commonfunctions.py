@@ -22,10 +22,10 @@ def handlezeroandnulls(df):
     df.replace([np.inf, -np.inf],np.nan,inplace=True)   
 
     #replace the zeros in fares2017 and fares2018 with NAN
-    df.replace({'FARES_2018':0,'FARES_2019':0},np.nan,inplace=True)
+    df.replace({'FARES_2019':0,'FARES_2020':0},np.nan,inplace=True)
     
     #drop the rows where FARES are NAN
-    df.dropna(axis='index',subset=['FARES_2018','FARES_2019'],how='any',inplace=True)
+    df.dropna(axis='index',subset=['FARES_2019','FARES_2020'],how='any',inplace=True)
 
     return df
 

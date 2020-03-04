@@ -25,45 +25,46 @@ def get_advanced_data(df,destinationpath,LENNONfarespath):
     """
     #Filter dataset for data that is advanced data
     advanced = df[df['Category']=='advance']
-
+    
     #sum and group data
     print("The advanced is being grouped \n")
     advanced = advanced.groupby(['Carrier TOC / Third Party Code','Origin Code','Destination Code','Route Code','Product Code','Product Primary Code','class','sector']).agg({'Adjusted Earnings Amount':['sum'],"Operating Journeys":['sum']},observed=True)
 
-
+    
     #flattening the data into a dataframe
     advanced.columns = ['_'.join(col).strip() for col in advanced.columns.values]
     
     advanced = advanced.reset_index()
 
+
     #strip out the '_sum' prefix from the result of grouping
     advanced.rename(columns={'Adjusted Earnings Amount_sum':'Adjusted Earnings Amount','Operating Journeys_sum':'Operating Journeys'},inplace=True)
     
-
-    
     #getting LENNON fare information
     print("Getting the advanced LENNON information\n")
-    LENNONadvancedprices2018 = get_lennon_price_info('2018',LENNONfarespath,'pricefile_advanced_2018.csv','advanced')
     LENNONadvancedprices2019 = get_lennon_price_info('2019',LENNONfarespath,'pricefile_advanced_2019.csv','advanced')
+
+    
+    LENNONadvancedprices2020 = get_lennon_price_info('2020',LENNONfarespath,'pricefile_advanced_2020.csv','advanced')
  
     #merging LENNON fares information
     print("adding the advanced LENNON information\n")
-    advanced = add_lennon_fares_info(advanced,LENNONadvancedprices2018,'_2018','advanced')
-    
     advanced = add_lennon_fares_info(advanced,LENNONadvancedprices2019,'_2019','advanced')
+    
+    advanced = add_lennon_fares_info(advanced,LENNONadvancedprices2020,'_2020','advanced')
     
     #deleting unnecessary files
     del advanced['price_2018']
     del advanced['price_2019']
 
     #renaming columns for year
-    advanced.rename(columns={'LENNON_PRICE_2018':'FARES_2018','LENNON_PRICE_2019':'FARES_2019','Adjusted Earnings Amount':'Weightings'},inplace=True)
+    advanced.rename(columns={'LENNON_PRICE_2019':'FARES_2019','LENNON_PRICE_2020':'FARES_2020','Adjusted Earnings Amount':'Weightings'},inplace=True)
   
     #remove fares where the values are NULL or 0
     advanced = handlezeroandnulls(advanced)
 
     #calculate percentage change
-    advanced = percentagechange(advanced,'FARES_2019','FARES_2018')
+    advanced = percentagechange(advanced,'FARES_2020','FARES_2019')
        
     return advanced
 

@@ -23,13 +23,6 @@ def main():
     categorypath = root + 'Product_Category_information\\ProdCatLookup\\'
     destinationpath = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\'
 
-    RDGprices2018 = get_rdg_prices_info(RDGfarespath
-                        ,'2018 fares extract.txt'
-                        , destinationpath
-                        ,'prices2018.csv'
-                        ,'2018'
-                        ,True)
-
     RDGprices2019 = get_rdg_prices_info(RDGfarespath
                         ,'2019 fares extract.txt'
                         , destinationpath
@@ -37,8 +30,15 @@ def main():
                         ,'2019'
                         ,True)
 
-    exportfile(RDGprices2018,destinationpath, "final RDG for 2018" )
-    exportfile(RDGprices2019,destinationpath, "final RDG for 2019")
+    RDGprices2020 = get_rdg_prices_info(RDGfarespath
+                        ,'2020 fares extract.txt'
+                        , destinationpath
+                        ,'prices2020.csv'
+                        ,'2020'
+                        ,True)
+
+    exportfile(RDGprices2019,destinationpath, "final RDG for 2019" )
+    exportfile(RDGprices2020,destinationpath, "final RDG for 2020")
 
 
 def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year,excludeflowid = False):

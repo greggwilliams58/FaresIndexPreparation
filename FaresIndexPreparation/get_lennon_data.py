@@ -1,5 +1,7 @@
 import pandas as pd
+from commonfunctions import exportfile
 from commonfunctions import applydatatypes
+
 
 def get_lennon_price_info(year,filepath, filename,typeofjoin):
    """
@@ -30,14 +32,23 @@ def get_lennon_price_info(year,filepath, filename,typeofjoin):
    df = pd.read_csv(filepath + filename,dtype = dtypedictionary) 
 
    #applying data typing to key fields
+
    print("applying data typing to LENNON data\n")
    df['Origin Code'] = df['Origin Code'].str.zfill(4)
    df['Destination Code'] = df['Destination Code'].str.zfill(4)
    df['Route Code'] = df['Route Code'].str.zfill(5)
+   #remove the currency formatting if it is present in file
+   
+   if typeofjoin == 'non-advanced':
+       df['NetReceiptSterling'] = df['NetReceiptSterling'].str.replace(',','')
+       df['NetReceiptSterling'] = df['NetReceiptSterling'].str.replace('£','')
+       df['NetReceiptSterling'] = df[['NetReceiptSterling']].apply(pd.to_numeric,errors='coerce')
 
    #convert the number of ticket issues to numeric datatype
    df['Issues'] = df[['Issues']].apply(pd.to_numeric,errors='coerce')
 
+
+   
    #convert values in pounds to pence
    df['NetReceiptSterling'] = df['NetReceiptSterling']*100
 
@@ -47,7 +58,10 @@ def get_lennon_price_info(year,filepath, filename,typeofjoin):
    #delete unnecessary columns
    del df['NetReceiptSterling']
    del df['Issues']
-
+   
+   print("This is the processed lennon data")
+   print(df.info())
+   print(df.head())
    return df
 
 
@@ -67,12 +81,17 @@ def add_lennon_fares_info(df,lookupdf,year,typeofjoin):
     # apply appropriate merge type based on name of join
     if typeofjoin == 'non-advanced':
         #the non-advanced join
+        exportfile(df_origin,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\',"non-advanced input")
         df = pd.merge(left=df, right=lookupdf, how='left',
                   left_on=['Origin Code','Destination Code','Route Code','Product Code'],
                   right_on=['Origin Code','Destination Code','Route Code','Product Code'],
                   suffixes=('','_LENNON'+year))
     
         df = applydatatypes(df,['Origin Code','Destination Code','Route Code','Product Code'])
+
+        
+        exportfile(lookupdf,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\',"non-advanced lookup")
+        exportfile(df,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\',"non-advanced output")
 
     elif typeofjoin == 'advanced':
         # advanced join 
@@ -83,6 +102,8 @@ def add_lennon_fares_info(df,lookupdf,year,typeofjoin):
         df['Route Code'] = df['Route Code'].astype(str)
         df['class']=df['class'].astype(str)
 
+        exportfile(df,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\',"advanced input")
+
         df = pd.merge(left=df,right=lookupdf,how='left',
                       left_on=['Origin Code','Destination Code','Route Code','class'],
                       right_on=['Origin Code','Destination Code','Route Code','class'],
@@ -90,7 +111,9 @@ def add_lennon_fares_info(df,lookupdf,year,typeofjoin):
                       )
 
         df = applydatatypes(df,['Origin Code','Destination Code','Route Code','class'])
-    
+        exportfile(lookupdf,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\',"advanced lookup")
+        exportfile(df,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\',"advanced output")
+        
     else:
         print("Type of join not recognised")
         return None

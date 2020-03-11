@@ -39,10 +39,11 @@ def get_lennon_price_info(year,filepath, filename,typeofjoin):
    df['Route Code'] = df['Route Code'].str.zfill(5)
    #remove the currency formatting if it is present in file
    
-   if typeofjoin == 'non-advanced':
-       df['NetReceiptSterling'] = df['NetReceiptSterling'].str.replace(',','')
-       df['NetReceiptSterling'] = df['NetReceiptSterling'].str.replace('£','')
-       df['NetReceiptSterling'] = df[['NetReceiptSterling']].apply(pd.to_numeric,errors='coerce')
+   #required for the 2020 set of pricefiles
+   #if typeofjoin == 'non-advanced':
+   #    df['NetReceiptSterling'] = df['NetReceiptSterling'].str.replace(',','')
+   #    df['NetReceiptSterling'] = df['NetReceiptSterling'].str.replace('£','')
+   #    df['NetReceiptSterling'] = df[['NetReceiptSterling']].apply(pd.to_numeric,errors='coerce')
 
    #convert the number of ticket issues to numeric datatype
    df['Issues'] = df[['Issues']].apply(pd.to_numeric,errors='coerce')

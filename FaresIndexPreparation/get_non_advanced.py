@@ -68,8 +68,8 @@ def get_non_advanced_data(df,destinationpath,RDGfarespath,LENNONfarespath):
     
     #getting LENNON fare information
     print("getting non-advanced LENNON information\n")
-    LENNONprices2019 = get_lennon_price_info('2019',LENNONfarespath,'pricefile_nonadvanced_2019.csv','non-advanced')
-    LENNONprices2020 = get_lennon_price_info('2020',LENNONfarespath,'pricefile_nonadvanced_2020.csv','non-advanced')
+    LENNONprices2019 = get_lennon_price_info('2019',LENNONfarespath,'pricefile_nonadvanced_2018.csv','non-advanced')
+    LENNONprices2020 = get_lennon_price_info('2020',LENNONfarespath,'pricefile_nonadvanced_2019.csv','non-advanced')
 
     #merging LENNON fares information
     print("merging non-advanced LENNON information with non-advanced file\n")

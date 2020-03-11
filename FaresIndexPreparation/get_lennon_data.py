@@ -81,7 +81,7 @@ def add_lennon_fares_info(df,lookupdf,year,typeofjoin):
     # apply appropriate merge type based on name of join
     if typeofjoin == 'non-advanced':
         #the non-advanced join
-        exportfile(df_origin,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\',"non-advanced input")
+        exportfile(df,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\',"non-advanced input")
         df = pd.merge(left=df, right=lookupdf, how='left',
                   left_on=['Origin Code','Destination Code','Route Code','Product Code'],
                   right_on=['Origin Code','Destination Code','Route Code','Product Code'],

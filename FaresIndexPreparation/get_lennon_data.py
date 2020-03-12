@@ -82,7 +82,7 @@ def add_lennon_fares_info(df,lookupdf,year,typeofjoin):
     # apply appropriate merge type based on name of join
     if typeofjoin == 'non-advanced':
         #the non-advanced join
-        exportfile(df,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\',"non-advanced input")
+        #exportfile(df,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\',"non-advanced input")
         df = pd.merge(left=df, right=lookupdf, how='left',
                   left_on=['Origin Code','Destination Code','Route Code','Product Code'],
                   right_on=['Origin Code','Destination Code','Route Code','Product Code'],
@@ -91,8 +91,8 @@ def add_lennon_fares_info(df,lookupdf,year,typeofjoin):
         df = applydatatypes(df,['Origin Code','Destination Code','Route Code','Product Code'])
 
         
-        exportfile(lookupdf,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\',"non-advanced lookup")
-        exportfile(df,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\',"non-advanced output")
+        #exportfile(lookupdf,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\',"non-advanced lookup")
+        #exportfile(df,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\',"non-advanced output")
 
     elif typeofjoin == 'advanced':
         # advanced join 
@@ -103,7 +103,7 @@ def add_lennon_fares_info(df,lookupdf,year,typeofjoin):
         df['Route Code'] = df['Route Code'].astype(str)
         df['class']=df['class'].astype(str)
 
-        exportfile(df,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\',"advanced input")
+        #exportfile(df,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\',"advanced input")
 
         df = pd.merge(left=df,right=lookupdf,how='left',
                       left_on=['Origin Code','Destination Code','Route Code','class'],
@@ -112,8 +112,8 @@ def add_lennon_fares_info(df,lookupdf,year,typeofjoin):
                       )
 
         df = applydatatypes(df,['Origin Code','Destination Code','Route Code','class'])
-        exportfile(lookupdf,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\',"advanced lookup")
-        exportfile(df,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\',"advanced output")
+        #exportfile(lookupdf,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\',"advanced lookup")
+        #exportfile(df,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\',"advanced output")
         
     else:
         print("Type of join not recognised")

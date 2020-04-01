@@ -27,7 +27,7 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year,exclu
     flow_list, fare_list = extract_rdg_data(infilepath,infilename)
     
     print("splitting the data into flow and fares \n")
-    flow_df, fares_df = parse_rdg_data(flow_list, fare_list)
+    flow_df, fares_df = parse_rdg_data(flow_list, fare_list,year)
 
     print("replacing the outofbounds date values \n ")
     #replacing the outofbounds date value 31122999 with 31122100
@@ -106,13 +106,14 @@ def extract_rdg_data(filepath, filename):
         return datasetlist1, datasetlist2
 
 
-def parse_rdg_data(data1, data2):
+def parse_rdg_data(data1, data2,year):
     """
     This function splits two lists of lists by indices and converts them to a data frame  
    
     Parameters:
     - data1: A list of lists containing raw flow data
     - data2: a list of lists containing raw fare data
+    - year: an integer giving the year the RDG data relates to.
     
     Returns:
     -dataset1: a dataframe containing parsed flow data
@@ -134,6 +135,14 @@ def parse_rdg_data(data1, data2):
         fare_record_data.append(line)
 
     fare_record = pd.DataFrame(fare_record_data, columns=["FLOW_ID","TICKET_CODE","FARE"])
+
+    #place holder where the missing FARE info without a final zero has a zero added
+    if year == 2019:
+        #if ticket code?  = x, then append 0 to the fares value
+        pass
+
+
+
     fare_record.index.name = "fare_record_idx"
 
     return flow,fare_record

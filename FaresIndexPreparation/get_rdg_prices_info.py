@@ -3,6 +3,29 @@ from commonfunctions import exportfile
 import xlsxwriter
 import re
 
+#temporary main for testing purposes
+def main():
+
+    root = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexSourceData\\'
+    RDGfarespath = root + 'RDG_Fares_information\\'
+    destinationpath = 'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\'
+    print("Starting to get RDG data\n")
+
+
+    RDGprices2019 = get_rdg_prices_info(RDGfarespath
+                        ,'2019 fares extract.txt'
+                        , destinationpath
+                        ,'prices2019.csv'
+                        ,'2019'
+                        ,False)
+
+    RDGprices2020 = get_rdg_prices_info(RDGfarespath
+                        ,'2020 fares extract.txt'
+                        , destinationpath
+                        ,'prices2020.csv'
+                        ,'2020'
+                        ,False)
+
 
 def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year,excludeflowid = False):
     """
@@ -50,6 +73,9 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year,exclu
     combined_data.reset_index(drop=True, inplace=True)
     combined_data.index.name="FLOW_AND_FARES_INDEX"
 
+    #temporary export of combined 
+    exportfile(combined_data,outfilepath,f"flow_and_fares_combined_no_lennon_(year)")
+
     #This is superceded by lines 41 and 42
     #add the filter for given year for flow_id to remove duplicate flow id information
     #combined_data_no_duplicates = removeRDGduplicates(combined_data, year,excludeflowid)
@@ -68,7 +94,11 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year,exclu
     duplicateswithdifferentfares = combined_data_with_lennon[flowandfaresduplicateflag]
     exportfile(duplicateswithdifferentfares,outfilepath,"Duplicates with different fares in flow and fares file for_" + year)
 
+    ##temp export of combined_data_with_Lennon
+    exportfile(combined_data_with_lennon,outfilepath,"combined_flow_and_fares_with_lennon_"+year)
+
     ##return the completed file
+
     return combined_data_with_lennon
 
 
@@ -141,7 +171,16 @@ def parse_rdg_data(data1, data2,year):
         #if ticket code?  = x, then append 0 to the fares value
         pass
 
+    #temporary export for debug
+    print("Flow described/n")
+    print(flow.info())
 
+    print("Fare described/n")
+    print(fare_record.info())
+
+    exportfile(flow,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\',f"flow_info_{year}")
+    exportfile(fare_record,'C:\\Users\\gwilliams\\Desktop\\Python Experiments\\work projects\\FaresIndexOutput\\', f"fare_info_{year}")
+    #end of temporary export for debug
 
     fare_record.index.name = "fare_record_idx"
 
@@ -185,6 +224,12 @@ def addRDGfaresinfo(df,lookupdf,postfix):
     df_dt.rename(columns={'FARE':'RDG_FARES'+postfix,'Fares ticket type description':'RDG_Fares ticket type description'+postfix},inplace=True)
 
     return df_dt
+
+
+#temporary main bootstrap
+if __name__ == '__main__':
+    main()
+
 
 #This has been superceded by lines 41 and 42 above
 #def removeRDGduplicates(df, yr, excludeflowid):

@@ -74,7 +74,7 @@ def get_rdg_prices_info(infilepath,infilename,outfilepath,outfilename,year,exclu
     combined_data.index.name="FLOW_AND_FARES_INDEX"
 
     #temporary export of combined 
-    exportfile(combined_data,outfilepath,f"flow_and_fares_combined_no_lennon_(year)")
+    exportfile(combined_data,outfilepath,f"flow_and_fares_combined_no_lennon_{year}")
 
     #This is superceded by lines 41 and 42
     #add the filter for given year for flow_id to remove duplicate flow id information

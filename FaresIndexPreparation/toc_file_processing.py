@@ -69,7 +69,7 @@ def generatedata(originpath,destinationpath,regulatedfarespath,categorypath):
 
     #mapping of categories
     print("mapping categories within superfile\n")
-    superfile = getcategorylookup(superfile,categorypath,'Product_category_lookup_2019.xlsx',destinationpath)
+    superfile = getcategorylookup(superfile,categorypath,'Product_category_lookup_2020_v1.xlsx',destinationpath)
 
     #dropping columns no longer needed
     superfile = superfile.drop(['orig','dest','route'], axis=1)
